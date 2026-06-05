@@ -2,10 +2,11 @@
 
 namespace App\Services;
 
+use App\Services\Contracts\JobSourceInterface;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 
-class AdzunaService
+class AdzunaService implements JobSourceInterface
 {
     private PendingRequest $client;
 
@@ -53,5 +54,18 @@ class AdzunaService
         } while (count($offers) < $total && count($results) > 0);
 
         return $offers;
+    }
+
+    public function normalize(array $raw): array
+    {
+        return [
+            'title'        => $raw['title'] ?? null,
+            'company'      => $raw['company']['display_name'] ?? null,
+            'location'     => $raw['location']['display_name'] ?? null,
+            'description'  => $raw['description'] ?? null,
+            'url'          => $raw['redirect_url'] ?? null,
+            'published_at' => isset($raw['created']) ? substr($raw['created'], 0, 10) : null,
+            'source'       => 'adzuna',
+        ];
     }
 }
