@@ -58,14 +58,25 @@ class AdzunaService implements JobSourceInterface
 
     public function normalize(array $raw): array
     {
+        $area = $raw['location']['area'] ?? [];
+        $areaCount = count($area);
+
         return [
-            'title'        => $raw['title'] ?? null,
-            'company'      => $raw['company']['display_name'] ?? null,
-            'location'     => $raw['location']['display_name'] ?? null,
-            'description'  => $raw['description'] ?? null,
-            'url'          => $raw['redirect_url'] ?? null,
-            'published_at' => isset($raw['created']) ? substr($raw['created'], 0, 10) : null,
-            'source'       => 'adzuna',
+            'title'              => $raw['title'] ?? null,
+            'company'            => $raw['company']['display_name'] ?? null,
+            'location'           => $raw['location']['display_name'] ?? null,
+            'country'            => $areaCount >= 1 ? $area[0] : null,
+            'province'           => $areaCount >= 3 ? $area[$areaCount - 2] : null,
+            'city'               => $areaCount >= 2 ? $area[$areaCount - 1] : null,
+            'latitude'           => $raw['latitude'] ?? null,
+            'longitude'          => $raw['longitude'] ?? null,
+            'salary_min'         => $raw['salary_min'] ?? null,
+            'salary_max'         => $raw['salary_max'] ?? null,
+            'salary_is_predicted'=> isset($raw['salary_is_predicted']) ? (bool) $raw['salary_is_predicted'] : null,
+            'description'        => $raw['description'] ?? null,
+            'url'                => $raw['redirect_url'] ?? null,
+            'published_at'       => isset($raw['created']) ? substr($raw['created'], 0, 10) : null,
+            'source'             => 'adzuna',
         ];
     }
 }
