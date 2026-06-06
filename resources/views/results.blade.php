@@ -187,7 +187,7 @@
         @php
             $technologies = $company->jobOffers->flatMap->technologies->unique('id')->sortBy('name');
         @endphp
-        <div class="mb-4 rounded-2xl border border-slate-800 bg-slate-900 p-6 transition hover:border-slate-700">
+        <a href="{{ route('companies.show', $company) }}" class="mb-4 block rounded-2xl border border-slate-800 bg-slate-900 p-6 transition hover:border-slate-700">
             <div class="flex items-start justify-between gap-4">
                 <div>
                     <h2 class="text-lg font-semibold text-white">{{ $company->name }}</h2>
@@ -211,7 +211,7 @@
                     @endforeach
                 </div>
             @endif
-        </div>
+        </a>
     @empty
         <div class="rounded-2xl border border-slate-800 bg-slate-900 p-12 text-center">
             <p class="text-slate-400">No companies found{{ $search ? ' for "' . $search . '"' : '' }}.</p>
