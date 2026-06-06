@@ -2,15 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Company;
-use App\Models\JobOffer;
+use App\Actions\ProcessJobOfferAction;
 use App\Models\Technology;
 use App\Services\AdzunaService;
-use App\Services\Contracts\JobSourceInterface;
-use App\Services\JoobleService;
-use App\Services\ScraperService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Collection;
 
 class FetchJobs extends Command
 {
@@ -21,7 +16,7 @@ class FetchJobs extends Command
 
     protected $description = 'Fetch job offers from all sources and persist them to the database';
 
-    public function handle(): int
+    public function handle(ProcessJobOfferAction $processJobOffer): int
     {
         $query = $this->argument('query');
         $location = $this->option('location');
@@ -45,33 +40,9 @@ class FetchJobs extends Command
             $count = 0;
 
             foreach ($raw as $item) {
-                $normalized = $source->normalize($item);
-
-                if (empty($normalized['url'])) {
-                    continue;
+                if ($processJobOffer->handle($item, $source, $technologies)) {
+                    $count++;
                 }
-
-                $company = $this->resolveCompany($normalized['company'] ?? null);
-
-                $offer = JobOffer::firstOrCreate(
-                    ['url' => $normalized['url']],
-                    [
-                        'company_id'   => $company?->id,
-                        'title'        => $normalized['title'],
-                        'description'  => $normalized['description'],
-                        'source'       => $normalized['source'],
-                        'published_at' => $normalized['published_at'],
-                    ]
-                );
-
-                if ($offer->wasRecentlyCreated) {
-                    $matched = $this->detectTechnologies($normalized, $technologies);
-                    if ($matched->isNotEmpty()) {
-                        $offer->technologies()->attach($matched->pluck('id'));
-                    }
-                }
-
-                $count++;
             }
 
             $this->line("  {$count} offers processed.");
@@ -97,21 +68,5 @@ class FetchJobs extends Command
         // }
 
         return $sources;
-    }
-
-    private function detectTechnologies(array $normalized, Collection $technologies): Collection
-    {
-        $text = strtolower(($normalized['title'] ?? '') . ' ' . ($normalized['description'] ?? ''));
-
-        return $technologies->filter(fn ($tech) => str_contains($text, strtolower($tech->name)));
-    }
-
-    private function resolveCompany(?string $name): ?Company
-    {
-        if (blank($name)) {
-            return null;
-        }
-
-        return Company::firstOrCreate(['name' => $name]);
     }
 }

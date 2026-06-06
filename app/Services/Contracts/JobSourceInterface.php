@@ -6,5 +6,5 @@ interface JobSourceInterface
 {
     public function fetchAll(string $query, ?string $location = null, ?int $maxPages = null): array;
 
-    public function normalize(array $raw): array;
+    public function normalize(array $raw): \App\DTOs\NormalizedJobOfferDTO;
 }

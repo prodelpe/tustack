@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\DTOs\NormalizedJobOfferDTO;
 use App\Services\Contracts\JobSourceInterface;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
@@ -56,27 +57,27 @@ class AdzunaService implements JobSourceInterface
         return $offers;
     }
 
-    public function normalize(array $raw): array
+    public function normalize(array $raw): NormalizedJobOfferDTO
     {
         $area = $raw['location']['area'] ?? [];
         $areaCount = count($area);
 
-        return [
-            'title'              => $raw['title'] ?? null,
-            'company'            => $raw['company']['display_name'] ?? null,
-            'location'           => $raw['location']['display_name'] ?? null,
-            'country'            => $areaCount >= 1 ? $area[0] : null,
-            'province'           => $areaCount >= 3 ? $area[$areaCount - 2] : null,
-            'city'               => $areaCount >= 2 ? $area[$areaCount - 1] : null,
-            'latitude'           => $raw['latitude'] ?? null,
-            'longitude'          => $raw['longitude'] ?? null,
-            'salary_min'         => $raw['salary_min'] ?? null,
-            'salary_max'         => $raw['salary_max'] ?? null,
-            'salary_is_predicted'=> isset($raw['salary_is_predicted']) ? (bool) $raw['salary_is_predicted'] : null,
-            'description'        => $raw['description'] ?? null,
-            'url'                => $raw['redirect_url'] ?? null,
-            'published_at'       => isset($raw['created']) ? substr($raw['created'], 0, 10) : null,
-            'source'             => 'adzuna',
-        ];
+        return new NormalizedJobOfferDTO(
+            url: $raw['redirect_url'] ?? '',
+            source: 'adzuna',
+            title: $raw['title'] ?? null,
+            company: $raw['company']['display_name'] ?? null,
+            location: $raw['location']['display_name'] ?? null,
+            city: $areaCount >= 2 ? $area[$areaCount - 1] : null,
+            province: $areaCount >= 3 ? $area[$areaCount - 2] : null,
+            country: $areaCount >= 1 ? $area[0] : null,
+            latitude: $raw['latitude'] ?? null,
+            longitude: $raw['longitude'] ?? null,
+            salaryMin: $raw['salary_min'] ?? null,
+            salaryMax: $raw['salary_max'] ?? null,
+            salaryIsPredicted: isset($raw['salary_is_predicted']) ? (bool) $raw['salary_is_predicted'] : null,
+            description: $raw['description'] ?? null,
+            publishedAt: isset($raw['created']) ? substr($raw['created'], 0, 10) : null,
+        );
     }
 }
