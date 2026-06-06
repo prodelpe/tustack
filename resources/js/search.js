@@ -1,5 +1,6 @@
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch'
 import instantsearch from 'instantsearch.js'
+import { history } from 'instantsearch.js/es/lib/routers'
 import {
     searchBox,
     refinementList,
@@ -18,7 +19,39 @@ const { searchClient } = instantMeiliSearch(
 const search = instantsearch({
     indexName: 'devstack_companies',
     searchClient,
-    routing: true,
+    routing: {
+        router: history({
+            createURL({ qsModule, routeState, location }) {
+                const query = qsModule.stringify(routeState, { encode: false })
+                return `${location.pathname}${query ? '?' + query : ''}`
+            },
+        }),
+        stateMapping: {
+            stateToRoute(uiState) {
+                const index = uiState['devstack_companies'] || {}
+                const techs = index.refinementList?.technology_names
+                const provs = index.refinementList?.province_name
+                return {
+                    q: index.query || undefined,
+                    technologies: techs?.length ? techs.join(',') : undefined,
+                    provinces: provs?.length ? provs.join(',') : undefined,
+                    page: index.page > 1 ? index.page : undefined,
+                }
+            },
+            routeToState(routeState) {
+                return {
+                    'devstack_companies': {
+                        query: routeState.q || '',
+                        page: routeState.page || 1,
+                        refinementList: {
+                            technology_names: routeState.technologies ? routeState.technologies.split(',') : [],
+                            province_name: routeState.provinces ? routeState.provinces.split(',') : [],
+                        },
+                    },
+                }
+            },
+        },
+    },
 })
 
 search.addWidgets([
