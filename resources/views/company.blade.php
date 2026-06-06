@@ -5,7 +5,7 @@
 <header class="sticky top-0 z-10 border-b border-gray-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
     <div class="mx-auto flex max-w-5xl items-center gap-4 px-4 py-4">
         <a href="{{ route('home') }}" class="shrink-0 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-            Find Your <span class="text-indigo-500 dark:text-indigo-400">Stack</span>
+            Find Your <span class="font-mono text-indigo-500 dark:text-indigo-400">DEV</span> Stack
         </a>
     </div>
 </header>
