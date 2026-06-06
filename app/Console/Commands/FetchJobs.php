@@ -14,7 +14,8 @@ class FetchJobs extends Command
 {
     protected $signature = 'jobs:fetch
                             {query : Keyword to search for}
-                            {--location= : Optional location filter}';
+                            {--location= : Optional location filter}
+                            {--pages= : Max pages to fetch per source (default: all)}';
 
     protected $description = 'Fetch job offers from all sources and persist them to the database';
 
@@ -22,6 +23,7 @@ class FetchJobs extends Command
     {
         $query = $this->argument('query');
         $location = $this->option('location');
+        $maxPages = $this->option('pages') ? (int) $this->option('pages') : null;
 
         $sources = $this->resolveSources();
 
@@ -31,7 +33,7 @@ class FetchJobs extends Command
             $this->info("Fetching from {$name}...");
 
             try {
-                $raw = $source->fetchAll($query, $location);
+                $raw = $source->fetchAll($query, $location, $maxPages);
             } catch (\Throwable $e) {
                 $this->error("  Failed: {$e->getMessage()}");
                 continue;

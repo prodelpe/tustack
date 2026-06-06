@@ -28,7 +28,7 @@ class JoobleService implements JobSourceInterface
         return $response->json();
     }
 
-    public function fetchAll(string $query, ?string $location = null): array
+    public function fetchAll(string $query, ?string $location = null, ?int $maxPages = null): array
     {
         $offers = [];
         $page = 1;
@@ -39,7 +39,7 @@ class JoobleService implements JobSourceInterface
             $offers = array_merge($offers, $results);
             $total = $data['totalCount'] ?? 0;
             $page++;
-        } while (count($offers) < $total && count($results) > 0);
+        } while (count($offers) < $total && count($results) > 0 && ($maxPages === null || $page <= $maxPages));
 
         return $offers;
     }

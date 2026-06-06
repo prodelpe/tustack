@@ -10,7 +10,7 @@ class ScraperService implements JobSourceInterface
 {
     public function __construct(private array $config) {}
 
-    public function fetchAll(string $query, ?string $location = null): array
+    public function fetchAll(string $query, ?string $location = null, ?int $maxPages = null): array
     {
         $offers = [];
         $page = 1;
@@ -27,7 +27,7 @@ class ScraperService implements JobSourceInterface
             $results = $this->extractOffers($crawler);
             $offers = array_merge($offers, $results);
             $page++;
-        } while (count($results) > 0 && $this->hasNextPage($crawler));
+        } while (count($results) > 0 && $this->hasNextPage($crawler) && ($maxPages === null || $page <= $maxPages));
 
         return $offers;
     }
