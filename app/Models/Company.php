@@ -20,7 +20,7 @@ class Company extends Model
         'longitude',
     ];
 
-    public function searchableAs(): string
+public function searchableAs(): string
     {
         return 'devstack_companies';
     }
