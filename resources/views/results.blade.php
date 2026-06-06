@@ -28,7 +28,10 @@
 
         {{-- Resultats --}}
         <div class="flex-1 min-w-0">
-            <div id="stats" class="mb-4 text-sm text-gray-500 dark:text-slate-400"></div>
+            <div class="mb-4 flex items-center justify-between">
+                <div id="stats" class="text-sm text-gray-500 dark:text-slate-400"></div>
+                <div id="clear-filters"></div>
+            </div>
             <div id="hits"></div>
             <div id="pagination" class="mt-8"></div>
         </div>

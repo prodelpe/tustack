@@ -3,6 +3,7 @@ import instantsearch from 'instantsearch.js'
 import {
     searchBox,
     refinementList,
+    clearRefinements,
     hits,
     stats,
     pagination,
@@ -75,6 +76,13 @@ search.addWidgets([
                 </a>
             `,
             empty: '<p class="hits-empty">No companies found for the selected filters.</p>',
+        },
+    }),
+
+    clearRefinements({
+        container: '#clear-filters',
+        templates: {
+            resetLabel: 'Clear filters',
         },
     }),
 
