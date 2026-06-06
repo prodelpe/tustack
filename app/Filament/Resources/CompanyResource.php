@@ -48,6 +48,10 @@ class CompanyResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('job_offers_count')
+                    ->counts('jobOffers')
+                    ->label('Offers')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('province')
                     ->searchable()
                     ->sortable(),

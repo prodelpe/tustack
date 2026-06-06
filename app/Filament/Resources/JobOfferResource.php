@@ -57,14 +57,18 @@ class JobOfferResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('published_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn (JobOffer $record) => $record->url)
+                    ->openUrlInNewTab(),
                 Tables\Columns\TextColumn::make('company.name')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('source')
+                    ->badge()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('published_at')
                     ->date()
