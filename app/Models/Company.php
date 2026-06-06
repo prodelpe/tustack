@@ -10,9 +10,18 @@ class Company extends Model
 {
     protected $fillable = [
         'name',
-        'province',
         'location',
+        'country',
+        'city',
+        'province_id',
+        'latitude',
+        'longitude',
     ];
+
+    public function province(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Province::class);
+    }
 
     public function jobOffers(): HasMany
     {

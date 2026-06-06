@@ -15,10 +15,14 @@ class JobOffer extends Model
         'url',
         'source',
         'published_at',
+        'salary_min',
+        'salary_max',
+        'salary_is_predicted',
     ];
 
     protected $casts = [
-        'published_at' => 'date',
+        'published_at'       => 'date',
+        'salary_is_predicted' => 'boolean',
     ];
 
     public function company(): BelongsTo
