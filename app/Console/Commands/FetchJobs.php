@@ -87,12 +87,14 @@ class FetchJobs extends Command
     {
         $sources = [
             'adzuna' => app(AdzunaService::class),
-            'jooble' => app(JoobleService::class),
+            // TODO: enable once final pipeline is validated
+            // 'jooble' => app(JoobleService::class),
         ];
 
-        foreach (config('scrapers', []) as $name => $config) {
-            $sources[$name] = new ScraperService($config);
-        }
+        // TODO: enable scrapers once final pipeline is validated
+        // foreach (config('scrapers', []) as $name => $config) {
+        //     $sources[$name] = new ScraperService($config);
+        // }
 
         return $sources;
     }
