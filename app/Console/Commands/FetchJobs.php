@@ -4,11 +4,13 @@ namespace App\Console\Commands;
 
 use App\Models\Company;
 use App\Models\JobOffer;
+use App\Models\Technology;
 use App\Services\AdzunaService;
 use App\Services\Contracts\JobSourceInterface;
 use App\Services\JoobleService;
 use App\Services\ScraperService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 
 class FetchJobs extends Command
 {
@@ -26,6 +28,7 @@ class FetchJobs extends Command
         $maxPages = $this->option('pages') ? (int) $this->option('pages') : null;
 
         $sources = $this->resolveSources();
+        $technologies = Technology::all()->keyBy(fn ($t) => strtolower($t->name));
 
         $total = 0;
 
@@ -50,7 +53,7 @@ class FetchJobs extends Command
 
                 $company = $this->resolveCompany($normalized['company'] ?? null);
 
-                JobOffer::firstOrCreate(
+                $offer = JobOffer::firstOrCreate(
                     ['url' => $normalized['url']],
                     [
                         'company_id'   => $company?->id,
@@ -60,6 +63,13 @@ class FetchJobs extends Command
                         'published_at' => $normalized['published_at'],
                     ]
                 );
+
+                if ($offer->wasRecentlyCreated) {
+                    $matched = $this->detectTechnologies($normalized, $technologies);
+                    if ($matched->isNotEmpty()) {
+                        $offer->technologies()->attach($matched->pluck('id'));
+                    }
+                }
 
                 $count++;
             }
@@ -85,6 +95,13 @@ class FetchJobs extends Command
         }
 
         return $sources;
+    }
+
+    private function detectTechnologies(array $normalized, Collection $technologies): Collection
+    {
+        $text = strtolower(($normalized['title'] ?? '') . ' ' . ($normalized['description'] ?? ''));
+
+        return $technologies->filter(fn ($tech) => str_contains($text, strtolower($tech->name)));
     }
 
     private function resolveCompany(?string $name): ?Company
