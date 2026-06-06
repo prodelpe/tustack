@@ -11,3 +11,104 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* ── InstantSearch widgets ───────────────────────────────── */
+
+/* SearchBox */
+.ais-SearchBox-form {
+    @apply relative flex items-center;
+}
+.ais-SearchBox-input {
+    @apply w-full rounded-xl border border-gray-300 bg-white px-4 py-2 pr-10 text-sm text-gray-900 placeholder-gray-400 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder-slate-500;
+}
+.ais-SearchBox-submit,
+.ais-SearchBox-reset {
+    @apply absolute right-2 text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300;
+}
+.ais-SearchBox-submitIcon,
+.ais-SearchBox-resetIcon {
+    @apply h-4 w-4;
+}
+
+/* RefinementList */
+.ais-RefinementList-list {
+    @apply space-y-1;
+}
+.ais-RefinementList-item {
+    @apply flex items-center;
+}
+.ais-RefinementList-label {
+    @apply flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-1 text-sm text-gray-700 transition hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800;
+}
+.ais-RefinementList-item--selected .ais-RefinementList-label {
+    @apply text-indigo-600 dark:text-indigo-400;
+}
+.ais-RefinementList-checkbox {
+    @apply h-3.5 w-3.5 rounded border-gray-300 accent-indigo-500;
+}
+.ais-RefinementList-count {
+    @apply ml-auto rounded-full bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500 dark:bg-slate-800 dark:text-slate-400;
+}
+.ais-RefinementList-item--selected .ais-RefinementList-count {
+    @apply bg-indigo-50 text-indigo-500 dark:bg-indigo-500/10 dark:text-indigo-400;
+}
+.ais-RefinementList-searchBox {
+    @apply mb-2;
+}
+.ais-RefinementList-searchBox .ais-SearchBox-input {
+    @apply rounded-lg py-1 text-xs;
+}
+.ais-RefinementList-noResults {
+    @apply text-xs text-gray-400 dark:text-slate-500;
+}
+.ais-RefinementList-showMore {
+    @apply mt-2 text-xs text-indigo-500 hover:text-indigo-600 dark:text-indigo-400;
+}
+
+/* ClearRefinements */
+.ais-ClearRefinements-button {
+    @apply rounded-lg border border-gray-300 px-3 py-1 text-xs text-gray-500 transition hover:border-gray-400 hover:text-gray-700 dark:border-slate-700 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-white;
+}
+.ais-ClearRefinements-button--disabled {
+    @apply hidden;
+}
+
+/* Hits */
+.ais-Hits-list {
+    @apply space-y-3;
+}
+.hit-card {
+    @apply block rounded-2xl border border-gray-200 bg-white p-5 transition hover:border-gray-300 hover:shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700;
+}
+.hit-card__header {
+    @apply flex items-start justify-between gap-4;
+}
+.hit-card__name {
+    @apply font-semibold text-gray-900 dark:text-white;
+}
+.hit-card__location {
+    @apply mt-0.5 text-sm text-gray-500 dark:text-slate-400;
+}
+.hit-card__techs {
+    @apply mt-3 flex flex-wrap gap-1.5;
+}
+.hit-card__tech {
+    @apply rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-600 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300;
+}
+.hits-empty {
+    @apply py-12 text-center text-gray-500 dark:text-slate-400;
+}
+
+/* Pagination */
+.ais-Pagination-list {
+    @apply flex items-center justify-center gap-1;
+}
+.ais-Pagination-link {
+    @apply flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-sm text-gray-600 transition hover:border-gray-300 hover:bg-gray-50 dark:border-slate-700 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:bg-slate-800;
+}
+.ais-Pagination-item--selected .ais-Pagination-link {
+    @apply border-indigo-400 bg-indigo-50 text-indigo-600 dark:border-indigo-500 dark:bg-indigo-500/10 dark:text-indigo-300;
+}
+.ais-Pagination-item--disabled .ais-Pagination-link {
+    @apply opacity-30 cursor-not-allowed hover:bg-transparent;
+}
