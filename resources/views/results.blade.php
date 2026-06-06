@@ -41,6 +41,7 @@
     window.__MEILISEARCH_HOST__ = @json($meilisearchHost);
     window.__MEILISEARCH_KEY__  = @json($meilisearchKey);
 </script>
+@vite('resources/js/search.js')
 @endpush
 
 @endsection
