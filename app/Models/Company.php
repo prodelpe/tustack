@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Laravel\Scout\Searchable;
 
 class Company extends Model
 {
+    use Searchable;
     protected $fillable = [
         'name',
         'location',
@@ -17,6 +19,31 @@ class Company extends Model
         'latitude',
         'longitude',
     ];
+
+    public function searchableAs(): string
+    {
+        return 'devstack_companies';
+    }
+
+    public function toSearchableArray(): array
+    {
+        $this->loadMissing(['province', 'jobOffers.technologies']);
+
+        $technologies = $this->jobOffers
+            ->flatMap->technologies
+            ->unique('id');
+
+        return [
+            'id'             => $this->id,
+            'name'           => $this->name,
+            'city'           => $this->city,
+            'province_id'    => $this->province_id,
+            'province_name'  => $this->province?->name,
+            'country'        => $this->country,
+            'technology_ids' => $technologies->pluck('id')->values()->all(),
+            'technology_names' => $technologies->pluck('name')->values()->all(),
+        ];
+    }
 
     public function province(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
