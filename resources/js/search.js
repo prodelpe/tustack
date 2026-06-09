@@ -39,13 +39,14 @@ const search = instantsearch({
                 }
             },
             routeToState(routeState) {
+                const toArray = v => !v ? [] : Array.isArray(v) ? v : v.split(',')
                 return {
                     'devstack_companies': {
                         query: routeState.q || '',
                         page: routeState.page || 1,
                         refinementList: {
-                            technology_names: routeState.technologies ? routeState.technologies.split(',') : [],
-                            province_name: routeState.provinces ? routeState.provinces.split(',') : [],
+                            technology_names: toArray(routeState.technologies),
+                            province_name: toArray(routeState.provinces),
                         },
                     },
                 }
