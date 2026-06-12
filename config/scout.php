@@ -143,7 +143,7 @@ return [
             'devstack_companies' => [
                 'filterableAttributes' => ['technology_ids', 'technology_names', 'province_id', 'province_name'],
                 'searchableAttributes' => ['name', 'city', 'technology_names', 'province_name'],
-                'sortableAttributes'   => ['name'],
+                'sortableAttributes'   => ['name', 'job_offers_count'],
             ],
         ],
     ],

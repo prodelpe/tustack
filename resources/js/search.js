@@ -58,6 +58,7 @@ const search = instantsearch({
 search.addWidgets([
     configure({
         hitsPerPage: 12,
+        sort: ['job_offers_count:desc'],
     }),
 
     searchBox({

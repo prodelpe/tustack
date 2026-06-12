@@ -16,6 +16,9 @@
 
         {{-- Sidebar filtres --}}
         <aside class="w-56 shrink-0">
+            <p class="mb-6 text-xs text-gray-400 dark:text-slate-500">
+                {{ $technologiesCount }} technologies &middot; {{ $provincesCount }} provinces
+            </p>
             <div class="mb-6">
                 <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-slate-500">Technologies</p>
                 <div id="filter-technologies"></div>
