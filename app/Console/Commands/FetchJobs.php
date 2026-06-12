@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Actions\ProcessJobOfferAction;
 use App\Models\Technology;
 use App\Services\AdzunaService;
+use App\Services\JoobleService;
 use Illuminate\Console\Command;
 
 class FetchJobs extends Command
@@ -58,8 +59,7 @@ class FetchJobs extends Command
     {
         $sources = [
             'adzuna' => app(AdzunaService::class),
-            // TODO: enable once final pipeline is validated
-            // 'jooble' => app(JoobleService::class),
+            'jooble' => app(JoobleService::class),
         ];
 
         // TODO: enable scrapers once final pipeline is validated
