@@ -10,6 +10,11 @@ class Technology extends Model
     protected $fillable = [
         'name',
         'slug',
+        'aliases',
+    ];
+
+    protected $casts = [
+        'aliases' => 'array',
     ];
 
     public function jobOffers(): BelongsToMany

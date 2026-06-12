@@ -32,6 +32,9 @@ class TechnologyResource extends Resource
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->maxLength(255),
+                Forms\Components\TagsInput::make('aliases')
+                    ->placeholder('Add alias…')
+                    ->helperText('Variants the detector will also match: reactjs, react.js, golang…'),
             ]);
     }
 
