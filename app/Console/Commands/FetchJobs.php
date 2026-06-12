@@ -6,6 +6,7 @@ use App\Actions\ProcessJobOfferAction;
 use App\Models\Technology;
 use App\Services\AdzunaService;
 use App\Services\JoobleService;
+use App\Services\TecnoempleoService;
 use Illuminate\Console\Command;
 
 class FetchJobs extends Command
@@ -58,8 +59,9 @@ class FetchJobs extends Command
     private function resolveSources(): array
     {
         $sources = [
-            'adzuna' => app(AdzunaService::class),
-            'jooble' => app(JoobleService::class),
+            'adzuna'      => app(AdzunaService::class),
+            'jooble'      => app(JoobleService::class),
+            'tecnoempleo' => app(TecnoempleoService::class),
         ];
 
         // TODO: enable scrapers once final pipeline is validated
