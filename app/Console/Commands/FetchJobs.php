@@ -12,7 +12,8 @@ use Illuminate\Console\Command;
 class FetchJobs extends Command
 {
     protected $signature = 'jobs:fetch
-                            {query : Keyword to search for}
+                            {query? : Keyword to search for}
+                            {--all : Fetch for every technology in the database}
                             {--location= : Optional location filter}
                             {--pages= : Max pages to fetch per source (default: all)}';
 
@@ -20,40 +21,59 @@ class FetchJobs extends Command
 
     public function handle(ProcessJobOfferAction $processJobOffer): int
     {
-        $query = $this->argument('query');
         $location = $this->option('location');
         $maxPages = $this->option('pages') ? (int) $this->option('pages') : null;
 
-        $sources = $this->resolveSources();
-        $technologies = Technology::all()->keyBy(fn ($t) => strtolower($t->name));
+        $queries = $this->resolveQueries();
 
-        $total = 0;
-
-        foreach ($sources as $name => $source) {
-            $this->info("Fetching from {$name}...");
-
-            try {
-                $raw = $source->fetchAll($query, $location, $maxPages);
-            } catch (\Throwable $e) {
-                $this->error("  Failed: {$e->getMessage()}");
-                continue;
-            }
-
-            $count = 0;
-
-            foreach ($raw as $item) {
-                if ($processJobOffer->handle($item, $source, $technologies)) {
-                    $count++;
-                }
-            }
-
-            $this->line("  {$count} offers processed.");
-            $total += $count;
+        if (empty($queries)) {
+            $this->error('Provide a query or use --all.');
+            return self::FAILURE;
         }
 
-        $this->info("Done. Total: {$total} offers processed.");
+        $sources      = $this->resolveSources();
+        $technologies = Technology::all()->keyBy(fn ($t) => strtolower($t->name));
+        $total        = 0;
+
+        foreach ($queries as $query) {
+            $this->line("\n<fg=cyan>Query: {$query}</>");
+
+            foreach ($sources as $name => $source) {
+                $this->info("  [{$name}] Fetching...");
+
+                try {
+                    $raw = $source->fetchAll($query, $location, $maxPages);
+                } catch (\Throwable $e) {
+                    $this->error("  [{$name}] Failed: {$e->getMessage()}");
+                    continue;
+                }
+
+                $count = 0;
+                foreach ($raw as $item) {
+                    if ($processJobOffer->handle($item, $source, $technologies)) {
+                        $count++;
+                    }
+                }
+
+                $this->line("  [{$name}] {$count} offers processed.");
+                $total += $count;
+            }
+        }
+
+        $this->info("\nDone. Total: {$total} offers processed.");
 
         return self::SUCCESS;
+    }
+
+    private function resolveQueries(): array
+    {
+        if ($this->option('all')) {
+            return Technology::orderBy('name')->pluck('name')->all();
+        }
+
+        $query = $this->argument('query');
+
+        return $query ? [$query] : [];
     }
 
     private function resolveSources(): array
