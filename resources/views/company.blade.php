@@ -12,11 +12,6 @@
 
 <main class="mx-auto max-w-5xl px-4 py-10">
 
-    <a href="javascript:history.back()"
-        class="mb-8 inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-gray-900 dark:text-slate-400 dark:hover:text-white">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-        Back
-    </a>
 
     <div class="mb-8">
         <div class="flex items-start justify-between gap-4">
