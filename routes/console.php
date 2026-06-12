@@ -8,4 +8,6 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('jobs:fetch laravel')->dailyAt('00:00');
+Schedule::job(new App\Jobs\FetchSourceJob('adzuna'))->dailyAt('00:00');
+Schedule::job(new App\Jobs\FetchSourceJob('jooble'))->dailyAt('00:00');
+Schedule::job(new App\Jobs\FetchSourceJob('tecnoempleo'))->dailyAt('00:00');
