@@ -136,6 +136,9 @@
 .hit-card__location {
     @apply mt-0.5 text-sm text-gray-500 dark:text-slate-400;
 }
+.hit-card__offers-count {
+    @apply shrink-0 rounded-full border border-gray-200 bg-gray-50 px-2.5 py-0.5 text-xs text-gray-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400;
+}
 .hit-card__techs {
     @apply mt-3 flex flex-wrap gap-1.5;
 }

@@ -34,14 +34,15 @@ public function searchableAs(): string
             ->unique('id');
 
         return [
-            'id'             => $this->id,
-            'name'           => $this->name,
-            'city'           => $this->city,
-            'province_id'    => $this->province_id,
-            'province_name'  => $this->province?->name,
-            'country'        => $this->country,
-            'technology_ids' => $technologies->pluck('id')->values()->all(),
+            'id'               => $this->id,
+            'name'             => $this->name,
+            'city'             => $this->city,
+            'province_id'      => $this->province_id,
+            'province_name'    => $this->province?->name,
+            'country'          => $this->country,
+            'technology_ids'   => $technologies->pluck('id')->values()->all(),
             'technology_names' => $technologies->pluck('name')->values()->all(),
+            'job_offers_count' => $this->jobOffers->count(),
         ];
     }
 

@@ -97,11 +97,16 @@ search.addWidgets([
             item: (hit) => `
                 <a href="/companies/${hit.id}" class="hit-card">
                     <div class="hit-card__header">
-                        <h2 class="hit-card__name">${hit.name}</h2>
-                        ${hit.city || hit.province_name ? `
-                            <p class="hit-card__location">
-                                ${[hit.city, hit.province_name].filter(Boolean).join(', ')}
-                            </p>
+                        <div>
+                            <h2 class="hit-card__name">${hit.name}</h2>
+                            ${hit.city || hit.province_name ? `
+                                <p class="hit-card__location">
+                                    ${[hit.city, hit.province_name].filter(Boolean).join(', ')}
+                                </p>
+                            ` : ''}
+                        </div>
+                        ${hit.job_offers_count ? `
+                            <span class="hit-card__offers-count">${hit.job_offers_count} ${hit.job_offers_count === 1 ? 'offer' : 'offers'} tracked</span>
                         ` : ''}
                     </div>
                     <div class="hit-card__techs">
