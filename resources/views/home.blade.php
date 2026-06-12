@@ -7,10 +7,24 @@
         <a href="{{ route('home') }}" class="shrink-0 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
             Find Your <span class="font-mono text-indigo-500 dark:text-indigo-400">DEV</span> Stack
         </a>
+        @if($meilisearchAvailable)
         <div id="searchbox" class="flex-1 max-w-sm"></div>
+        @endif
     </div>
 </header>
 
+@if(!$meilisearchAvailable)
+<main class="mx-auto max-w-6xl px-4 py-8">
+    <div class="flex min-h-[60vh] flex-col items-center justify-center gap-6 text-center">
+        <div class="rounded-2xl border border-red-200 bg-red-50 p-15 dark:border-red-900/40 dark:bg-red-950/30">
+            <p class="text-lg font-semibold text-gray-800 dark:text-white">Search is temporarily unavailable</p>
+            <p class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+                We're working on it. Please try again in a few minutes.
+            </p>
+        </div>
+    </div>
+</main>
+@else
 <main class="mx-auto max-w-6xl px-4 py-8">
     <div class="flex gap-8">
 
@@ -41,7 +55,9 @@
 
     </div>
 </main>
+@endif
 
+@if($meilisearchAvailable)
 @push('scripts')
 <script>
     window.__MEILISEARCH_HOST__ = @json($meilisearchHost);
@@ -49,5 +65,6 @@
 </script>
 @vite('resources/js/search.js')
 @endpush
+@endif
 
 @endsection
