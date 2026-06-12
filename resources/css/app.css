@@ -12,6 +12,53 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
+/* ── Tom Select ─────────────────────────────────────────── */
+
+.ts-wrapper {
+    @apply relative w-full;
+}
+.ts-control {
+    @apply min-h-[42px] w-full cursor-text rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 transition focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+}
+.ts-control input {
+    @apply flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 outline-none dark:text-white dark:placeholder-slate-500;
+    min-width: 60px;
+}
+.ts-control .item {
+    @apply flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-600 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300;
+}
+.ts-control .item .remove {
+    @apply cursor-pointer opacity-50 hover:opacity-100;
+}
+.ts-dropdown {
+    @apply mt-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900;
+    position: absolute;
+    z-index: 50;
+    width: 100%;
+}
+.ts-dropdown .ts-dropdown-content {
+    @apply max-h-56 overflow-y-auto p-1;
+}
+.ts-dropdown .option {
+    @apply cursor-pointer rounded-lg px-3 py-2 text-sm text-gray-700 transition hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800;
+}
+.ts-dropdown .option.selected {
+    @apply text-indigo-600 dark:text-indigo-400;
+}
+.ts-dropdown .option.active {
+    @apply bg-gray-100 dark:bg-slate-800;
+}
+.ts-dropdown input {
+    @apply w-full rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 outline-none dark:bg-slate-800 dark:text-white dark:placeholder-slate-500;
+}
+.ts-wrapper .ts-dropdown .create {
+    @apply px-3 py-2 text-sm text-indigo-500;
+}
+
 /* ── InstantSearch widgets ───────────────────────────────── */
 
 /* SearchBox */

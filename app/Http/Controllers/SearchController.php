@@ -7,7 +7,10 @@ class SearchController extends Controller
 {
     public function home()
     {
-        return view('home');
+        $technologies = \App\Models\Technology::orderBy('name')->get(['id', 'name']);
+        $provinces = \App\Models\Province::orderBy('name')->get(['id', 'name']);
+
+        return view('home', compact('technologies', 'provinces'));
     }
 
     public function results()
