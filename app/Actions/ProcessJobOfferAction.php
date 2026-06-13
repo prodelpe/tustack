@@ -6,7 +6,7 @@ use App\DTOs\CompanyDTO;
 use App\Services\Contracts\JobSourceInterface;
 use Illuminate\Support\Collection;
 
-class ProcessJobOfferAction
+readonly class ProcessJobOfferAction
 {
     public function __construct(
         private ResolveCompanyAction $resolveCompany,

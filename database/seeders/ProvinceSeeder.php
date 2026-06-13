@@ -24,7 +24,7 @@ class ProvinceSeeder extends Seeder
         ];
 
         foreach ($provinces as $name) {
-            Province::firstOrCreate(['name' => $name]);
+            Province::query()->firstOrCreate(['name' => $name]);
         }
     }
 }

@@ -84,10 +84,6 @@ class FetchJobs extends Command
             'tecnoempleo' => app(TecnoempleoService::class),
         ];
 
-        // TODO: enable scrapers once final pipeline is validated
-        // foreach (config('scrapers', []) as $name => $config) {
-        //     $sources[$name] = new ScraperService($config);
-        // }
 
         return $sources;
     }

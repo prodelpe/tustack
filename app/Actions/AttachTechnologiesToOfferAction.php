@@ -6,7 +6,7 @@ use App\DTOs\NormalizedJobOfferDTO;
 use App\Models\JobOffer;
 use Illuminate\Support\Collection;
 
-class AttachTechnologiesToOfferAction
+readonly class AttachTechnologiesToOfferAction
 {
     public function __construct(
         private DetectTechnologiesAction $detectTechnologies,

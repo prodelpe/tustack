@@ -5,10 +5,17 @@ namespace App\Services;
 use App\Actions\ParseSalaryStringAction;
 use App\DTOs\NormalizedJobOfferDTO;
 use App\Services\Contracts\JobSourceInterface;
+use Exception;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 
 class JoobleService implements JobSourceInterface
 {
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
     public function search(string $query, ?string $location = null, int $page = 1): array
     {
         $body = [
@@ -30,6 +37,10 @@ class JoobleService implements JobSourceInterface
         return $response->json();
     }
 
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
     public function fetchAll(string $query, ?string $location = null, ?int $maxPages = null): array
     {
         $offers = [];
@@ -41,11 +52,17 @@ class JoobleService implements JobSourceInterface
             $offers  = array_merge($offers, $results);
             $total   = $data['totalCount'] ?? 0;
             $page++;
-        } while (count($offers) < $total && count($results) > 0 && ($maxPages === null || $page <= $maxPages));
+        } while (
+            count($offers) < $total && count($results) > 0
+            && ($maxPages === null || $page <= $maxPages)
+        );
 
         return $offers;
     }
 
+    /**
+     * @throws Exception
+     */
     public function normalize(array $raw): NormalizedJobOfferDTO
     {
         $locationParts = array_map('trim', explode(',', $raw['location'] ?? ''));

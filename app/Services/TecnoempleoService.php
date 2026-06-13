@@ -5,13 +5,20 @@ namespace App\Services;
 use App\Actions\ParseSalaryStringAction;
 use App\DTOs\NormalizedJobOfferDTO;
 use App\Services\Contracts\JobSourceInterface;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\DomCrawler\Crawler;
+use Throwable;
 
 class TecnoempleoService implements JobSourceInterface
 {
     private const BASE_URL = 'https://www.tecnoempleo.com/busqueda-empleo.php';
 
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
     public function search(string $query, ?string $location = null, int $page = 1): array
     {
         $params = ['te' => $query, 'pg' => $page];
@@ -23,7 +30,9 @@ class TecnoempleoService implements JobSourceInterface
         $response = Http::withHeaders([
             'User-Agent' => 'Mozilla/5.0 (compatible; FindYourDevStack/1.0)',
             'Accept'     => 'text/html,application/xhtml+xml',
-        ])->timeout(15)->get(self::BASE_URL, $params);
+        ])
+            ->timeout(15)
+            ->get(self::BASE_URL, $params);
 
         $response->throw();
 
@@ -39,7 +48,10 @@ class TecnoempleoService implements JobSourceInterface
             $results = $this->search($query, $location, $page);
             $offers  = array_merge($offers, $results);
             $page++;
-        } while (count($results) > 0 && ($maxPages === null || $page <= $maxPages));
+        } while (
+            count($results) > 0
+            && ($maxPages === null || $page <= $maxPages)
+        );
 
         return $offers;
     }
@@ -120,8 +132,8 @@ class TecnoempleoService implements JobSourceInterface
                     'description'  => $description,
                     'published_at' => $publishedAt,
                 ];
-            } catch (\Throwable) {
-                // Ignora targetes mal formades
+            } catch (Throwable) {
+                // Skip malformed cards
             }
         });
 

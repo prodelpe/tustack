@@ -5,7 +5,7 @@ namespace App\Actions;
 use App\DTOs\CompanyDTO;
 use App\Models\Company;
 
-class ResolveCompanyAction
+readonly class ResolveCompanyAction
 {
     public function __construct(
         private UpdateCompanyAction $updateCompany,
@@ -17,7 +17,7 @@ class ResolveCompanyAction
             return null;
         }
 
-        $company = Company::firstOrCreate(['name' => $dto->name]);
+        $company = Company::query()->firstOrCreate(['name' => $dto->name]);
 
         if ($company->wasRecentlyCreated || $company->city === null) {
             $this->updateCompany->handle($company, $dto);

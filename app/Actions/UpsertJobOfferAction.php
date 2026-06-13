@@ -10,7 +10,7 @@ class UpsertJobOfferAction
 {
     public function handle(NormalizedJobOfferDTO $dto, ?Company $company): JobOffer
     {
-        return JobOffer::firstOrCreate(
+        return JobOffer::query()->firstOrCreate(
             ['url' => $dto->url],
             [
                 'company_id'          => $company?->id,

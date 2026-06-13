@@ -5,7 +5,7 @@ namespace App\Actions;
 use App\DTOs\CompanyDTO;
 use App\Models\Company;
 
-class UpdateCompanyAction
+readonly class UpdateCompanyAction
 {
     public function __construct(
         private ResolveProvinceAction $resolveProvince,

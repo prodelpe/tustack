@@ -18,8 +18,8 @@ class FetchTechnologyJob implements ShouldQueue
     public int $tries = 5;
 
     public function __construct(
-        private string $source,
-        private string $technology,
+        private readonly string $source,
+        private readonly string $technology,
     ) {}
 
     public function backoff(): array

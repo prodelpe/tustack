@@ -63,7 +63,7 @@ class TechnologySeeder extends Seeder
         ];
 
         foreach ($technologies as $tech) {
-            Technology::updateOrCreate(
+            Technology::query()->updateOrCreate(
                 ['slug' => $tech['slug']],
                 ['name' => $tech['name'], 'aliases' => $tech['aliases'] ?: null]
             );

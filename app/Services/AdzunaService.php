@@ -4,7 +4,9 @@ namespace App\Services;
 
 use App\DTOs\NormalizedJobOfferDTO;
 use App\Services\Contracts\JobSourceInterface;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 
 class AdzunaService implements JobSourceInterface
@@ -17,6 +19,10 @@ class AdzunaService implements JobSourceInterface
             ->timeout(15);
     }
 
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
     public function search(string $query, ?string $location = null, int $page = 1): array
     {
         $params = [
@@ -41,6 +47,10 @@ class AdzunaService implements JobSourceInterface
         return $response->json();
     }
 
+    /**
+     * @throws RequestException
+     * @throws ConnectionException
+     */
     public function fetchAll(string $query, ?string $location = null, ?int $maxPages = null): array
     {
         $offers = [];
@@ -52,7 +62,10 @@ class AdzunaService implements JobSourceInterface
             $offers = array_merge($offers, $results);
             $total = $data['count'] ?? 0;
             $page++;
-        } while (count($offers) < $total && count($results) > 0 && ($maxPages === null || $page <= $maxPages));
+        } while (
+            count($offers) < $total && count($results) > 0
+            && ($maxPages === null || $page <= $maxPages)
+        );
 
         return $offers;
     }

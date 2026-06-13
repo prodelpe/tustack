@@ -45,6 +45,7 @@ class DetectTechnologiesWithGeminiAction
             return $technologies->filter(function (Technology $tech) use ($detected) {
                 return in_array($tech->name, $detected, strict: true);
             });
+
         } catch (\Throwable $e) {
             Log::warning('Gemini detection failed', ['error' => $e->getMessage()]);
 

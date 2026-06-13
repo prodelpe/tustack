@@ -2,16 +2,16 @@
 
 namespace App\DTOs;
 
-class CompanyDTO
+readonly class CompanyDTO
 {
     public function __construct(
-        public readonly string $name,
-        public readonly ?string $location,
-        public readonly ?string $city,
-        public readonly ?string $province,
-        public readonly ?string $country,
-        public readonly ?float $latitude,
-        public readonly ?float $longitude,
+        public string $name,
+        public ?string $location,
+        public ?string $city,
+        public ?string $province,
+        public ?string $country,
+        public ?float $latitude,
+        public ?float $longitude,
     ) {}
 
     public static function fromNormalizedJobOffer(NormalizedJobOfferDTO $dto): self

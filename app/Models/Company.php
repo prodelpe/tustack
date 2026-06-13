@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Laravel\Scout\Searchable;
@@ -46,7 +47,7 @@ public function searchableAs(): string
         ];
     }
 
-    public function province(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function province(): BelongsTo
     {
         return $this->belongsTo(Province::class);
     }
