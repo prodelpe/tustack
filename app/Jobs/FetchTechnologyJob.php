@@ -15,7 +15,8 @@ class FetchTechnologyJob implements ShouldQueue
 {
     use Queueable;
 
-    public int $tries = 5;
+    public int $tries   = 5;
+    public int $timeout = 300;
 
     public function __construct(
         private readonly string $source,

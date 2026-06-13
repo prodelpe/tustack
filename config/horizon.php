@@ -223,7 +223,8 @@ return [
 
         'local' => [
             'supervisor-1' => [
-                'maxProcesses' => 6,
+                // 1 worker to avoid rate limiting on external APIs (Adzuna, Tecnoempleo)
+                'maxProcesses' => 1,
             ],
         ],
     ],
