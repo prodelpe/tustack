@@ -21,7 +21,7 @@ class TecnoempleoService implements JobSourceInterface
      */
     public function search(string $query, ?string $location = null, int $page = 1): array
     {
-        $params = ['te' => $query, 'pg' => $page];
+        $params = ['te' => $query, 'pagina' => $page];
 
         if ($location) {
             $params['provincia'] = $location;
@@ -33,6 +33,10 @@ class TecnoempleoService implements JobSourceInterface
         ])
             ->timeout(15)
             ->get(self::BASE_URL, $params);
+
+        if ($response->notFound()) {
+            return [];
+        }
 
         $response->throw();
 

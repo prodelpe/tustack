@@ -10,6 +10,7 @@ use App\Services\JoobleService;
 use App\Services\TecnoempleoService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
 
 class FetchTechnologyJob implements ShouldQueue
 {
@@ -30,6 +31,8 @@ class FetchTechnologyJob implements ShouldQueue
 
     public function handle(ProcessJobOfferAction $processJobOffer): void
     {
+        Log::info("[{$this->source}] Starting job for: {$this->technology}");
+
         $service      = $this->resolveService();
         $technologies = Technology::all()->keyBy(function ($technology) {
             return strtolower($technology->name);
@@ -37,9 +40,13 @@ class FetchTechnologyJob implements ShouldQueue
 
         $rawOffers = $service->fetchAll($this->technology);
 
+        Log::info("[{$this->source}] Fetched " . count($rawOffers) . " raw offers for: {$this->technology}");
+
         foreach ($rawOffers as $item) {
             $processJobOffer->handle($item, $service, $technologies);
         }
+
+        Log::info("[{$this->source}] Done processing: {$this->technology}");
     }
 
     private function resolveService(): JobSourceInterface
