@@ -21,10 +21,6 @@ class SavedSearchController extends Controller
 
         $user = $request->user();
 
-        if (! $user->alerts_enabled) {
-            return response()->json(['error' => 'Alerts not enabled.'], 403);
-        }
-
         $filters = [
             'technologies' => $validated['technologies'] ?? [],
             'provinces'    => $validated['provinces'] ?? [],
@@ -32,14 +28,18 @@ class SavedSearchController extends Controller
         ];
 
         $alreadySaved = $user->savedSearches()
-            ->where('filters', json_encode($filters))
-            ->exists();
+            ->get()
+            ->contains(fn ($s) => $s->filters === $filters);
 
         if ($alreadySaved) {
             return response()->json(['saved' => false, 'duplicate' => true]);
         }
 
         $user->savedSearches()->create(['filters' => $filters]);
+
+        if (! $user->alerts_enabled) {
+            $user->update(['alerts_enabled' => true]);
+        }
 
         return response()->json(['saved' => true]);
     }
