@@ -16,12 +16,20 @@ Route::get('/alerts/unsubscribe/{user}', [SavedSearchController::class, 'unsubsc
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
-        $savedSearches = auth()->user()->savedSearches()->latest()->get();
-        return view('dashboard', compact('savedSearches'));
+        $user = auth()->user();
+        return view('dashboard', [
+            'savedSearches'  => $user->savedSearches()->latest()->get(),
+            'alertsEnabled'  => $user->alerts_enabled,
+        ]);
     })->name('dashboard');
     Route::get('/dashboard/companies', [SavedCompanyController::class, 'index'])->name('dashboard.companies');
     Route::post('/companies/{company}/save', [SavedCompanyController::class, 'toggle'])->name('companies.save');
 
+
+    Route::post('/alerts/enable', function () {
+        auth()->user()->update(['alerts_enabled' => true]);
+        return redirect()->route('dashboard');
+    })->name('alerts.enable');
 
     Route::post('/saved-searches', [SavedSearchController::class, 'store'])->name('saved-searches.store');
     Route::delete('/saved-searches/{savedSearch}', [SavedSearchController::class, 'destroy'])->name('saved-searches.destroy');

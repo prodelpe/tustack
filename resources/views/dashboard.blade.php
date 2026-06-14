@@ -2,6 +2,15 @@
 
 @section('content')
 <x-dashboard-main title="My alerts">
+    @if (!$alertsEnabled && $savedSearches->isNotEmpty())
+        <div class="mb-6 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 dark:border-amber-900/40 dark:bg-amber-950/30">
+            <p class="text-sm text-amber-800 dark:text-amber-300">Email alerts are disabled. You won't receive notifications.</p>
+            <form method="POST" action="{{ route('alerts.enable') }}">
+                @csrf
+                <button type="submit" class="text-sm font-medium text-amber-700 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-200 underline">Re-enable</button>
+            </form>
+        </div>
+    @endif
     @forelse ($savedSearches as $search)
         <div class="mb-3 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-5 py-4 dark:border-slate-800 dark:bg-slate-900">
             <div>
