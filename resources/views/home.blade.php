@@ -29,10 +29,13 @@
                 {{ $technologiesCount }} technologies &middot; {{ $provincesCount }} provinces
             </p>
             <div class="mb-6">
-                <label class="flex cursor-pointer select-none items-center gap-2">
-                    <input type="checkbox" id="exclude-consultancies"
-                           class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:focus:ring-indigo-600">
+                <label class="flex cursor-pointer select-none items-center justify-between">
                     <span class="text-xs text-gray-500 dark:text-slate-400">Exclude consultancies</span>
+                    <div class="relative">
+                        <input type="checkbox" id="exclude-consultancies" class="sr-only peer">
+                        <div class="w-8 h-4 rounded-full bg-gray-200 peer-checked:bg-indigo-500 dark:bg-slate-700 dark:peer-checked:bg-indigo-500 transition-colors"></div>
+                        <div class="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white shadow transition-transform peer-checked:translate-x-4"></div>
+                    </div>
                 </label>
             </div>
             <div class="mb-6">
