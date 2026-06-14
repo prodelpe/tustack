@@ -51,7 +51,12 @@
         </button>
     </div>
 
+    <x-app-header>@yield('header-slot')</x-app-header>
+
     @yield('content')
+
+    <x-app-footer />
+
     @stack('scripts')
 </body>
 </html>
