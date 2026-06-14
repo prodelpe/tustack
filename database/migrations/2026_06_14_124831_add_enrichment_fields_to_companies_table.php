@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('companies', function (Blueprint $table) {
             $table->json('description')->nullable()->after('name');
-            $table->string('sector')->nullable()->after('description');
+            $table->json('sector')->nullable()->after('description');
             $table->string('employees')->nullable()->after('sector');
             $table->string('website')->nullable()->after('employees');
             $table->boolean('gemini_enriched')->default(false)->after('website');

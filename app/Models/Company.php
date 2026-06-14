@@ -15,6 +15,7 @@ class Company extends Model
 
     protected $casts = [
         'description' => 'array',
+        'sector'      => 'array',
     ];
 
     protected $fillable = [

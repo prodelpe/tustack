@@ -71,10 +71,13 @@
         @if ($company->sector || $company->employees || $company->website)
             <div class="mt-3 flex flex-wrap items-center gap-4 text-xs text-gray-400 dark:text-slate-500">
                 @if ($company->sector)
-                    <span class="flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                        {{ $company->sector }}
-                    </span>
+                    @php $sector = $company->sector[app()->getLocale()] ?? $company->sector['es'] ?? $company->sector['en'] ?? collect($company->sector)->filter()->first(); @endphp
+                    @if ($sector)
+                        <span class="flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                            {{ $sector }}
+                        </span>
+                    @endif
                 @endif
                 @if ($company->employees)
                     <span class="flex items-center gap-1">
