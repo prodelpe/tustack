@@ -1,17 +1,16 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
-                </div>
-            </div>
-        </div>
+@section('content')
+<main class="mx-auto max-w-6xl px-4 py-10">
+
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-8">My alerts</h1>
+
+    <div class="rounded-2xl border border-gray-200 dark:border-slate-800 p-12 text-center">
+        <p class="text-gray-400 dark:text-slate-500 text-sm">You have no alerts yet.</p>
+        <a href="{{ route('home') }}" class="mt-4 inline-block rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-600 transition">
+            Explore companies
+        </a>
     </div>
-</x-app-layout>
+
+</main>
+@endsection
