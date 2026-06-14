@@ -6,3 +6,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [SearchController::class, 'home'])->name('home');
 Route::get('/companies/{company}', [CompanyController::class, 'show'])->name('companies.show');
+
+require __DIR__.'/auth.php';
