@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Province;
+use App\Models\Technology;
 use Illuminate\Support\Facades\Http;
 
 class SearchController extends Controller
@@ -28,8 +30,8 @@ class SearchController extends Controller
             'meilisearchHost'      => $host,
             'meilisearchKey'       => config('scout.meilisearch.key'),
             'meilisearchAvailable' => $healthy,
-            'technologiesCount'    => \App\Models\Technology::count(),
-            'provincesCount'       => \App\Models\Province::count(),
+            'technologiesCount'    => Technology::query()->count(),
+            'provincesCount'       => Province::query()->count(),
             'savedFilters'         => $savedFilters,
         ]);
     }

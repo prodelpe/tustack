@@ -14,18 +14,8 @@ class ProfileController extends Controller
     public function edit(Request $request): View
     {
         return view('profile.edit', [
-            'user'          => $request->user(),
-            'savedSearches' => $request->user()->savedSearches()->latest()->get(),
+            'user' => $request->user(),
         ]);
-    }
-
-    public function updateAlerts(Request $request): RedirectResponse
-    {
-        $request->user()->update([
-            'alerts_enabled' => $request->boolean('alerts_enabled'),
-        ]);
-
-        return Redirect::route('profile.edit')->with('status', 'alerts-updated');
     }
 
     /**
