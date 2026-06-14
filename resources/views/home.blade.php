@@ -29,6 +29,13 @@
                 {{ $technologiesCount }} technologies &middot; {{ $provincesCount }} provinces
             </p>
             <div class="mb-6">
+                <label class="flex cursor-pointer select-none items-center gap-2">
+                    <input type="checkbox" id="exclude-consultancies"
+                           class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:focus:ring-indigo-600">
+                    <span class="text-xs text-gray-500 dark:text-slate-400">Exclude consultancies</span>
+                </label>
+            </div>
+            <div class="mb-6">
                 <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-slate-500">Technologies</p>
                 <div id="filter-technologies"></div>
             </div>
@@ -43,11 +50,6 @@
             <div class="mb-4 flex items-center justify-between gap-4">
                 <div class="flex items-center gap-4">
                     <div id="stats" class="text-sm text-gray-500 dark:text-slate-400"></div>
-                    <label class="flex cursor-pointer select-none items-center gap-2">
-                        <input type="checkbox" id="exclude-consultancies"
-                               class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:focus:ring-indigo-600">
-                        <span class="text-sm text-gray-500 dark:text-slate-400">Exclude consultancies</span>
-                    </label>
                     @auth
                     <div
                         x-data="{
