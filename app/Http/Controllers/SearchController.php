@@ -16,12 +16,17 @@ class SearchController extends Controller
             $healthy = false;
         }
 
+        $savedFilters = auth()->check()
+            ? auth()->user()->savedSearches()->pluck('filters')->all()
+            : [];
+
         return view('home', [
             'meilisearchHost'      => $host,
             'meilisearchKey'       => config('scout.meilisearch.key'),
             'meilisearchAvailable' => $healthy,
             'technologiesCount'    => \App\Models\Technology::count(),
             'provincesCount'       => \App\Models\Province::count(),
+            'savedFilters'         => $savedFilters,
         ]);
     }
 }

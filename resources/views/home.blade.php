@@ -51,10 +51,14 @@
                     @auth
                     <div
                         x-data="{
-                            saved: false,
                             filters: { technologies: [], provinces: [], query: '' },
+                            savedFilters: window.__SAVED_FILTERS__ || [],
                             get hasFilters() {
                                 return this.filters.technologies.length > 0 || this.filters.provinces.length > 0 || !!this.filters.query
+                            },
+                            get isAlreadySaved() {
+                                const current = JSON.stringify(this.filters)
+                                return this.savedFilters.some(f => JSON.stringify(f) === current)
                             },
                             async save() {
                                 const res = await fetch('{{ route('saved-searches.store') }}', {
@@ -62,18 +66,22 @@
                                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
                                     body: JSON.stringify(this.filters)
                                 })
-                                if (res.ok) this.saved = true
+                                if (res.ok) this.savedFilters.push(JSON.parse(JSON.stringify(this.filters)))
                             }
                         }"
-                        @search-updated.window="const f = $event.detail; if (JSON.stringify(f) !== JSON.stringify(filters)) { saved = false } filters = f"
+                        @search-updated.window="filters = $event.detail"
                     >
                         <button
-                            x-show="hasFilters && !saved"
+                            x-show="hasFilters && !isAlreadySaved"
                             x-cloak
                             @click="save"
                             class="text-xs text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
                         >Create alert for this search</button>
-                        <span x-show="saved" x-cloak class="text-xs text-green-600 dark:text-green-400">✓ Alert created</span>
+                        <span
+                            x-show="hasFilters && isAlreadySaved"
+                            x-cloak
+                            class="text-xs text-green-600 dark:text-green-400"
+                        >✓ Search saved</span>
                     </div>
                     @endauth
                 </div>
@@ -92,6 +100,7 @@
 <script>
     window.__MEILISEARCH_HOST__ = @json($meilisearchHost);
     window.__MEILISEARCH_KEY__  = @json($meilisearchKey);
+    window.__SAVED_FILTERS__    = @json($savedFilters);
 </script>
 @vite('resources/js/search.js')
 @endpush
