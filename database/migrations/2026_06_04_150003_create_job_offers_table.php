@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('company_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->string('url');
+            $table->string('url')->unique();
             $table->string('source');
             $table->date('published_at')->nullable();
             $table->unsignedInteger('salary_min')->nullable();

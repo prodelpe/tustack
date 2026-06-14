@@ -11,8 +11,12 @@ return new class extends Migration
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('province')->nullable();
+            $table->decimal('longitude', 10, 7)->nullable();
+            $table->decimal('latitude', 10, 7)->nullable();
             $table->string('location')->nullable();
+            $table->string('country')->nullable();
+            $table->string('city')->nullable();
+            $table->foreignId('province_id')->nullable()->constrained()->nullOnDelete();
             $table->timestamps();
         });
     }

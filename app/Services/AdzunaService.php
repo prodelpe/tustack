@@ -75,8 +75,11 @@ class AdzunaService implements JobSourceInterface
         $area = $raw['location']['area'] ?? [];
         $areaCount = count($area);
 
+        $rawUrl = $raw['redirect_url'] ?? '';
+        $cleanUrl = $rawUrl ? strtok($rawUrl, '?') : '';
+
         return new NormalizedJobOfferDTO(
-            url: $raw['redirect_url'] ?? '',
+            url: $cleanUrl,
             source: 'adzuna',
             title: $raw['title'] ?? null,
             company: $raw['company']['display_name'] ?? null,
