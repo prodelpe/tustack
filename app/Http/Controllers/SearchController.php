@@ -17,7 +17,11 @@ class SearchController extends Controller
         }
 
         $savedFilters = auth()->check()
-            ? auth()->user()->savedSearches()->get()->pluck('filters')->all()
+            ? auth()->user()->savedSearches()->get()->pluck('filters')->map(fn ($f) => [
+                'technologies' => $f['technologies'] ?? [],
+                'provinces'    => $f['provinces'] ?? [],
+                'query'        => $f['query'] ?? '',
+            ])->all()
             : [];
 
         return view('home', [
