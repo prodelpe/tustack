@@ -21,7 +21,9 @@ class EnrichCompanies extends Command
         $sleep = (int) $this->option('sleep');
 
         $query = Company::with(['jobOffers.technologies', 'province'])
-            ->when(! $this->option('reset'), fn ($q) => $q->where('gemini_enriched', false));
+            ->when(! $this->option('reset'), function ($q)  {
+                return $q->where('gemini_enriched', false);
+            });
 
         $total = $query->count();
 

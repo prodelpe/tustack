@@ -5,11 +5,15 @@ namespace App\Actions;
 use App\Models\Company;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class EnrichCompanyWithGeminiAction
 {
     private const MODEL = 'gemini-2.5-flash';
 
+    /**
+     * @throws Throwable
+     */
     public function handle(Company $company): bool
     {
         $apiKey = config('services.gemini.api_key');
@@ -37,14 +41,15 @@ class EnrichCompanyWithGeminiAction
         $locationStr  = $location ?: 'Spain';
         $techStackStr = $techStack ?: 'unknown';
         $companyName  = $company->name;
+        $sectorKeys   = implode(', ', array_keys(config('sectors')));
 
-        $prompt = view('prompts.enrich-company', compact('companyName', 'locationStr', 'techStackStr'))->render();
+        $prompt = view('prompts.enrich-company', compact('companyName', 'locationStr', 'techStackStr', 'sectorKeys'))->render();
 
         try {
             $response = Http::timeout(20)->post(
                 'https://generativelanguage.googleapis.com/v1beta/models/' . self::MODEL . ":generateContent?key={$apiKey}",
                 [
-                    'contents'         => [
+                    'contents' => [
                         ['role' => 'user', 'parts' => [['text' => $prompt]]],
                     ],
                     'generationConfig' => [
@@ -64,15 +69,9 @@ class EnrichCompanyWithGeminiAction
                                     ],
                                 ],
                                 'sector' => [
-                                    'type'       => 'object',
-                                    'nullable'   => true,
-                                    'properties' => [
-                                        'es' => ['type' => 'string', 'nullable' => true],
-                                        'ca' => ['type' => 'string', 'nullable' => true],
-                                        'eu' => ['type' => 'string', 'nullable' => true],
-                                        'gl' => ['type' => 'string', 'nullable' => true],
-                                        'en' => ['type' => 'string', 'nullable' => true],
-                                    ],
+                                    'type'     => 'string',
+                                    'nullable' => true,
+                                    'enum'     => array_keys(config('sectors')),
                                 ],
                                 'employees' => ['type' => 'string', 'nullable' => true],
                                 'website'  => ['type' => 'string', 'nullable' => true],
@@ -97,7 +96,7 @@ class EnrichCompanyWithGeminiAction
 
             return true;
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::warning('Gemini enrichment failed', [
                 'company' => $company->name,
                 'error'   => $e->getMessage(),
