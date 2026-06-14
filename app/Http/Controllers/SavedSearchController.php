@@ -27,15 +27,17 @@ class SavedSearchController extends Controller
             'query'        => $validated['query'] ?? '',
         ];
 
+        $hash = md5(json_encode($filters));
+
         $alreadySaved = $user->savedSearches()
-            ->get()
-            ->contains(fn ($s) => $s->filters === $filters);
+            ->where('filters_hash', $hash)
+            ->exists();
 
         if ($alreadySaved) {
             return response()->json(['saved' => false, 'duplicate' => true]);
         }
 
-        $user->savedSearches()->create(['filters' => $filters]);
+        $user->savedSearches()->create(['filters' => $filters, 'filters_hash' => $hash]);
 
         if (! $user->alerts_enabled) {
             $user->update(['alerts_enabled' => true]);

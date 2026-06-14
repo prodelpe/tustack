@@ -65,7 +65,7 @@
                                 if (res.ok) this.saved = true
                             }
                         }"
-                        @search-updated.window="filters = $event.detail; saved = false"
+                        @search-updated.window="const f = $event.detail; if (JSON.stringify(f) !== JSON.stringify(filters)) { saved = false } filters = f"
                     >
                         <button
                             x-show="hasFilters && !saved"

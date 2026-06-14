@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SavedSearch extends Model
 {
-    protected $fillable = ['user_id', 'filters', 'last_notified_at'];
+    protected $fillable = ['user_id', 'filters', 'filters_hash', 'last_notified_at'];
 
     protected $casts = [
         'filters'          => 'array',
