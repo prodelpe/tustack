@@ -44,7 +44,9 @@ class EnrichCompanies extends Command
         $processed = 0;
         $succeeded = 0;
 
-        $query->when($limit > 0, fn ($q) => $q->limit($limit))
+        $query->when($limit > 0, function ($q) use ($limit) {
+            return $q->limit($limit);
+        })
             ->each(function (Company $company) use ($action, $sleep, $bar, &$processed, &$succeeded) {
                 $ok = $action->handle($company);
 
