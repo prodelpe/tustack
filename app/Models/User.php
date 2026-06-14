@@ -26,6 +26,7 @@ class User extends Authenticatable implements FilamentUser
         'email',
         'password',
         'is_admin',
+        'alerts_enabled',
     ];
 
     public function canAccessPanel(Panel $panel): bool
@@ -36,6 +37,11 @@ class User extends Authenticatable implements FilamentUser
     public function savedCompanies(): BelongsToMany
     {
         return $this->belongsToMany(Company::class)->withTimestamps();
+    }
+
+    public function savedSearches(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SavedSearch::class);
     }
 
     /**
@@ -58,7 +64,8 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'is_admin' => 'boolean',
+            'is_admin'        => 'boolean',
+            'alerts_enabled'  => 'boolean',
         ];
     }
 }

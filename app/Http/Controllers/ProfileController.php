@@ -11,14 +11,21 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
     public function edit(Request $request): View
     {
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user'          => $request->user(),
+            'savedSearches' => $request->user()->savedSearches()->latest()->get(),
         ]);
+    }
+
+    public function updateAlerts(Request $request): RedirectResponse
+    {
+        $request->user()->update([
+            'alerts_enabled' => $request->boolean('alerts_enabled'),
+        ]);
+
+        return Redirect::route('profile.edit')->with('status', 'alerts-updated');
     }
 
     /**

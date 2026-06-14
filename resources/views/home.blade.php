@@ -43,6 +43,36 @@
             <div class="mb-4 flex items-center justify-between">
                 <div id="stats" class="text-sm text-gray-500 dark:text-slate-400"></div>
                 <div class="flex items-center gap-4">
+                    @auth
+                        @if(auth()->user()->alerts_enabled)
+                        <div
+                            x-data="{
+                                saved: false,
+                                filters: { technologies: [], provinces: [], query: '' },
+                                get hasFilters() {
+                                    return this.filters.technologies.length > 0 || this.filters.provinces.length > 0 || !!this.filters.query
+                                },
+                                async save() {
+                                    const res = await fetch('{{ route('saved-searches.store') }}', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+                                        body: JSON.stringify(this.filters)
+                                    })
+                                    if (res.ok) this.saved = true
+                                }
+                            }"
+                            @search-updated.window="filters = $event.detail; saved = false"
+                        >
+                            <button
+                                x-show="hasFilters && !saved"
+                                x-cloak
+                                @click="save"
+                                class="text-xs text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
+                            >Save alert</button>
+                            <span x-show="saved" x-cloak class="text-xs text-green-600 dark:text-green-400">✓ Alert saved</span>
+                        </div>
+                        @endif
+                    @endauth
                     <label class="flex cursor-pointer select-none items-center gap-2">
                         <input type="checkbox" id="exclude-consultancies"
                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:focus:ring-indigo-600">

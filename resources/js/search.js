@@ -133,10 +133,20 @@ search.addWidgets([
     }),
 ])
 
+search.on('render', () => {
+    const state = search.getUiState()['devstack_companies'] || {}
+    window.dispatchEvent(new CustomEvent('search-updated', {
+        detail: {
+            technologies: state.refinementList?.technology_names || [],
+            provinces: state.refinementList?.province_name || [],
+            query: state.query || '',
+        }
+    }))
+})
+
 search.start()
 
 document.getElementById('exclude-consultancies')?.addEventListener('change', (e) => {
     const filter = e.target.checked ? 'is_consultancy = false' : ''
-    console.log('[filter] exclude-consultancies:', e.target.checked, '→ filter:', filter)
-    search.helper.setQueryParameter('filters', filter).search()
+search.helper.setQueryParameter('filters', filter).search()
 })
