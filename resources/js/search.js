@@ -81,6 +81,7 @@ search.addWidgets([
         searchablePlaceholder: 'Search…',
         limit: 10,
         showMore: true,
+        sortBy: ['count:desc', 'name:asc'],
     }),
 
     refinementList({
@@ -90,6 +91,7 @@ search.addWidgets([
         searchablePlaceholder: 'Search…',
         limit: 10,
         showMore: true,
+        sortBy: ['count:desc', 'name:asc'],
     }),
 
     hits({
