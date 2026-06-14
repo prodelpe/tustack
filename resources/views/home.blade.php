@@ -28,7 +28,7 @@
             <p class="mb-6 text-xs text-gray-400 dark:text-slate-500">
                 {{ $technologiesCount }} technologies &middot; {{ $provincesCount }} provinces
             </p>
-            <div class="mb-6">
+            <div class="mb-4 rounded-xl border border-gray-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
                 <label class="flex cursor-pointer select-none items-center justify-between">
                     <span class="text-xs text-gray-500 dark:text-slate-400">Exclude consultancies</span>
                     <div class="relative">
@@ -38,11 +38,11 @@
                     </div>
                 </label>
             </div>
-            <div class="mb-6">
+            <div class="mb-4 rounded-xl border border-gray-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
                 <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-slate-500">Technologies</p>
                 <div id="filter-technologies"></div>
             </div>
-            <div>
+            <div class="rounded-xl border border-gray-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
                 <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-slate-500">Province</p>
                 <div id="filter-provinces"></div>
             </div>
