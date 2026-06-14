@@ -6,7 +6,7 @@
 
         <div class="ml-auto flex items-center gap-3 shrink-0">
             @auth
-                <span class="text-sm text-gray-500 dark:text-slate-400">{{ Auth::user()->name }}</span>
+                <a href="{{ route('dashboard') }}" class="text-sm text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-white transition">{{ Auth::user()->name }}</a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="text-sm text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-white transition">

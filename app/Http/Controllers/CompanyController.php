@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use Illuminate\Support\Facades\Auth;
 
 class CompanyController extends Controller
 {
@@ -20,6 +21,8 @@ class CompanyController extends Controller
             ->orderByDesc('published_at')
             ->get();
 
-        return view('company', compact('company', 'technologies', 'jobOffers'));
+        $isSaved = Auth::check() && Auth::user()->savedCompanies()->where('company_id', $company->id)->exists();
+
+        return view('company', compact('company', 'technologies', 'jobOffers', 'isSaved'));
     }
 }
