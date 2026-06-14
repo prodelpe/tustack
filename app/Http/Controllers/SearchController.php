@@ -17,7 +17,7 @@ class SearchController extends Controller
         }
 
         $savedFilters = auth()->check()
-            ? auth()->user()->savedSearches()->pluck('filters')->all()
+            ? auth()->user()->savedSearches()->get()->pluck('filters')->all()
             : [];
 
         return view('home', [
