@@ -20,6 +20,11 @@ class Company extends Model
         'province_id',
         'latitude',
         'longitude',
+        'description',
+        'sector',
+        'employees',
+        'website',
+        'gemini_enriched',
     ];
 
 public function searchableAs(): string

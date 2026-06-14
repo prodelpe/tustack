@@ -56,6 +56,34 @@
             </div>
         </div>
 
+        @if ($company->description)
+            <p class="mt-4 text-sm text-gray-600 dark:text-slate-400 max-w-2xl">{{ $company->description }}</p>
+        @endif
+
+        @if ($company->sector || $company->employees || $company->website)
+            <div class="mt-3 flex flex-wrap items-center gap-4 text-xs text-gray-400 dark:text-slate-500">
+                @if ($company->sector)
+                    <span class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        {{ $company->sector }}
+                    </span>
+                @endif
+                @if ($company->employees)
+                    <span class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        {{ $company->employees }} employees
+                    </span>
+                @endif
+                @if ($company->website)
+                    <a href="{{ $company->website }}" target="_blank" rel="noopener noreferrer"
+                        class="flex items-center gap-1 hover:text-indigo-500 dark:hover:text-indigo-400 transition">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        {{ parse_url($company->website, PHP_URL_HOST) }}
+                    </a>
+                @endif
+            </div>
+        @endif
+
         @if ($technologies->isNotEmpty())
             <div class="mt-5">
                 <p class="mb-2 text-xs font-medium uppercase tracking-widest text-gray-400 dark:text-slate-500">Tech stack</p>
