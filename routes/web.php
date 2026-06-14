@@ -31,6 +31,11 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('dashboard');
     })->name('alerts.enable');
 
+    Route::post('/alerts/disable', function () {
+        auth()->user()->update(['alerts_enabled' => false]);
+        return redirect()->route('dashboard');
+    })->name('alerts.disable');
+
     Route::post('/saved-searches', [SavedSearchController::class, 'store'])->name('saved-searches.store');
     Route::delete('/saved-searches/{savedSearch}', [SavedSearchController::class, 'destroy'])->name('saved-searches.destroy');
 });
