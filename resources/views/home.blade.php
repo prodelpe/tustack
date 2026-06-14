@@ -42,7 +42,14 @@
         <div class="flex-1 min-w-0">
             <div class="mb-4 flex items-center justify-between">
                 <div id="stats" class="text-sm text-gray-500 dark:text-slate-400"></div>
-                <div id="clear-filters"></div>
+                <div class="flex items-center gap-4">
+                    <label class="flex cursor-pointer select-none items-center gap-2">
+                        <input type="checkbox" id="exclude-consultancies"
+                               class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:focus:ring-indigo-600">
+                        <span class="text-sm text-gray-500 dark:text-slate-400">Exclude consultancies</span>
+                    </label>
+                    <div id="clear-filters"></div>
+                </div>
             </div>
             <div id="hits"></div>
             <div id="pagination" class="mt-8"></div>

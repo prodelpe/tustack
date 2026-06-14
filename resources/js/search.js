@@ -134,3 +134,9 @@ search.addWidgets([
 ])
 
 search.start()
+
+document.getElementById('exclude-consultancies')?.addEventListener('change', (e) => {
+    const filter = e.target.checked ? 'is_consultancy = false' : ''
+    console.log('[filter] exclude-consultancies:', e.target.checked, '→ filter:', filter)
+    search.helper.setQueryParameter('filters', filter).search()
+})

@@ -141,7 +141,7 @@ return [
         'key' => env('MEILISEARCH_KEY'),
         'index-settings' => [
             'devstack_companies' => [
-                'filterableAttributes' => ['technology_ids', 'technology_names', 'province_id', 'province_name'],
+                'filterableAttributes' => ['technology_ids', 'technology_names', 'province_id', 'province_name', 'is_consultancy'],
                 'searchableAttributes' => ['name', 'city', 'technology_names', 'province_name'],
                 'sortableAttributes'   => ['name', 'job_offers_count'],
             ],
