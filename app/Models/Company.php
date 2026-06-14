@@ -12,6 +12,11 @@ use Laravel\Scout\Searchable;
 class Company extends Model
 {
     use Searchable;
+
+    protected $casts = [
+        'description' => 'array',
+    ];
+
     protected $fillable = [
         'name',
         'location',

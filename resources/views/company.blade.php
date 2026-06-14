@@ -57,7 +57,15 @@
         </div>
 
         @if ($company->description)
-            <p class="mt-4 text-sm text-gray-600 dark:text-slate-400 max-w-2xl">{{ $company->description }}</p>
+            @php
+                $desc = $company->description[app()->getLocale()]
+                    ?? $company->description['es']
+                    ?? $company->description['en']
+                    ?? collect($company->description)->filter()->first();
+            @endphp
+            @if ($desc)
+                <p class="mt-4 text-sm text-gray-600 dark:text-slate-400 max-w-2xl">{{ $desc }}</p>
+            @endif
         @endif
 
         @if ($company->sector || $company->employees || $company->website)

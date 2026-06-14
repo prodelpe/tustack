@@ -42,7 +42,7 @@ Location: {$locationStr}
 Known tech stack (from job offers): {$techStackStr}
 
 Return a JSON object with exactly these fields:
-- "description": 2-3 factual sentences about what this company does. Return null if you are not confident.
+- "description": an object with keys "es", "ca", "eu", "gl", "en". Each value is 2-3 factual sentences about what this company does, written in that language. Return null for the whole field if you are not confident about the company.
 - "sector": one short label like "Fintech", "E-commerce", "SaaS", "Healthcare", "Consulting", "Gaming", etc. Return null if unsure.
 - "employees": LinkedIn-style headcount range. One of: "1-10", "11-50", "51-200", "201-500", "501-1000", "1001-5000", "5000+". Return null if unsure.
 - "website": the company's official website URL. Return null if unsure.
@@ -62,10 +62,20 @@ PROMPT;
                         'responseSchema'   => [
                             'type'       => 'object',
                             'properties' => [
-                                'description' => ['type' => 'string',  'nullable' => true],
-                                'sector'      => ['type' => 'string',  'nullable' => true],
-                                'employees'   => ['type' => 'string',  'nullable' => true],
-                                'website'     => ['type' => 'string',  'nullable' => true],
+                                'description' => [
+                                    'type'       => 'object',
+                                    'nullable'   => true,
+                                    'properties' => [
+                                        'es' => ['type' => 'string', 'nullable' => true],
+                                        'ca' => ['type' => 'string', 'nullable' => true],
+                                        'eu' => ['type' => 'string', 'nullable' => true],
+                                        'gl' => ['type' => 'string', 'nullable' => true],
+                                        'en' => ['type' => 'string', 'nullable' => true],
+                                    ],
+                                ],
+                                'sector'   => ['type' => 'string', 'nullable' => true],
+                                'employees' => ['type' => 'string', 'nullable' => true],
+                                'website'  => ['type' => 'string', 'nullable' => true],
                             ],
                         ],
                     ],
