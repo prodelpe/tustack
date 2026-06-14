@@ -69,13 +69,21 @@
     </div>
 
     <div>
-        <p class="mb-4 text-xs font-medium uppercase tracking-widest text-gray-400 dark:text-slate-500">Open positions</p>
+        <p class="mb-4 text-xs font-medium uppercase tracking-widest text-gray-400 dark:text-slate-500">
+            Job offers · {{ $jobOffers->total() }}
+        </p>
 
         @forelse ($jobOffers as $offer)
             <x-job-offer-row :offer="$offer" />
         @empty
             <p class="text-gray-500 dark:text-slate-400">No positions available.</p>
         @endforelse
+
+        @if ($jobOffers->hasPages())
+            <div class="mt-6">
+                {{ $jobOffers->links('pagination::simple-tailwind') }}
+            </div>
+        @endif
     </div>
 
 </main>

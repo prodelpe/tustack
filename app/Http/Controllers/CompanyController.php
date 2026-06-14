@@ -19,7 +19,7 @@ class CompanyController extends Controller
 
         $jobOffers = $company->jobOffers()
             ->orderByDesc('published_at')
-            ->get();
+            ->paginate(10);
 
         $isSaved = Auth::check() && Auth::user()->savedCompanies()->where('company_id', $company->id)->exists();
 
