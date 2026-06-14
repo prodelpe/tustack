@@ -2,7 +2,7 @@
 
 @section('content')
 
-<main class="mx-auto max-w-5xl px-4 py-10">
+<main class="mx-auto max-w-6xl px-4 py-10">
 
     <div class="mb-8">
         <div class="flex items-start justify-between gap-4">
