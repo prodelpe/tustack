@@ -136,12 +136,25 @@ search.on('render', () => {
         const params = new URLSearchParams()
         techs.forEach(t => params.append('technologies', t))
         provs.forEach(p => params.append('provinces', p))
+        if (document.getElementById('exclude-consultancies')?.checked) params.set('exclude_consultancies', '1')
         const query = params.toString()
         listLink.href = window.__HOME_URL__ + (query ? '?' + query : '')
     }
 })
 
-document.getElementById('exclude-consultancies')?.addEventListener('change', (e) => {
-    const filter = e.target.checked ? 'is_consultancy = false' : ''
-    search.helper.setQueryParameter('filters', filter).search()
-})
+const excludeCheckbox = document.getElementById('exclude-consultancies')
+
+if (excludeCheckbox) {
+    const initialExclude = new URLSearchParams(window.location.search).get('exclude_consultancies') === '1'
+    if (initialExclude) {
+        excludeCheckbox.checked = true
+        search.once('render', () => {
+            search.helper.setQueryParameter('filters', 'is_consultancy = false').search()
+        })
+    }
+
+    excludeCheckbox.addEventListener('change', (e) => {
+        const filter = e.target.checked ? 'is_consultancy = false' : ''
+        search.helper.setQueryParameter('filters', filter).search()
+    })
+}
