@@ -16,6 +16,8 @@ const { searchClient } = instantMeiliSearch(
     window.__MEILISEARCH_KEY__,
 )
 
+let excludeConsultancies = new URLSearchParams(window.location.search).get('exclude_consultancies') === '1'
+
 const search = instantsearch({
     indexName: 'devstack_companies',
     searchClient,
@@ -33,9 +35,10 @@ const search = instantsearch({
                 const provs = index.refinementList?.province_name
                 return {
                     q: index.query || undefined,
-                    technologies: techs?.length ? techs.join(',') : undefined,
-                    provinces: provs?.length ? provs.join(',') : undefined,
+                    technologies: techs?.length ? techs : undefined,
+                    provinces: provs?.length ? provs : undefined,
                     page: index.page > 1 ? index.page : undefined,
+                    exclude_consultancies: excludeConsultancies ? '1' : undefined,
                 }
             },
             routeToState(routeState) {
@@ -137,7 +140,6 @@ search.on('render', () => {
     const state = search.getUiState()['devstack_companies'] || {}
     const techs = state.refinementList?.technology_names || []
     const provs  = state.refinementList?.province_name || []
-
     window.dispatchEvent(new CustomEvent('search-updated', {
         detail: {
             technologies: techs,
@@ -149,9 +151,9 @@ search.on('render', () => {
     const mapLink = document.getElementById('map-link')
     if (mapLink && window.__MAP_URL__) {
         const params = new URLSearchParams()
-        techs.forEach(t => params.append('technologies', t))
-        provs.forEach(p => params.append('provinces', p))
-        if (document.getElementById('exclude-consultancies')?.checked) params.set('exclude_consultancies', '1')
+        techs.forEach((t, i) => params.set(`technologies[${i}]`, t))
+        provs.forEach((p, i) => params.set(`provinces[${i}]`, p))
+        if (excludeConsultancies) params.set('exclude_consultancies', '1')
         const query = params.toString()
         mapLink.href = window.__MAP_URL__ + (query ? '?' + query : '')
     }
@@ -171,6 +173,7 @@ if (excludeCheckbox) {
     }
 
     excludeCheckbox.addEventListener('change', (e) => {
+        excludeConsultancies = e.target.checked
         const filter = e.target.checked ? 'is_consultancy = false' : ''
         search.helper.setQueryParameter('filters', filter).search()
     })

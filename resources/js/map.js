@@ -31,6 +31,8 @@ const { searchClient } = instantMeiliSearch(
     window.__MEILISEARCH_KEY__,
 )
 
+let excludeConsultancies = new URLSearchParams(window.location.search).get('exclude_consultancies') === '1'
+
 const search = instantsearch({
     indexName: 'devstack_companies',
     searchClient,
@@ -44,9 +46,12 @@ const search = instantsearch({
         stateMapping: {
             stateToRoute(uiState) {
                 const index = uiState['devstack_companies'] || {}
+                const techs = index.refinementList?.technology_names
+                const provs = index.refinementList?.province_name
                 return {
-                    technologies: index.refinementList?.technology_names || [],
-                    provinces:    index.refinementList?.province_name || [],
+                    technologies: techs?.length ? techs : undefined,
+                    provinces:    provs?.length ? provs : undefined,
+                    exclude_consultancies: excludeConsultancies ? '1' : undefined,
                 }
             },
             routeToState(routeState) {
@@ -128,15 +133,16 @@ search.addWidgets([
 search.start()
 
 search.on('render', () => {
+    const state = search.getUiState()['devstack_companies'] || {}
+    const techs = state.refinementList?.technology_names || []
+    const provs  = state.refinementList?.province_name || []
+
     const listLink = document.getElementById('list-link')
     if (listLink && window.__HOME_URL__) {
-        const state = search.getUiState()['devstack_companies'] || {}
-        const techs = state.refinementList?.technology_names || []
-        const provs  = state.refinementList?.province_name || []
         const params = new URLSearchParams()
-        techs.forEach(t => params.append('technologies', t))
-        provs.forEach(p => params.append('provinces', p))
-        if (document.getElementById('exclude-consultancies')?.checked) params.set('exclude_consultancies', '1')
+        techs.forEach((t, i) => params.set(`technologies[${i}]`, t))
+        provs.forEach((p, i) => params.set(`provinces[${i}]`, p))
+        if (excludeConsultancies) params.set('exclude_consultancies', '1')
         const query = params.toString()
         listLink.href = window.__HOME_URL__ + (query ? '?' + query : '')
     }
@@ -154,6 +160,7 @@ if (excludeCheckbox) {
     }
 
     excludeCheckbox.addEventListener('change', (e) => {
+        excludeConsultancies = e.target.checked
         const filter = e.target.checked ? 'is_consultancy = false' : ''
         search.helper.setQueryParameter('filters', filter).search()
     })
