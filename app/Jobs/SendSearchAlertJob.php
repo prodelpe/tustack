@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Actions\SendTelegramAlertAction;
 use App\Mail\SearchAlertMail;
 use App\Models\Company;
 use App\Models\SavedSearch;
@@ -42,9 +43,15 @@ class SendSearchAlertJob implements ShouldQueue
             return;
         }
 
-        Mail::to($savedSearch->user)->send(
-            new SearchAlertMail($savedSearch->user, $savedSearch, $companies)
-        );
+        $user = $savedSearch->user;
+
+        if ($user->telegram_chat_id) {
+            app(SendTelegramAlertAction::class)->handle($user, $savedSearch, $companies);
+        }
+
+        if ($user->alerts_enabled) {
+            Mail::to($user)->send(new SearchAlertMail($user, $savedSearch, $companies));
+        }
 
         $savedSearch->update(['last_notified_at' => now()]);
     }

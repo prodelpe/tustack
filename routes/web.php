@@ -5,10 +5,13 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SavedCompanyController;
 use App\Http\Controllers\SavedSearchController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\TelegramWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [SearchController::class, 'home'])->name('home');
 Route::get('/companies/{company}', [CompanyController::class, 'show'])->name('companies.show');
+
+Route::post('/telegram/webhook', TelegramWebhookController::class)->name('telegram.webhook');
 
 Route::get('/alerts/unsubscribe/{user}', [SavedSearchController::class, 'unsubscribe'])
     ->name('alerts.unsubscribe')
@@ -18,8 +21,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         $user = auth()->user();
         return view('dashboard', [
-            'savedSearches'  => $user->savedSearches()->latest()->get(),
-            'alertsEnabled'  => $user->alerts_enabled,
+            'savedSearches'     => $user->savedSearches()->latest()->get(),
+            'alertsEnabled'     => $user->alerts_enabled,
+            'telegramConnected' => (bool) $user->telegram_chat_id,
         ]);
     })->name('dashboard');
     Route::get('/dashboard/companies', [SavedCompanyController::class, 'index'])->name('dashboard.companies');
@@ -35,6 +39,18 @@ Route::middleware('auth')->group(function () {
         auth()->user()->update(['alerts_enabled' => false]);
         return redirect()->route('dashboard');
     })->name('alerts.disable');
+
+    Route::post('/telegram/connect', function () {
+        $token = \Illuminate\Support\Str::random(32);
+        auth()->user()->update(['telegram_connect_token' => $token]);
+        $botUsername = config('telegram.bots.findyourdevstack_bot.username');
+        return redirect("https://t.me/{$botUsername}?start={$token}");
+    })->name('telegram.connect');
+
+    Route::post('/telegram/disconnect', function () {
+        auth()->user()->update(['telegram_chat_id' => null, 'telegram_connect_token' => null]);
+        return redirect()->route('dashboard');
+    })->name('telegram.disconnect');
 
     Route::post('/saved-searches', [SavedSearchController::class, 'store'])->name('saved-searches.store');
     Route::delete('/saved-searches/{savedSearch}', [SavedSearchController::class, 'destroy'])->name('saved-searches.destroy');

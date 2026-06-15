@@ -2,23 +2,24 @@
 
 @section('content')
 <x-dashboard-main title="My alerts">
-    <div class="mb-6 flex items-center justify-between rounded-xl border px-5 py-3
-        {{ $alertsEnabled
-            ? 'border-green-200 bg-green-50 dark:border-green-900/40 dark:bg-green-950/20'
-            : 'border-gray-200 bg-gray-50 dark:border-slate-800 dark:bg-slate-900' }}">
-        <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full {{ $alertsEnabled ? 'bg-green-500' : 'bg-gray-400 dark:bg-slate-600' }}"></span>
-            <span class="text-sm {{ $alertsEnabled ? 'text-green-700 dark:text-green-400' : 'text-gray-500 dark:text-slate-400' }}">
-                Email notifications {{ $alertsEnabled ? 'enabled' : 'disabled' }}
-            </span>
-        </div>
-        <form method="POST" action="{{ route($alertsEnabled ? 'alerts.disable' : 'alerts.enable') }}">
-            @csrf
-            <button type="submit" class="text-xs text-gray-400 hover:text-gray-700 dark:hover:text-slate-200 transition">
-                {{ $alertsEnabled ? 'Disable' : 'Enable' }}
-            </button>
-        </form>
+    <div class="mb-6 grid grid-cols-2 gap-4">
+        <x-alert-channel
+            label="Email"
+            :active="$alertsEnabled"
+            :enable-route="route('alerts.enable')"
+            :disable-route="route('alerts.disable')"
+        >{{ $alertsEnabled ? 'Enabled' : 'Disabled' }}</x-alert-channel>
+
+        <x-alert-channel
+            label="Telegram"
+            :active="$telegramConnected"
+            color="blue"
+            :enable-route="route('telegram.connect')"
+            :disable-route="route('telegram.disconnect')"
+            :open-blank="true"
+        >{{ $telegramConnected ? 'Connected' : 'Not connected' }}</x-alert-channel>
     </div>
+
     @forelse ($savedSearches as $search)
         <div class="mb-3 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-5 py-4 dark:border-slate-800 dark:bg-slate-900">
             <div>
