@@ -38,7 +38,7 @@
                    class="text-xs text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">
                     View results
                 </a>
-                <form method="POST" action="{{ route('saved-searches.destroy', $search) }}">
+                <form method="POST" action="{{ route('saved-searches.destroy', $search) }}" class="flex items-center">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="text-xs text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition">Remove</button>
