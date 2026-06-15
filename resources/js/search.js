@@ -39,7 +39,7 @@ const search = instantsearch({
                 }
             },
             routeToState(routeState) {
-                const toArray = v => !v ? [] : Array.isArray(v) ? v : v.split(',')
+                const toArray = v => !v ? [] : Array.isArray(v) ? v : [v]
                 return {
                     'devstack_companies': {
                         query: routeState.q || '',
@@ -135,18 +135,30 @@ search.addWidgets([
 
 search.on('render', () => {
     const state = search.getUiState()['devstack_companies'] || {}
+    const techs = state.refinementList?.technology_names || []
+    const provs  = state.refinementList?.province_name || []
+
     window.dispatchEvent(new CustomEvent('search-updated', {
         detail: {
-            technologies: state.refinementList?.technology_names || [],
-            provinces: state.refinementList?.province_name || [],
+            technologies: techs,
+            provinces: provs,
             query: state.query || '',
         }
     }))
+
+    const mapLink = document.getElementById('map-link')
+    if (mapLink && window.__MAP_URL__) {
+        const params = new URLSearchParams()
+        techs.forEach(t => params.append('technologies', t))
+        provs.forEach(p => params.append('provinces', p))
+        const query = params.toString()
+        mapLink.href = window.__MAP_URL__ + (query ? '?' + query : '')
+    }
 })
 
 search.start()
 
 document.getElementById('exclude-consultancies')?.addEventListener('change', (e) => {
     const filter = e.target.checked ? 'is_consultancy = false' : ''
-search.helper.setQueryParameter('filters', filter).search()
+    search.helper.setQueryParameter('filters', filter).search()
 })

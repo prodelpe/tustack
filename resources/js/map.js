@@ -1,5 +1,6 @@
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch'
 import instantsearch from 'instantsearch.js'
+import { history } from 'instantsearch.js/es/lib/routers'
 import {
     refinementList,
     clearRefinements,
@@ -33,12 +34,39 @@ const { searchClient } = instantMeiliSearch(
 const search = instantsearch({
     indexName: 'devstack_companies',
     searchClient,
+    routing: {
+        router: history({
+            createURL({ qsModule, routeState, location }) {
+                const query = qsModule.stringify(routeState, { encode: false })
+                return `${location.pathname}${query ? '?' + query : ''}`
+            },
+        }),
+        stateMapping: {
+            stateToRoute(uiState) {
+                const index = uiState['devstack_companies'] || {}
+                return {
+                    technologies: index.refinementList?.technology_names || [],
+                    provinces:    index.refinementList?.province_name || [],
+                }
+            },
+            routeToState(routeState) {
+                const toArray = v => !v ? [] : Array.isArray(v) ? v : [v]
+                return {
+                    'devstack_companies': {
+                        refinementList: {
+                            technology_names: toArray(routeState.technologies),
+                            province_name:    toArray(routeState.provinces),
+                        },
+                    },
+                }
+            },
+        },
+    },
 })
 
 search.addWidgets([
     configure({
         hitsPerPage: 1000,
-        filters: '_geoRadius(40.4, -3.7, 2000000)',
     }),
 
     stats({
@@ -99,9 +127,21 @@ search.addWidgets([
 
 search.start()
 
+search.on('render', () => {
+    const listLink = document.getElementById('list-link')
+    if (listLink && window.__HOME_URL__) {
+        const state = search.getUiState()['devstack_companies'] || {}
+        const techs = state.refinementList?.technology_names || []
+        const provs  = state.refinementList?.province_name || []
+        const params = new URLSearchParams()
+        techs.forEach(t => params.append('technologies', t))
+        provs.forEach(p => params.append('provinces', p))
+        const query = params.toString()
+        listLink.href = window.__HOME_URL__ + (query ? '?' + query : '')
+    }
+})
+
 document.getElementById('exclude-consultancies')?.addEventListener('change', (e) => {
-    const filter = e.target.checked
-        ? 'is_consultancy = false AND _geoRadius(40.4, -3.7, 2000000)'
-        : '_geoRadius(40.4, -3.7, 2000000)'
+    const filter = e.target.checked ? 'is_consultancy = false' : ''
     search.helper.setQueryParameter('filters', filter).search()
 })

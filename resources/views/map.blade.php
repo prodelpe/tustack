@@ -21,7 +21,7 @@
             {{-- Mapa --}}
             <div class="flex-1 min-w-0">
                 <div class="mb-4 flex items-center justify-between">
-                    <a href="{{ route('home') }}" class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 transition">
+                    <a id="list-link" href="{{ route('home') }}" class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 transition">
                         ← Back to list
                     </a>
                 </div>
@@ -36,6 +36,7 @@
 <script>
     window.__MEILISEARCH_HOST__ = @json($meilisearchHost);
     window.__MEILISEARCH_KEY__  = @json($meilisearchKey);
+    window.__HOME_URL__         = @json(route('home'));
 </script>
 @vite('resources/js/map.js')
 @endpush

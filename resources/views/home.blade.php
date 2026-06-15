@@ -34,7 +34,7 @@
             <div class="mb-4 flex items-center justify-between gap-4">
                 <div class="flex items-center gap-4">
                     <div id="stats" class="text-sm text-gray-500 dark:text-slate-400"></div>
-                    <a href="{{ route('map') }}" class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 transition">View map</a>
+                    <a id="map-link" href="{{ route('map') }}" class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 transition">View map</a>
                     @auth
                     <div
                         x-data="{
@@ -88,6 +88,7 @@
     window.__MEILISEARCH_HOST__ = @json($meilisearchHost);
     window.__MEILISEARCH_KEY__  = @json($meilisearchKey);
     window.__SAVED_FILTERS__    = @json($savedFilters);
+    window.__MAP_URL__          = @json(route('map'));
 </script>
 @vite('resources/js/search.js')
 @endpush
