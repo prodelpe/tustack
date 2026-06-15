@@ -16,7 +16,7 @@ const { searchClient } = instantMeiliSearch(
     window.__MEILISEARCH_KEY__,
 )
 
-let excludeConsultancies = new URLSearchParams(window.location.search).get('exclude_consultancies') === '1'
+let excludeConsultancies = new URLSearchParams(window.location.search).get('excl_cons') === '1'
 
 const search = instantsearch({
     indexName: 'devstack_companies',
@@ -35,10 +35,10 @@ const search = instantsearch({
                 const provs = index.refinementList?.province_name
                 return {
                     q: index.query || undefined,
-                    technologies: techs?.length ? techs : undefined,
-                    provinces: provs?.length ? provs : undefined,
+                    tech: techs?.length ? techs : undefined,
+                    prov: provs?.length ? provs : undefined,
                     page: index.page > 1 ? index.page : undefined,
-                    exclude_consultancies: excludeConsultancies ? '1' : undefined,
+                    excl_cons: excludeConsultancies ? '1' : undefined,
                 }
             },
             routeToState(routeState) {
@@ -48,8 +48,8 @@ const search = instantsearch({
                         query: routeState.q || '',
                         page: routeState.page || 1,
                         refinementList: {
-                            technology_names: toArray(routeState.technologies),
-                            province_name: toArray(routeState.provinces),
+                            technology_names: toArray(routeState.tech),
+                            province_name: toArray(routeState.prov),
                         },
                     },
                 }
@@ -142,8 +142,8 @@ search.on('render', () => {
     const provs  = state.refinementList?.province_name || []
     window.dispatchEvent(new CustomEvent('search-updated', {
         detail: {
-            technologies: techs,
-            provinces: provs,
+            tech: techs,
+            prov: provs,
             query: state.query || '',
         }
     }))
@@ -151,9 +151,9 @@ search.on('render', () => {
     const mapLink = document.getElementById('map-link')
     if (mapLink && window.__MAP_URL__) {
         const params = new URLSearchParams()
-        techs.forEach((t, i) => params.set(`technologies[${i}]`, t))
-        provs.forEach((p, i) => params.set(`provinces[${i}]`, p))
-        if (excludeConsultancies) params.set('exclude_consultancies', '1')
+        techs.forEach((t, i) => params.set(`tech[${i}]`, t))
+        provs.forEach((p, i) => params.set(`prov[${i}]`, p))
+        if (excludeConsultancies) params.set('excl_cons', '1')
         const query = params.toString()
         mapLink.href = window.__MAP_URL__ + (query ? '?' + query : '')
     }
@@ -164,7 +164,7 @@ search.start()
 const excludeCheckbox = document.getElementById('exclude-consultancies')
 
 if (excludeCheckbox) {
-    const initialExclude = new URLSearchParams(window.location.search).get('exclude_consultancies') === '1'
+    const initialExclude = new URLSearchParams(window.location.search).get('excl_cons') === '1'
     if (initialExclude) {
         excludeCheckbox.checked = true
         search.once('render', () => {
