@@ -8,6 +8,23 @@ use Illuminate\Support\Facades\Http;
 
 class SearchController extends Controller
 {
+    public function map()
+    {
+        $host = config('scout.meilisearch.host');
+
+        try {
+            $healthy = Http::timeout(2)->get("{$host}/health")->successful();
+        } catch (\Throwable) {
+            $healthy = false;
+        }
+
+        return view('map', [
+            'meilisearchHost'      => $host,
+            'meilisearchKey'       => config('scout.meilisearch.key'),
+            'meilisearchAvailable' => $healthy,
+        ]);
+    }
+
     public function home()
     {
         $host = config('scout.meilisearch.host');

@@ -56,6 +56,9 @@ public function searchableAs(): string
             'technology_names' => $technologies->pluck('name')->values()->all(),
             'job_offers_count' => $this->jobOffers->count(),
             'is_consultancy'   => in_array($this->sector, ['it_consulting', 'recruitment']),
+            '_geo'             => $this->latitude && $this->longitude
+                                    ? ['lat' => (float) $this->latitude, 'lng' => (float) $this->longitude]
+                                    : null,
         ];
     }
 

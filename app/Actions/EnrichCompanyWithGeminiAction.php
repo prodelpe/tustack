@@ -74,7 +74,9 @@ class EnrichCompanyWithGeminiAction
                                     'enum'     => array_keys(config('sectors')),
                                 ],
                                 'employees' => ['type' => 'string', 'nullable' => true],
-                                'website'  => ['type' => 'string', 'nullable' => true],
+                                'website'   => ['type' => 'string', 'nullable' => true],
+                                'latitude'  => ['type' => 'number', 'nullable' => true],
+                                'longitude' => ['type' => 'number', 'nullable' => true],
                             ],
                         ],
                     ],
@@ -91,6 +93,8 @@ class EnrichCompanyWithGeminiAction
                 'sector'          => $data['sector'] ?? null,
                 'employees'       => $data['employees'] ?? null,
                 'website'         => $data['website'] ?? null,
+                'latitude'        => $data['latitude'] ?? null,
+                'longitude'       => $data['longitude'] ?? null,
                 'gemini_enriched' => true,
             ]);
 

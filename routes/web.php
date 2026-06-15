@@ -9,6 +9,7 @@ use App\Http\Controllers\TelegramWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [SearchController::class, 'home'])->name('home');
+Route::get('/map', [SearchController::class, 'map'])->name('map');
 Route::get('/companies/{company}', [CompanyController::class, 'show'])->name('companies.show');
 
 Route::post('/telegram/webhook', TelegramWebhookController::class)->name('telegram.webhook');
