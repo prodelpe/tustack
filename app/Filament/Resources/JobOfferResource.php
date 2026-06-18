@@ -65,9 +65,7 @@ class JobOfferResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->searchable()
-                    ->sortable()
-                    ->url(fn (JobOffer $record) => $record->url)
-                    ->openUrlInNewTab(),
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('company.name')
                     ->sortable()
                     ->searchable(),
@@ -98,6 +96,11 @@ class JobOfferResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('open_url')
+                    ->label('View')
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->url(fn (JobOffer $record) => $record->url)
+                    ->openUrlInNewTab(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

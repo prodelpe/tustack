@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CompanyResource\Pages;
 use App\Models\Company;
+use App\Models\Province;
 use Exception;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -32,9 +33,10 @@ class CompanyResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Select::make('province')
-                    ->options(self::provinces())
+                Forms\Components\Select::make('province_id')
+                    ->relationship('province', 'name')
                     ->searchable()
+                    ->preload()
                     ->nullable(),
                 Forms\Components\TextInput::make('location')
                     ->maxLength(255)
@@ -56,9 +58,9 @@ class CompanyResource extends Resource
                     ->counts('jobOffers')
                     ->label('Offers')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('province')
-                    ->searchable()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('province.name')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('location')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -68,14 +70,9 @@ class CompanyResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('province')
-                    ->options(
-                        fn () => Company::query()
-                            ->whereNotNull('province')
-                            ->distinct()
-                            ->orderBy('province')
-                            ->pluck('province', 'province')
-                            ->toArray()
-                    ),
+                    ->relationship('province', 'name')
+                    ->searchable()
+                    ->preload(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -101,21 +98,4 @@ class CompanyResource extends Resource
         ];
     }
 
-    private static function provinces(): array
-    {
-        $provinces = [
-            'Álava', 'Albacete', 'Alicante', 'Almería', 'Asturias', 'Ávila',
-            'Badajoz', 'Barcelona', 'Burgos', 'Cáceres', 'Cádiz', 'Cantabria',
-            'Castellón', 'Ciudad Real', 'Córdoba', 'Cuenca', 'Girona', 'Granada',
-            'Guadalajara', 'Guipúzcoa', 'Huelva', 'Huesca', 'Islas Baleares',
-            'Jaén', 'La Coruña', 'La Rioja', 'Las Palmas', 'León', 'Lleida',
-            'Lugo', 'Madrid', 'Málaga', 'Murcia', 'Navarra', 'Ourense',
-            'Palencia', 'Pontevedra', 'Salamanca', 'Santa Cruz de Tenerife',
-            'Segovia', 'Sevilla', 'Soria', 'Tarragona', 'Teruel', 'Toledo',
-            'Valencia', 'Valladolid', 'Vizcaya', 'Zamora', 'Zaragoza',
-            'Ceuta', 'Melilla',
-        ];
-
-        return array_combine($provinces, $provinces);
-    }
 }
