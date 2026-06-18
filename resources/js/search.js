@@ -136,10 +136,35 @@ search.addWidgets([
     }),
 ])
 
+let trackedTechs = new Set()
+let initialRenderDone = false
+
+function trackNewTechs(techs) {
+    if (window.__IS_ADMIN__) return
+
+    const newTechs = techs.filter(t => !trackedTechs.has(t))
+    if (!newTechs.length) return
+
+    newTechs.forEach(t => trackedTechs.add(t))
+
+    fetch(window.__TRACK_SEARCH_URL__, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ technologies: newTechs }),
+        keepalive: true,
+    }).catch(() => {})
+}
+
 search.on('render', () => {
     const state = search.getUiState()['devstack_companies'] || {}
     const techs = state.refinementList?.technology_names || []
     const provs  = state.refinementList?.province_name || []
+
+    if (!initialRenderDone) {
+        initialRenderDone = true
+        trackNewTechs(techs)
+    }
+
     window.dispatchEvent(new CustomEvent('search-updated', {
         detail: {
             tech: techs,
@@ -160,6 +185,13 @@ search.on('render', () => {
 })
 
 search.start()
+
+search.helper.on('change', (event) => {
+    const techs = event.state.disjunctiveFacetsRefinements?.technology_names
+        ?? event.state.facetsRefinements?.technology_names
+        ?? []
+    trackNewTechs(techs)
+})
 
 const excludeCheckbox = document.getElementById('exclude-consultancies')
 

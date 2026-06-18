@@ -89,6 +89,8 @@
     window.__MEILISEARCH_KEY__  = @json($meilisearchKey);
     window.__SAVED_FILTERS__    = @json($savedFilters);
     window.__MAP_URL__          = @json(route('map'));
+    window.__TRACK_SEARCH_URL__ = @json(route('track-search'));
+    window.__IS_ADMIN__         = @json(auth()->check() && auth()->user()->is_admin);
 </script>
 @vite('resources/js/search.js')
 @endpush
