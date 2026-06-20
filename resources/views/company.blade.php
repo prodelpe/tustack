@@ -105,6 +105,35 @@
         @endif
     </div>
 
+    @if ($similarCompanies->isNotEmpty())
+        <div class="mt-12">
+            <p class="mb-4 text-xs font-medium uppercase tracking-widest text-gray-400 dark:text-slate-500">Similar companies</p>
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ($similarCompanies as $similar)
+                    <a href="{{ route('companies.show', $similar) }}"
+                        class="group flex flex-col rounded-xl border border-gray-200 bg-white px-5 py-4 transition hover:border-gray-300 hover:shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
+                    >
+                        <div class="flex items-start justify-between gap-2">
+                            <p class="font-medium text-gray-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-300">
+                                {{ $similar->name }}
+                            </p>
+                            @if ($similar->sector === 'it_consulting')
+                                <x-company-type-badge type="consultancy" />
+                            @elseif ($similar->sector === 'recruitment')
+                                <x-company-type-badge type="recruitment" />
+                            @endif
+                        </div>
+                        @if ($similar->city || $similar->province)
+                            <p class="mt-0.5 text-xs text-gray-400 dark:text-slate-500">
+                                {{ collect([$similar->city, $similar->province?->name])->filter()->unique()->implode(', ') }}
+                            </p>
+                        @endif
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
 </main>
 
 @endsection

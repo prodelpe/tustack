@@ -90,4 +90,28 @@ public function searchableAs(): string
             'id'
         );
     }
+
+    public function similarCompanies(int $limit = 6): \Illuminate\Database\Eloquent\Collection
+    {
+        $technologyIds = $this->jobOffers
+            ->flatMap->technologies
+            ->unique('id')
+            ->pluck('id');
+
+        if ($technologyIds->isEmpty()) {
+            return collect();
+        }
+
+        return static::selectRaw('companies.*, COUNT(DISTINCT t.id) as shared_tech_count')
+            ->join('job_offers as jo', 'jo.company_id', '=', 'companies.id')
+            ->join('job_offer_technology as jot', 'jot.job_offer_id', '=', 'jo.id')
+            ->join('technologies as t', 't.id', '=', 'jot.technology_id')
+            ->whereIn('t.id', $technologyIds)
+            ->where('companies.id', '!=', $this->id)
+            ->groupBy('companies.id')
+            ->orderByDesc('shared_tech_count')
+            ->limit($limit)
+            ->with('province')
+            ->get();
+    }
 }

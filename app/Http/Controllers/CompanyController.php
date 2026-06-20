@@ -26,7 +26,9 @@ class CompanyController extends Controller
 
         $salary = $this->getSalaryStats($company);
 
-        return view('company', compact('company', 'technologies', 'jobOffers', 'isSaved', 'salary'));
+        $similarCompanies = $company->similarCompanies();
+
+        return view('company', compact('company', 'technologies', 'jobOffers', 'isSaved', 'salary', 'similarCompanies'));
     }
 
     private function getSalaryStats(Company $company): ?array
