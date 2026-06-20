@@ -15,9 +15,9 @@
                 <span class="rounded-full bg-gray-100 px-2 py-0.5 dark:bg-slate-800">{{ $offer->source }}</span>
                 @if ($offer->salary_min || $offer->salary_max)
                     <span class="text-green-600 dark:text-green-400">
-                        {{ $offer->salary_min ? $offer->salary_min . 'k' : '' }}
+                        {{ $offer->salary_min ? round($offer->salary_min / 1000) . 'k' : '' }}
                         {{ $offer->salary_min && $offer->salary_max ? '–' : '' }}
-                        {{ $offer->salary_max ? $offer->salary_max . 'k' : '' }} €
+                        {{ $offer->salary_max ? round($offer->salary_max / 1000) . 'k' : '' }} €
                     </span>
                 @endif
             </div>

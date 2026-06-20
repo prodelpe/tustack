@@ -72,6 +72,12 @@
                 </div>
             </div>
         @endif
+
+        @if ($salary)
+            <div class="mt-4">
+                <x-salary-badge :salary="$salary" />
+            </div>
+        @endif
     </div>
 
     <div>

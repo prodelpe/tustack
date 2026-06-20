@@ -74,6 +74,7 @@
                 </div>
                 <div id="clear-filters"></div>
             </div>
+            <div id="salary-insights" class="hidden mb-4"></div>
             <div id="hits"></div>
             <div id="pagination" class="mt-8"></div>
         </div>
@@ -85,12 +86,13 @@
 @if($meilisearchAvailable)
 @push('scripts')
 <script>
-    window.__MEILISEARCH_HOST__ = @json($meilisearchHost);
-    window.__MEILISEARCH_KEY__  = @json($meilisearchKey);
-    window.__SAVED_FILTERS__    = @json($savedFilters);
-    window.__MAP_URL__          = @json(route('map'));
-    window.__TRACK_SEARCH_URL__ = @json(route('track-search'));
-    window.__IS_ADMIN__         = @json(auth()->check() && auth()->user()->is_admin);
+    window.__MEILISEARCH_HOST__    = @json($meilisearchHost);
+    window.__MEILISEARCH_KEY__     = @json($meilisearchKey);
+    window.__SAVED_FILTERS__       = @json($savedFilters);
+    window.__MAP_URL__             = @json(route('map'));
+    window.__TRACK_SEARCH_URL__    = @json(route('track-search'));
+    window.__SALARY_INSIGHTS_URL__ = @json(route('salary-insights'));
+    window.__IS_ADMIN__            = @json(auth()->check() && auth()->user()->is_admin);
 </script>
 @vite('resources/js/search.js')
 @endpush

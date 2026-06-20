@@ -138,6 +138,58 @@ search.addWidgets([
 
 let trackedTechs = new Set()
 let initialRenderDone = false
+let salaryFetchTimer = null
+let lastSalaryTechs = ''
+
+function formatSalary(value) {
+    return value ? Math.round(value / 1000) + 'k' : null
+}
+
+function renderSalaryInsights(insights) {
+    const container = document.getElementById('salary-insights')
+    if (!container) return
+
+    if (!insights.length) {
+        container.classList.add('hidden')
+        container.innerHTML = ''
+        return
+    }
+
+    const items = insights.map(({ name, range_min, range_max, offers_count }) => {
+        const min = formatSalary(range_min)
+        const max = formatSalary(range_max)
+        const range = [min, max].filter(Boolean).join('–')
+        return `<span class="inline-flex items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-3 py-1.5 dark:border-green-800/40 dark:bg-green-950/30">
+            <span class="text-xs font-medium text-gray-700 dark:text-slate-300">${name}</span>
+            <span class="text-xs font-semibold text-green-700 dark:text-green-400">${range} €</span>
+            <span class="text-xs text-gray-400 dark:text-slate-500">${offers_count} offers</span>
+        </span>`
+    }).join('')
+
+    container.innerHTML = `<div class="flex flex-wrap items-center gap-2">${items}</div>`
+    container.classList.remove('hidden')
+}
+
+function fetchSalaryInsights(techs) {
+    if (!window.__SALARY_INSIGHTS_URL__ || !techs.length) {
+        renderSalaryInsights([])
+        return
+    }
+
+    const key = techs.slice().sort().join(',')
+    if (key === lastSalaryTechs) return
+    lastSalaryTechs = key
+
+    clearTimeout(salaryFetchTimer)
+    salaryFetchTimer = setTimeout(() => {
+        const params = new URLSearchParams()
+        techs.forEach(t => params.append('tech[]', t))
+        fetch(`${window.__SALARY_INSIGHTS_URL__}?${params}`)
+            .then(r => r.json())
+            .then(renderSalaryInsights)
+            .catch(() => {})
+    }, 300)
+}
 
 function trackNewTechs(techs) {
     if (window.__IS_ADMIN__) return
@@ -164,6 +216,8 @@ search.on('render', () => {
         initialRenderDone = true
         trackNewTechs(techs)
     }
+
+    fetchSalaryInsights(techs)
 
     window.dispatchEvent(new CustomEvent('search-updated', {
         detail: {
