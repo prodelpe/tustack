@@ -170,6 +170,22 @@ function renderSalaryInsights(insights) {
     container.classList.remove('hidden')
 }
 
+function renderSalarySkeleton(count) {
+    const container = document.getElementById('salary-insights')
+    if (!container) return
+
+    const skeletons = Array.from({ length: count }, () =>
+        `<span class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-100 px-3 py-1.5 dark:border-slate-700 dark:bg-slate-800 animate-pulse">
+            <span class="h-3 w-16 rounded bg-gray-300 dark:bg-slate-600"></span>
+            <span class="h-3 w-14 rounded bg-gray-200 dark:bg-slate-700"></span>
+            <span class="h-3 w-12 rounded bg-gray-200 dark:bg-slate-700"></span>
+        </span>`
+    ).join('')
+
+    container.innerHTML = `<div class="flex flex-wrap items-center gap-2">${skeletons}</div>`
+    container.classList.remove('hidden')
+}
+
 function fetchSalaryInsights(techs) {
     if (!window.__SALARY_INSIGHTS_URL__ || !techs.length) {
         renderSalaryInsights([])
@@ -179,6 +195,8 @@ function fetchSalaryInsights(techs) {
     const key = techs.slice().sort().join(',')
     if (key === lastSalaryTechs) return
     lastSalaryTechs = key
+
+    renderSalarySkeleton(techs.length)
 
     clearTimeout(salaryFetchTimer)
     salaryFetchTimer = setTimeout(() => {
