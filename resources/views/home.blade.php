@@ -39,6 +39,10 @@
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
                         View map
                     </x-outline-button>
+                    <x-outline-button id="trends-link" href="{{ route('tendencies') }}" class="gap-1.5 px-3 py-1.5 text-xs text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-300">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                        Trends
+                    </x-outline-button>
                     @auth
                     <div
                         x-data="{
@@ -94,6 +98,7 @@
     window.__MEILISEARCH_KEY__     = @json($meilisearchKey);
     window.__SAVED_FILTERS__       = @json($savedFilters);
     window.__MAP_URL__             = @json(route('map'));
+    window.__TENDENCIES_URL__      = @json(route('tendencies'));
     window.__TRACK_SEARCH_URL__    = @json(route('track-search'));
     window.__SALARY_INSIGHTS_URL__ = @json(route('salary-insights'));
     window.__IS_ADMIN__            = @json(auth()->check() && auth()->user()->is_admin);

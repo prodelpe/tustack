@@ -115,7 +115,7 @@
 
 /* ClearRefinements ── */
 .ais-ClearRefinements-button {
-    @apply rounded-lg border border-gray-300 px-3 py-1 text-xs text-gray-500 transition hover:border-gray-400 hover:text-gray-700 dark:border-slate-700 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-white;
+    @apply rounded-lg border border-gray-300 px-3 py-1.5 text-xs text-gray-500 transition hover:border-gray-400 hover:text-gray-700 dark:border-slate-700 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-white;
 }
 .ais-ClearRefinements-button--disabled {
     @apply hidden;

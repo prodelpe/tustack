@@ -8,6 +8,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TelegramWebhookController;
 use App\Http\Controllers\SalaryInsightsController;
 use App\Http\Controllers\TendenciesController;
+use App\Http\Controllers\TendencyDataController;
 use App\Http\Controllers\TrackTechnologySearchController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,7 @@ Route::post('/telegram/webhook', TelegramWebhookController::class)->name('telegr
 Route::post('/track-search', TrackTechnologySearchController::class)->name('track-search');
 Route::get('/salary-insights', SalaryInsightsController::class)->name('salary-insights');
 Route::get('/tendencies', TendenciesController::class)->name('tendencies');
+Route::get('/tendency-data', TendencyDataController::class)->name('tendency-data');
 
 Route::get('/alerts/unsubscribe/{user}', [SavedSearchController::class, 'unsubscribe'])
     ->name('alerts.unsubscribe')

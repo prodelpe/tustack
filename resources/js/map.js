@@ -143,7 +143,7 @@ search.on('render', () => {
         techs.forEach((t, i) => params.set(`tech[${i}]`, t))
         provs.forEach((p, i) => params.set(`prov[${i}]`, p))
         if (excludeConsultancies) params.set('excl_cons', '1')
-        const query = params.toString()
+        const query = params.toString().replaceAll('%5B', '[').replaceAll('%5D', ']')
         listLink.href = window.__HOME_URL__ + (query ? '?' + query : '')
     }
 })

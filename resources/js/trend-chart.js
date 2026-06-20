@@ -17,6 +17,21 @@ function formatMonth(label) {
 export function trendChart(Chart) {
     return (chartData) => ({
         chart: null,
+        techs: chartData.datasets.map((ds, i) => ({
+            label: ds.label,
+            color: COLORS[i % COLORS.length],
+            active: true,
+        })),
+        toggle(label) {
+            const tech = this.techs.find(t => t.label === label)
+            if (!tech) return
+            tech.active = !tech.active
+            const idx = this.chart.data.datasets.findIndex(ds => ds.label === label)
+            if (idx !== -1) {
+                this.chart.data.datasets[idx].hidden = !tech.active
+                this.chart.update()
+            }
+        },
         init() {
             const isDark = document.documentElement.classList.contains('dark')
             const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'
@@ -42,15 +57,7 @@ export function trendChart(Chart) {
                     maintainAspectRatio: false,
                     interaction: { mode: 'index', intersect: false },
                     plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: textColor,
-                                usePointStyle: true,
-                                pointStyleWidth: 8,
-                                padding: 20,
-                            },
-                        },
+                        legend: { display: false },
                         tooltip: {
                             callbacks: {
                                 title: (items) => {
