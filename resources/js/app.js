@@ -1,5 +1,9 @@
 import './bootstrap';
 import Alpine from 'alpinejs';
+import Chart from 'chart.js/auto';
+import { trendChart } from './trend-chart';
+
+Alpine.data('trendChart', trendChart(Chart));
 
 Alpine.data('themeToggle', () => ({
     theme: localStorage.getItem('theme') ?? 'system',
