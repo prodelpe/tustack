@@ -55,7 +55,8 @@ public function searchableAs(): string
             'technology_ids'   => $technologies->pluck('id')->values()->all(),
             'technology_names' => $technologies->pluck('name')->values()->all(),
             'job_offers_count' => $this->jobOffers->count(),
-            'is_consultancy'   => in_array($this->sector, ['it_consulting', 'recruitment']),
+            'is_consultancy'   => $this->sector === 'it_consulting',
+            'is_recruitment'   => $this->sector === 'recruitment',
             '_geo'             => $this->latitude && $this->longitude
                                     ? ['lat' => (float) $this->latitude, 'lng' => (float) $this->longitude]
                                     : null,

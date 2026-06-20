@@ -17,6 +17,7 @@ const { searchClient } = instantMeiliSearch(
 )
 
 let excludeConsultancies = new URLSearchParams(window.location.search).get('excl_cons') === '1'
+let excludeRecruitment   = new URLSearchParams(window.location.search).get('excl_rec') === '1'
 
 const search = instantsearch({
     indexName: 'devstack_companies',
@@ -39,6 +40,7 @@ const search = instantsearch({
                     prov: provs?.length ? provs : undefined,
                     page: index.page > 1 ? index.page : undefined,
                     excl_cons: excludeConsultancies ? '1' : undefined,
+                    excl_rec:  excludeRecruitment   ? '1' : undefined,
                 }
             },
             routeToState(routeState) {
@@ -104,7 +106,11 @@ search.addWidgets([
                 <a href="/companies/${hit.id}" class="hit-card">
                     <div class="hit-card__header">
                         <div>
-                            <h2 class="hit-card__name">${hit.name}</h2>
+                            <h2 class="hit-card__name">
+                                ${hit.name}
+                                ${hit.is_consultancy ? `<span class="hit-card__type-badge hit-card__type-badge--consultancy">Consultoria</span>` : ''}
+                                ${hit.is_recruitment ? `<span class="hit-card__type-badge hit-card__type-badge--recruitment">Recruitment</span>` : ''}
+                            </h2>
                             ${hit.city || hit.province_name ? `
                                 <p class="hit-card__location">
                                     ${[hit.city, hit.province_name].filter(Boolean).join(', ')}
@@ -239,8 +245,8 @@ search.on('render', () => {
 
     window.dispatchEvent(new CustomEvent('search-updated', {
         detail: {
-            tech: techs,
-            prov: provs,
+            technologies: techs,
+            provinces: provs,
             query: state.query || '',
         }
     }))
@@ -251,6 +257,7 @@ search.on('render', () => {
         techs.forEach((t, i) => params.set(`tech[${i}]`, t))
         provs.forEach((p, i) => params.set(`prov[${i}]`, p))
         if (excludeConsultancies) params.set('excl_cons', '1')
+        if (excludeRecruitment)   params.set('excl_rec', '1')
         const query = params.toString()
         mapLink.href = window.__MAP_URL__ + (query ? '?' + query : '')
     }
@@ -265,20 +272,40 @@ search.helper.on('change', (event) => {
     trackNewTechs(techs)
 })
 
-const excludeCheckbox = document.getElementById('exclude-consultancies')
+function buildFilters() {
+    const parts = []
+    if (excludeConsultancies) parts.push('is_consultancy = false')
+    if (excludeRecruitment)   parts.push('is_recruitment = false')
+    return parts.join(' AND ')
+}
 
-if (excludeCheckbox) {
-    const initialExclude = new URLSearchParams(window.location.search).get('excl_cons') === '1'
-    if (initialExclude) {
-        excludeCheckbox.checked = true
+const excludeConsultanciesCheckbox = document.getElementById('exclude-consultancies')
+const excludeRecruitmentCheckbox   = document.getElementById('exclude-recruitment')
+
+if (excludeConsultanciesCheckbox) {
+    if (excludeConsultancies) {
+        excludeConsultanciesCheckbox.checked = true
         search.once('render', () => {
-            search.helper.setQueryParameter('filters', 'is_consultancy = false').search()
+            search.helper.setQueryParameter('filters', buildFilters()).search()
         })
     }
 
-    excludeCheckbox.addEventListener('change', (e) => {
+    excludeConsultanciesCheckbox.addEventListener('change', (e) => {
         excludeConsultancies = e.target.checked
-        const filter = e.target.checked ? 'is_consultancy = false' : ''
-        search.helper.setQueryParameter('filters', filter).search()
+        search.helper.setQueryParameter('filters', buildFilters()).search()
+    })
+}
+
+if (excludeRecruitmentCheckbox) {
+    if (excludeRecruitment) {
+        excludeRecruitmentCheckbox.checked = true
+        search.once('render', () => {
+            search.helper.setQueryParameter('filters', buildFilters()).search()
+        })
+    }
+
+    excludeRecruitmentCheckbox.addEventListener('change', (e) => {
+        excludeRecruitment = e.target.checked
+        search.helper.setQueryParameter('filters', buildFilters()).search()
     })
 }

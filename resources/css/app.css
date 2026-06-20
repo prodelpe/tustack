@@ -146,6 +146,15 @@
 .hit-card__tech {
     @apply rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-600 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300;
 }
+.hit-card__type-badge {
+    @apply rounded-full border px-2 py-0.5 text-xs font-medium align-middle ml-2;
+}
+.hit-card__type-badge--consultancy {
+    @apply border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300;
+}
+.hit-card__type-badge--recruitment {
+    @apply border-teal-200 bg-teal-50 text-teal-700 dark:border-teal-500/20 dark:bg-teal-500/10 dark:text-teal-300;
+}
 .hits-empty {
     @apply py-12 text-center text-gray-500 dark:text-slate-400;
 }
