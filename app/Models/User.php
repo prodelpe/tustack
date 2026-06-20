@@ -29,6 +29,8 @@ class User extends Authenticatable implements FilamentUser
         'alerts_enabled',
         'telegram_chat_id',
         'telegram_connect_token',
+        'google_id',
+        'github_id',
     ];
 
     public function canAccessPanel(Panel $panel): bool
