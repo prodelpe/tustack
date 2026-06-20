@@ -1,4 +1,5 @@
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch'
+import { buildLinkUrl } from './utils/url'
 import instantsearch from 'instantsearch.js'
 import { history } from 'instantsearch.js/es/lib/routers'
 import {
@@ -139,12 +140,7 @@ search.on('render', () => {
 
     const listLink = document.getElementById('list-link')
     if (listLink && window.__HOME_URL__) {
-        const params = new URLSearchParams()
-        techs.forEach((t, i) => params.set(`tech[${i}]`, t))
-        provs.forEach((p, i) => params.set(`prov[${i}]`, p))
-        if (excludeConsultancies) params.set('excl_cons', '1')
-        const query = params.toString().replaceAll('%5B', '[').replaceAll('%5D', ']')
-        listLink.href = window.__HOME_URL__ + (query ? '?' + query : '')
+        listLink.href = buildLinkUrl(window.__HOME_URL__, { techs, provs, excludeConsultancies })
     }
 })
 

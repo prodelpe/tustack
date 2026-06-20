@@ -1,4 +1,5 @@
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch'
+import { buildLinkUrl } from './utils/url'
 import instantsearch from 'instantsearch.js'
 import { history } from 'instantsearch.js/es/lib/routers'
 import {
@@ -265,21 +266,12 @@ search.on('render', () => {
 
     const mapLink = document.getElementById('map-link')
     if (mapLink && window.__MAP_URL__) {
-        const params = new URLSearchParams()
-        techs.forEach((t, i) => params.set(`tech[${i}]`, t))
-        provs.forEach((p, i) => params.set(`prov[${i}]`, p))
-        if (excludeConsultancies) params.set('excl_cons', '1')
-        if (excludeRecruitment)   params.set('excl_rec', '1')
-        const query = params.toString().replaceAll('%5B', '[').replaceAll('%5D', ']')
-        mapLink.href = window.__MAP_URL__ + (query ? '?' + query : '')
+        mapLink.href = buildLinkUrl(window.__MAP_URL__, { techs, provs, excludeConsultancies, excludeRecruitment })
     }
 
     const trendsLink = document.getElementById('trends-link')
     if (trendsLink && window.__TENDENCIES_URL__) {
-        const params = new URLSearchParams()
-        techs.forEach((t, i) => params.set(`tech[${i}]`, t))
-        const query = params.toString().replaceAll('%5B', '[').replaceAll('%5D', ']')
-        trendsLink.href = window.__TENDENCIES_URL__ + (query ? '?' + query : '')
+        trendsLink.href = buildLinkUrl(window.__TENDENCIES_URL__, { techs })
     }
 })
 
