@@ -20,5 +20,4 @@
         <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-slate-500">Province</p>
         <div id="filter-provinces" style="min-height: 400px"></div>
     </div>
-    <div class="mt-4" id="clear-filters"></div>
 </aside>

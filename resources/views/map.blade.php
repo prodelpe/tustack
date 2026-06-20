@@ -20,10 +20,11 @@
 
             {{-- Mapa --}}
             <div class="flex-1 min-w-0">
-                <div class="mb-4 flex items-center justify-between">
+                <div class="mb-4 flex items-center gap-4">
                     <a id="list-link" href="{{ route('home') }}" class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 transition">
                         ← Back to list
                     </a>
+                    <div id="clear-filters"></div>
                 </div>
                 <div id="map" class="w-full rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden" style="height: 600px;"></div>
             </div>

@@ -26,13 +26,11 @@
             @endif
         </div>
         @if ($isRecent)
-            <a href="{{ $offer->url }}" target="_blank" rel="noopener noreferrer"
-                title="Apply on {{ ucfirst($offer->source) }}"
-                class="shrink-0 rounded-lg border border-gray-200 bg-white p-2 text-gray-400 transition hover:border-gray-300 hover:text-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-500 dark:hover:border-slate-600 dark:hover:text-indigo-400">
+            <x-outline-button href="{{ $offer->url }}" target="_blank" rel="noopener noreferrer" title="Apply on {{ ucfirst($offer->source) }}" class="shrink-0 p-2 text-gray-400 hover:text-indigo-500 dark:text-slate-500 dark:hover:text-indigo-400">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                 </svg>
-            </a>
+            </x-outline-button>
         @endif
     </div>
 </div>
