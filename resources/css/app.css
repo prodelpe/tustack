@@ -146,6 +146,11 @@
 .hit-card__tech {
     @apply rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-600 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300;
 }
+/* Sort by ── */
+.ais-SortBy-select {
+    @apply rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-600 outline-none transition hover:border-gray-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-slate-600;
+}
+
 .hit-card__type-badge {
     @apply rounded-full border px-2 py-0.5 text-xs font-medium align-middle ml-2;
 }

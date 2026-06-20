@@ -76,6 +76,7 @@
                     </div>
                     @endauth
                 </div>
+                <div id="sort-by" class="shrink-0"></div>
             </div>
             <div id="salary-insights" class="hidden mb-4"></div>
             <div id="hits"></div>

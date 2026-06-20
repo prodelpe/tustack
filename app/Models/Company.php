@@ -55,6 +55,7 @@ public function searchableAs(): string
             'technology_ids'   => $technologies->pluck('id')->values()->all(),
             'technology_names' => $technologies->pluck('name')->values()->all(),
             'job_offers_count' => $this->jobOffers->count(),
+            'last_offer_at'    => $this->jobOffers->max('published_at'),
             'is_consultancy'   => $this->sector === 'it_consulting',
             'is_recruitment'   => $this->sector === 'recruitment',
             '_geo'             => $this->latitude && $this->longitude

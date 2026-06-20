@@ -9,6 +9,7 @@ import {
     stats,
     pagination,
     configure,
+    sortBy,
 } from 'instantsearch.js/es/widgets'
 
 const { searchClient } = instantMeiliSearch(
@@ -34,11 +35,13 @@ const search = instantsearch({
                 const index = uiState['devstack_companies'] || {}
                 const techs = index.refinementList?.technology_names
                 const provs = index.refinementList?.province_name
+                const defaultSort = 'devstack_companies:job_offers_count:desc'
                 return {
                     q: index.query || undefined,
                     tech: techs?.length ? techs : undefined,
                     prov: provs?.length ? provs : undefined,
                     page: index.page > 1 ? index.page : undefined,
+                    sort: index.sortBy !== defaultSort ? index.sortBy : undefined,
                     excl_cons: excludeConsultancies ? '1' : undefined,
                     excl_rec:  excludeRecruitment   ? '1' : undefined,
                 }
@@ -49,6 +52,7 @@ const search = instantsearch({
                     'devstack_companies': {
                         query: routeState.q || '',
                         page: routeState.page || 1,
+                        sortBy: routeState.sort || 'devstack_companies:job_offers_count:desc',
                         refinementList: {
                             technology_names: toArray(routeState.tech),
                             province_name: toArray(routeState.prov),
@@ -63,7 +67,15 @@ const search = instantsearch({
 search.addWidgets([
     configure({
         hitsPerPage: 12,
-        sort: ['job_offers_count:desc'],
+    }),
+
+    sortBy({
+        container: '#sort-by',
+        items: [
+            { label: 'Most offers',      value: 'devstack_companies:job_offers_count:desc' },
+            { label: 'Recently active',  value: 'devstack_companies:last_offer_at:desc' },
+            { label: 'Name A→Z',         value: 'devstack_companies:name:asc' },
+        ],
     }),
 
     searchBox({
