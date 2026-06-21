@@ -3,11 +3,13 @@
 namespace App\Console\Commands;
 
 use App\Actions\ProcessJobOfferAction;
+use App\Models\CommandLog;
 use App\Models\Technology;
 use App\Services\AdzunaService;
 use App\Services\JoobleService;
 use App\Services\TecnoempleoService;
 use Illuminate\Console\Command;
+use Throwable;
 
 class FetchJobs extends Command
 {
@@ -31,38 +33,65 @@ class FetchJobs extends Command
             return self::FAILURE;
         }
 
+        $log = CommandLog::create([
+            'command'    => 'jobs:fetch',
+            'status'     => 'running',
+            'started_at' => now(),
+        ]);
+
         $sources      = $this->resolveSources();
         $technologies = Technology::all()->keyBy(fn ($t) => strtolower($t->name));
         $total        = 0;
+        $perSource    = array_fill_keys(array_keys($sources), 0);
+        $errors       = [];
 
-        foreach ($queries as $query) {
-            $this->line("\n<fg=cyan>Query: {$query}</>");
+        try {
+            foreach ($queries as $query) {
+                $this->line("\n<fg=cyan>Query: {$query}</>");
 
-            foreach ($sources as $name => $source) {
-                $this->info("  [{$name}] Fetching...");
+                foreach ($sources as $name => $source) {
+                    $this->info("  [{$name}] Fetching...");
 
-                try {
-                    $raw = $source->fetchAll($query, $location, $maxPages);
-                } catch (\Throwable $e) {
-                    $this->error("  [{$name}] Failed: {$e->getMessage()}");
-                    continue;
-                }
-
-                $count = 0;
-                foreach ($raw as $item) {
-                    if ($processJobOffer->handle($item, $source, $technologies)) {
-                        $count++;
+                    try {
+                        $raw = $source->fetchAll($query, $location, $maxPages);
+                    } catch (Throwable $e) {
+                        $this->error("  [{$name}] Failed: {$e->getMessage()}");
+                        $errors[] = ['source' => $name, 'query' => $query, 'message' => $e->getMessage()];
+                        continue;
                     }
+
+                    $count = 0;
+                    foreach ($raw as $item) {
+                        if ($processJobOffer->handle($item, $source, $technologies)) {
+                            $count++;
+                        }
+                    }
+
+                    $this->line("  [{$name}] {$count} offers processed.");
+                    $perSource[$name] += $count;
+                    $total += $count;
                 }
-
-                $this->line("  [{$name}] {$count} offers processed.");
-                $total += $count;
             }
+
+            $this->info("\nDone. Total: {$total} offers processed.");
+
+            $log->update([
+                'status'      => 'success',
+                'finished_at' => now(),
+                'stats'       => ['total' => $total, 'per_source' => $perSource, 'errors' => $errors],
+            ]);
+
+            return self::SUCCESS;
+        } catch (Throwable $e) {
+            $log->update([
+                'status'        => 'failed',
+                'finished_at'   => now(),
+                'error_message' => $e->getMessage(),
+                'stats'         => ['total' => $total, 'per_source' => $perSource, 'errors' => $errors],
+            ]);
+
+            throw $e;
         }
-
-        $this->info("\nDone. Total: {$total} offers processed.");
-
-        return self::SUCCESS;
     }
 
     private function resolveQueries(): array
@@ -78,13 +107,10 @@ class FetchJobs extends Command
 
     private function resolveSources(): array
     {
-        $sources = [
+        return [
             'adzuna'      => app(AdzunaService::class),
             'jooble'      => app(JoobleService::class),
             'tecnoempleo' => app(TecnoempleoService::class),
         ];
-
-
-        return $sources;
     }
 }

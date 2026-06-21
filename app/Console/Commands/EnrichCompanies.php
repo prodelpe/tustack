@@ -3,8 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Actions\EnrichCompanyWithGeminiAction;
+use App\Models\CommandLog;
 use App\Models\Company;
 use Illuminate\Console\Command;
+use Throwable;
 
 class EnrichCompanies extends Command
 {
@@ -21,7 +23,7 @@ class EnrichCompanies extends Command
         $sleep = (int) $this->option('sleep');
 
         $query = Company::with(['jobOffers.technologies', 'province'])
-            ->when(! $this->option('reset'), function ($q)  {
+            ->when(! $this->option('reset'), function ($q) {
                 return $q->where('gemini_enriched', false);
             });
 
@@ -38,34 +40,57 @@ class EnrichCompanies extends Command
 
         $this->info("Enriching {$total} companies (sleep: {$sleep}s between requests)...");
 
+        $log = CommandLog::create([
+            'command'    => 'companies:enrich',
+            'status'     => 'running',
+            'started_at' => now(),
+        ]);
+
         $bar = $this->output->createProgressBar($total);
         $bar->start();
 
         $processed = 0;
         $succeeded = 0;
 
-        $query->when($limit > 0, function ($q) use ($limit) {
-            return $q->limit($limit);
-        })
-            ->each(function (Company $company) use ($action, $sleep, $bar, &$processed, &$succeeded) {
-                $ok = $action->handle($company);
+        try {
+            $query->when($limit > 0, function ($q) use ($limit) {
+                return $q->limit($limit);
+            })
+                ->each(function (Company $company) use ($action, $sleep, $bar, &$processed, &$succeeded) {
+                    $ok = $action->handle($company);
 
-                if ($ok) {
-                    $succeeded++;
-                }
+                    if ($ok) {
+                        $succeeded++;
+                    }
 
-                $processed++;
-                $bar->advance();
+                    $processed++;
+                    $bar->advance();
 
-                if ($sleep > 0) {
-                    sleep($sleep);
-                }
-            });
+                    if ($sleep > 0) {
+                        sleep($sleep);
+                    }
+                });
 
-        $bar->finish();
-        $this->newLine();
-        $this->info("Done. {$succeeded}/{$processed} companies enriched successfully.");
+            $bar->finish();
+            $this->newLine();
+            $this->info("Done. {$succeeded}/{$processed} companies enriched successfully.");
 
-        return self::SUCCESS;
+            $log->update([
+                'status'      => 'success',
+                'finished_at' => now(),
+                'stats'       => ['processed' => $processed, 'succeeded' => $succeeded, 'failed' => $processed - $succeeded],
+            ]);
+
+            return self::SUCCESS;
+        } catch (Throwable $e) {
+            $log->update([
+                'status'        => 'failed',
+                'finished_at'   => now(),
+                'error_message' => $e->getMessage(),
+                'stats'         => ['processed' => $processed, 'succeeded' => $succeeded, 'failed' => $processed - $succeeded],
+            ]);
+
+            throw $e;
+        }
     }
 }
