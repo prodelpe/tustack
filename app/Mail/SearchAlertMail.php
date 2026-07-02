@@ -27,7 +27,7 @@ class SearchAlertMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New companies matching your search · Find Your Dev Stack',
+            subject: 'New companies matching your search · TuStack',
         );
     }
 

@@ -23,7 +23,7 @@ readonly class SendTelegramAlertAction
             $lines[] = "\n<i>And " . ($companies->count() - 10) . ' more...</i>';
         }
 
-        $telegram = new Api(config('telegram.bots.findyourdevstack_bot.token'));
+        $telegram = new Api(config('telegram.bots.tustack_bot.token'));
 
         try {
             $telegram->sendMessage([

@@ -36,7 +36,7 @@ class TelegramWebhookController extends Controller
             'telegram_connect_token'  => null,
         ]);
 
-        $telegram = new Api(config('telegram.bots.findyourdevstack_bot.token'));
+        $telegram = new Api(config('telegram.bots.tustack_bot.token'));
 
         $telegram->sendMessage([
             'chat_id' => $chatId,

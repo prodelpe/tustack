@@ -56,7 +56,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/telegram/connect', function () {
         $token = \Illuminate\Support\Str::random(32);
         auth()->user()->update(['telegram_connect_token' => $token]);
-        $botUsername = config('telegram.bots.findyourdevstack_bot.username');
+        $botUsername = config('telegram.bots.tustack_bot.username');
         return redirect("https://t.me/{$botUsername}?start={$token}");
     })->name('telegram.connect');
 

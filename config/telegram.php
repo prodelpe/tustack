@@ -2,13 +2,13 @@
 
 return [
     'bots' => [
-        'findyourdevstack_bot' => [
+        'tustack_bot' => [
             'token'    => env('TELEGRAM_BOT_TOKEN'),
             'username' => env('TELEGRAM_BOT_USERNAME'),
         ],
     ],
 
-    'default' => 'findyourdevstack_bot',
+    'default' => 'tustack_bot',
 
     'async_requests'  => false,
     'http_client_handler' => null,

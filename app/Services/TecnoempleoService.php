@@ -28,7 +28,7 @@ class TecnoempleoService implements JobSourceInterface
         }
 
         $response = Http::withHeaders([
-            'User-Agent' => 'Mozilla/5.0 (compatible; FindYourDevStack/1.0)',
+            'User-Agent' => 'Mozilla/5.0 (compatible; TuStack/1.0)',
             'Accept'     => 'text/html,application/xhtml+xml',
         ])
             ->timeout(15)

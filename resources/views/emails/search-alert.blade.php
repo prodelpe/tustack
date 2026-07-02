@@ -17,6 +17,6 @@ View all results
 
 ---
 
-You're receiving this because you saved a search alert on Find Your Dev Stack.
+You're receiving this because you saved a search alert on TuStack.
 [Unsubscribe from alerts]({{ $unsubscribeUrl }})
 @endcomponent
