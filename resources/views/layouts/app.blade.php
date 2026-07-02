@@ -51,7 +51,10 @@
         </button>
     </div>
 
-    <x-app-header>@yield('header-slot')</x-app-header>
+    <div x-data="{ searchOpen: false }">
+        <x-app-header>@yield('header-slot')</x-app-header>
+        @yield('search-bar')
+    </div>
 
     @yield('content')
 

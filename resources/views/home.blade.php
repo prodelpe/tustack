@@ -2,7 +2,38 @@
 
 @if($meilisearchAvailable)
 @section('header-slot')
-<div id="searchbox" class="flex-1 max-w-sm"></div>
+<button
+    @click="searchOpen = !searchOpen"
+    :class="searchOpen ? 'text-indigo-500 dark:text-indigo-400' : 'text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-white'"
+    class="transition"
+    aria-label="Toggle search"
+>
+    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+    </svg>
+</button>
+@endsection
+
+@section('search-bar')
+<div
+    x-show="searchOpen"
+    x-transition
+    x-effect="if (searchOpen) $nextTick(() => $el.querySelector('.ais-SearchBox-input')?.focus())"
+    class="border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-3"
+>
+    <div class="mx-auto flex max-w-6xl items-center gap-3">
+        <div id="searchbox" class="flex-1"></div>
+        <button
+            @click="searchOpen = false"
+            class="text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition shrink-0"
+            aria-label="Close search"
+        >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+    </div>
+</div>
 @endsection
 @endif
 
