@@ -5,7 +5,7 @@
     @if($showConsultancyFilter)
     <div class="mb-4 rounded-xl border border-gray-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900 space-y-2.5">
         <label class="flex cursor-pointer select-none items-center justify-between">
-            <span class="text-xs text-gray-500 dark:text-slate-400">Exclude consultancies</span>
+            <span class="text-xs text-gray-500 dark:text-slate-400">{{ __('sidebar.exclude_consultancies') }}</span>
             <div class="relative">
                 <input type="checkbox" id="exclude-consultancies" class="sr-only peer">
                 <div class="w-8 h-4 rounded-full bg-gray-200 peer-checked:bg-amber-400 dark:bg-slate-700 dark:peer-checked:bg-amber-500 transition-colors"></div>
@@ -13,7 +13,7 @@
             </div>
         </label>
         <label class="flex cursor-pointer select-none items-center justify-between">
-            <span class="text-xs text-gray-500 dark:text-slate-400">Exclude recruitment</span>
+            <span class="text-xs text-gray-500 dark:text-slate-400">{{ __('sidebar.exclude_recruitment') }}</span>
             <div class="relative">
                 <input type="checkbox" id="exclude-recruitment" class="sr-only peer">
                 <div class="w-8 h-4 rounded-full bg-gray-200 peer-checked:bg-teal-400 dark:bg-slate-700 dark:peer-checked:bg-teal-500 transition-colors"></div>
@@ -23,12 +23,12 @@
     </div>
     @endif
     <div class="{{ $showProvinces ? 'mb-4' : '' }} rounded-xl border border-gray-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
-        <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-slate-500">Technologies</p>
+        <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-slate-500">{{ __('sidebar.technologies') }}</p>
         <div id="filter-technologies" style="min-height: 400px"></div>
     </div>
     @if($showProvinces)
     <div class="rounded-xl border border-gray-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
-        <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-slate-500">Province</p>
+        <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-slate-500">{{ __('sidebar.province') }}</p>
         <div id="filter-provinces" style="min-height: 400px"></div>
     </div>
     @endif

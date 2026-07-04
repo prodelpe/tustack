@@ -12,61 +12,67 @@ use App\Http\Controllers\TendencyDataController;
 use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\TrackTechnologySearchController;
 use Illuminate\Support\Facades\Route;
-
-Route::get('/', [SearchController::class, 'home'])->name('home');
-Route::get('/map', [SearchController::class, 'map'])->name('map');
-Route::get('/companies/{company}', [CompanyController::class, 'show'])->name('companies.show');
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 Route::post('/telegram/webhook', TelegramWebhookController::class)->name('telegram.webhook');
 Route::post('/track-search', TrackTechnologySearchController::class)->name('track-search');
-Route::get('/salary-insights', SalaryInsightsController::class)->name('salary-insights');
-Route::get('/tendencies', TendenciesController::class)->name('tendencies');
-Route::get('/tendency-data', TendencyDataController::class)->name('tendency-data');
 
-Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])->name('social.redirect');
-Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
+Route::group([
+    'prefix'     => LaravelLocalization::setLocale(),
+    'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath'],
+], function () {
+    Route::get('/', [SearchController::class, 'home'])->name('home');
+    Route::get('/map', [SearchController::class, 'map'])->name('map');
+    Route::get('/companies/{company}', [CompanyController::class, 'show'])->name('companies.show');
 
-Route::get('/alerts/unsubscribe/{user}', [SavedSearchController::class, 'unsubscribe'])
-    ->name('alerts.unsubscribe')
-    ->middleware('signed');
+    Route::get('/salary-insights', SalaryInsightsController::class)->name('salary-insights');
+    Route::get('/tendencies', TendenciesController::class)->name('tendencies');
+    Route::get('/tendency-data', TendencyDataController::class)->name('tendency-data');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', function () {
-        $user = auth()->user();
-        return view('dashboard', [
-            'savedSearches'     => $user->savedSearches()->latest()->get(),
-            'alertsEnabled'     => $user->alerts_enabled,
-            'telegramConnected' => (bool) $user->telegram_chat_id,
-        ]);
-    })->name('dashboard');
-    Route::get('/dashboard/companies', [SavedCompanyController::class, 'index'])->name('dashboard.companies');
-    Route::post('/companies/{company}/save', [SavedCompanyController::class, 'toggle'])->name('companies.save');
+    Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])->name('social.redirect');
+    Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
 
+    Route::get('/alerts/unsubscribe/{user}', [SavedSearchController::class, 'unsubscribe'])
+        ->name('alerts.unsubscribe')
+        ->middleware('signed');
 
-    Route::post('/alerts/enable', function () {
-        auth()->user()->update(['alerts_enabled' => true]);
-        return redirect()->route('dashboard');
-    })->name('alerts.enable');
+    Route::middleware('auth')->group(function () {
+        Route::get('/dashboard', function () {
+            $user = auth()->user();
+            return view('dashboard', [
+                'savedSearches'     => $user->savedSearches()->latest()->get(),
+                'alertsEnabled'     => $user->alerts_enabled,
+                'telegramConnected' => (bool) $user->telegram_chat_id,
+            ]);
+        })->name('dashboard');
+        Route::get('/dashboard/companies', [SavedCompanyController::class, 'index'])->name('dashboard.companies');
+        Route::post('/companies/{company}/save', [SavedCompanyController::class, 'toggle'])->name('companies.save');
 
-    Route::post('/alerts/disable', function () {
-        auth()->user()->update(['alerts_enabled' => false]);
-        return redirect()->route('dashboard');
-    })->name('alerts.disable');
+        Route::post('/alerts/enable', function () {
+            auth()->user()->update(['alerts_enabled' => true]);
+            return redirect()->route('dashboard');
+        })->name('alerts.enable');
 
-    Route::post('/telegram/connect', function () {
-        $token = \Illuminate\Support\Str::random(32);
-        auth()->user()->update(['telegram_connect_token' => $token]);
-        $botUsername = config('telegram.bots.tustack_bot.username');
-        return redirect("https://t.me/{$botUsername}?start={$token}");
-    })->name('telegram.connect');
+        Route::post('/alerts/disable', function () {
+            auth()->user()->update(['alerts_enabled' => false]);
+            return redirect()->route('dashboard');
+        })->name('alerts.disable');
 
-    Route::post('/telegram/disconnect', function () {
-        auth()->user()->update(['telegram_chat_id' => null, 'telegram_connect_token' => null]);
-        return redirect()->route('dashboard');
-    })->name('telegram.disconnect');
+        Route::post('/telegram/connect', function () {
+            $token = \Illuminate\Support\Str::random(32);
+            auth()->user()->update(['telegram_connect_token' => $token]);
+            $botUsername = config('telegram.bots.tustack_bot.username');
+            return redirect("https://t.me/{$botUsername}?start={$token}");
+        })->name('telegram.connect');
 
-    Route::post('/saved-searches', [SavedSearchController::class, 'store'])->name('saved-searches.store');
-    Route::delete('/saved-searches/{savedSearch}', [SavedSearchController::class, 'destroy'])->name('saved-searches.destroy');
+        Route::post('/telegram/disconnect', function () {
+            auth()->user()->update(['telegram_chat_id' => null, 'telegram_connect_token' => null]);
+            return redirect()->route('dashboard');
+        })->name('telegram.disconnect');
+
+        Route::post('/saved-searches', [SavedSearchController::class, 'store'])->name('saved-searches.store');
+        Route::delete('/saved-searches/{savedSearch}', [SavedSearchController::class, 'destroy'])->name('saved-searches.destroy');
+    });
 });
 
 require __DIR__.'/auth.php';

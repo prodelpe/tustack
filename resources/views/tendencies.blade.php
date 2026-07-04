@@ -7,8 +7,8 @@
     @if(!$meilisearchAvailable)
         <div class="flex min-h-[60vh] flex-col items-center justify-center gap-6 text-center">
             <div class="rounded-2xl border border-red-200 bg-red-50 p-15 dark:border-red-900/40 dark:bg-red-950/30">
-                <p class="text-lg font-semibold text-gray-800 dark:text-white">Trends are temporarily unavailable</p>
-                <p class="mt-2 text-sm text-gray-500 dark:text-slate-400">We're working on it. Please try again in a few minutes.</p>
+                <p class="text-lg font-semibold text-gray-800 dark:text-white">{{ __('tendencies.unavailable') }}</p>
+                <p class="mt-2 text-sm text-gray-500 dark:text-slate-400">{{ __('home.search_unavailable_detail') }}</p>
             </div>
         </div>
     @else
@@ -23,8 +23,8 @@
                 </div>
 
                 <div class="mb-6">
-                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Tech trends</h1>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-slate-400">Job offers per month · last 12 months</p>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ __('tendencies.title') }}</h1>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-slate-400">{{ __('tendencies.subtitle') }}</p>
                 </div>
 
                 <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">

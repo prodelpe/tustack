@@ -73,22 +73,22 @@ search.addWidgets([
     sortBy({
         container: '#sort-by',
         items: [
-            { label: 'Most offers',      value: 'devstack_companies:job_offers_count:desc' },
-            { label: 'Recently active',  value: 'devstack_companies:last_offer_at:desc' },
-            { label: 'Name A→Z',         value: 'devstack_companies:name:asc' },
+            { label: window.__I18N__.sortMostOffers,     value: 'devstack_companies:job_offers_count:desc' },
+            { label: window.__I18N__.sortRecentActivity, value: 'devstack_companies:last_offer_at:desc' },
+            { label: window.__I18N__.sortNameAZ,         value: 'devstack_companies:name:asc' },
         ],
     }),
 
     searchBox({
         container: '#searchbox',
-        placeholder: 'Search companies…',
+        placeholder: window.__I18N__.searchPlaceholder,
         showReset: true,
     }),
 
     stats({
         container: '#stats',
         templates: {
-            text: ({ nbHits }) => `${nbHits} companies found`,
+            text: ({ nbHits }) => window.__I18N__.companiesFound.replace(':count', nbHits),
         },
     }),
 
@@ -99,7 +99,11 @@ search.addWidgets([
         searchablePlaceholder: 'Search…',
         limit: 10,
         showMore: true,
+        showMoreLimit: 100,
         sortBy: ['count:desc', 'name:asc'],
+        templates: {
+            showMoreText: ({ isShowingMore }) => isShowingMore ? window.__I18N__.showLess : window.__I18N__.showMore,
+        },
     }),
 
     refinementList({
@@ -109,7 +113,11 @@ search.addWidgets([
         searchablePlaceholder: 'Search…',
         limit: 10,
         showMore: true,
+        showMoreLimit: 100,
         sortBy: ['count:desc', 'name:asc'],
+        templates: {
+            showMoreText: ({ isShowingMore }) => isShowingMore ? window.__I18N__.showLess : window.__I18N__.showMore,
+        },
     }),
 
     hits({
@@ -121,8 +129,8 @@ search.addWidgets([
                         <div>
                             <h2 class="hit-card__name">
                                 ${hit.name}
-                                ${hit.is_consultancy ? `<span class="hit-card__type-badge hit-card__type-badge--consultancy">Consultoria</span>` : ''}
-                                ${hit.is_recruitment ? `<span class="hit-card__type-badge hit-card__type-badge--recruitment">Recruitment</span>` : ''}
+                                ${hit.is_consultancy ? `<span class="hit-card__type-badge hit-card__type-badge--consultancy">${window.__I18N__.consultoria}</span>` : ''}
+                                ${hit.is_recruitment ? `<span class="hit-card__type-badge hit-card__type-badge--recruitment">${window.__I18N__.recruitment}</span>` : ''}
                             </h2>
                             ${hit.city || hit.province_name ? `
                                 <p class="hit-card__location">
@@ -131,7 +139,7 @@ search.addWidgets([
                             ` : ''}
                         </div>
                         ${hit.job_offers_count ? `
-                            <span class="hit-card__offers-count">${hit.job_offers_count} ${hit.job_offers_count === 1 ? 'offer' : 'offers'} tracked</span>
+                            <span class="hit-card__offers-count">${hit.job_offers_count} ${hit.job_offers_count === 1 ? window.__I18N__.offer : window.__I18N__.offers}</span>
                         ` : ''}
                     </div>
                     <div class="hit-card__techs">
@@ -139,14 +147,14 @@ search.addWidgets([
                     </div>
                 </a>
             `,
-            empty: '<p class="hits-empty">No companies found for the selected filters.</p>',
+            empty: `<p class="hits-empty">${window.__I18N__.noCompaniesFound}</p>`,
         },
     }),
 
     clearRefinements({
         container: '#clear-filters',
         templates: {
-            resetLabel: 'Clear filters',
+            resetLabel: window.__I18N__.clearFilters,
         },
     }),
 

@@ -17,6 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'telegram/webhook',
             'track-search',
         ]);
+        $middleware->alias([
+            'localeSessionRedirect'  => \Mcamara\LaravelLocalization\Middleware\LocaleSessionRedirect::class,
+            'localizationRedirect'   => \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter::class,
+            'localeViewPath'         => \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationViewPath::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         Integration::handles($exceptions);

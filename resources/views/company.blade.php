@@ -24,7 +24,7 @@
             </div>
             <div class="flex items-center gap-3 shrink-0">
                 <span class="rounded-full border border-indigo-200 bg-indigo-50 px-4 py-1.5 text-sm text-indigo-600 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300">
-                    {{ $jobOffers->count() }} {{ Str::plural('position', $jobOffers->count()) }}
+                    {{ $jobOffers->count() }} {{ $jobOffers->count() === 1 ? __('company.position') : __('company.positions') }}
                 </span>
 
                 @auth
@@ -56,7 +56,7 @@
                 @if ($company->employees)
                     <span class="flex items-center gap-1">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                        {{ $company->employees }} employees
+                        {{ __('company.employees', ['count' => $company->employees]) }}
                     </span>
                 @endif
                 @if ($company->website)
@@ -71,7 +71,7 @@
 
         @if ($technologies->isNotEmpty())
             <div class="mt-5">
-                <p class="mb-2 text-xs font-medium uppercase tracking-widest text-gray-400 dark:text-slate-500">Tech stack</p>
+                <p class="mb-2 text-xs font-medium uppercase tracking-widest text-gray-400 dark:text-slate-500">{{ __('company.tech_stack') }}</p>
                 <div class="flex flex-wrap gap-2">
                     @foreach ($technologies as $tech)
                         <x-tech-badge>{{ $tech->name }}</x-tech-badge>
@@ -89,13 +89,13 @@
 
     <div>
         <p class="mb-4 text-xs font-medium uppercase tracking-widest text-gray-400 dark:text-slate-500">
-            Job offers · {{ $jobOffers->total() }}
+            {{ __('company.job_offers') }} · {{ $jobOffers->total() }}
         </p>
 
         @forelse ($jobOffers as $offer)
             <x-job-offer-row :offer="$offer" />
         @empty
-            <p class="text-gray-500 dark:text-slate-400">No positions available.</p>
+            <p class="text-gray-500 dark:text-slate-400">{{ __('company.no_positions') }}</p>
         @endforelse
 
         @if ($jobOffers->hasPages())
@@ -107,7 +107,7 @@
 
     @if ($similarCompanies->isNotEmpty())
         <div class="mt-12">
-            <p class="mb-4 text-xs font-medium uppercase tracking-widest text-gray-400 dark:text-slate-500">Similar companies</p>
+            <p class="mb-4 text-xs font-medium uppercase tracking-widest text-gray-400 dark:text-slate-500">{{ __('company.similar_companies') }}</p>
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($similarCompanies as $similar)
                     <a href="{{ route('companies.show', $similar) }}"

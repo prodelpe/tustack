@@ -15,6 +15,7 @@
         "laravel/scout": "^11.2",
         "laravel/socialite": "^5.28",
         "laravel/tinker": "^2.10.1",
+        "mcamara/laravel-localization": "^2.4",
         "meilisearch/meilisearch-php": "^1.16",
         "sentry/sentry-laravel": "^4.26",
         "symfony/css-selector": "^8.1",
