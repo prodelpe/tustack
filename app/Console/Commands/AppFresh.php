@@ -23,6 +23,12 @@ class AppFresh extends Command
             return self::SUCCESS;
         }
 
+        if (! $this->hasQueueWorkers()) {
+            $this->error('No queue workers detected. Start them first:');
+            $this->line('  php artisan queue:work');
+            return self::FAILURE;
+        }
+
         $this->call('migrate:fresh');
         $this->call('db:seed');
         $this->call('jobs:fetch', ['--all' => true]);
@@ -38,5 +44,11 @@ class AppFresh extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    private function hasQueueWorkers(): bool
+    {
+        $output = shell_exec('ps aux | grep "[q]ueue:work"');
+        return ! empty(trim($output ?? ''));
     }
 }
