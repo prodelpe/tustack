@@ -28,7 +28,7 @@
                 </span>
 
                 @auth
-                    <x-bookmark-button :company="$company" :saved="$isSaved" />
+                    <x-bookmark-button :company="$company" :is-saved="$isSaved" />
                 @endauth
             </div>
         </div>

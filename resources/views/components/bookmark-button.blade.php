@@ -1,8 +1,8 @@
-@props(['company', 'saved' => false])
+@props(['company', 'isSaved' => false])
 
 <div
     x-data="{
-        saved: {{ $saved ? 'true' : 'false' }},
+        saved: {{ $isSaved ? 'true' : 'false' }},
         async toggle() {
             const res = await fetch('{{ route('companies.save', $company) }}', {
                 method: 'POST',
