@@ -272,6 +272,10 @@ search.on('render', () => {
         }
     }))
 
+    const nbHits = search.helper?.lastResults?.nbHits ?? 0
+    const pagination = document.getElementById('pagination')
+    if (pagination) pagination.style.display = nbHits === 0 ? 'none' : ''
+
     const mapLink = document.getElementById('map-link')
     if (mapLink && window.__MAP_URL__) {
         mapLink.href = buildLinkUrl(window.__MAP_URL__, { techs, provs, excludeConsultancies, excludeRecruitment })
