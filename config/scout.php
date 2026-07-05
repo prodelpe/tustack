@@ -138,7 +138,7 @@ return [
 
     'meilisearch' => [
         'host' => env('MEILISEARCH_HOST', 'http://localhost:7700'),
-        'key' => env('MEILISEARCH_KEY'),
+        'key' => env('MEILISEARCH_ADMIN_KEY', env('MEILISEARCH_KEY')),
         'index-settings' => [
             'devstack_companies' => [
                 'filterableAttributes' => ['technology_ids', 'technology_names', 'province_id', 'province_name', 'is_consultancy', 'is_recruitment'],

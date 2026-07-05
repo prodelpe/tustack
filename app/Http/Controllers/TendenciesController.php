@@ -19,7 +19,7 @@ class TendenciesController extends Controller
 
         return view('tendencies', [
             'meilisearchHost'      => $host,
-            'meilisearchKey'       => config('scout.meilisearch.key'),
+            'meilisearchKey'       => env('MEILISEARCH_KEY', config('scout.meilisearch.key')),
             'meilisearchAvailable' => $healthy,
         ]);
     }

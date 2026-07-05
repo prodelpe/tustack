@@ -20,7 +20,7 @@ class SearchController extends Controller
 
         return view('map', [
             'meilisearchHost'      => $host,
-            'meilisearchKey'       => config('scout.meilisearch.key'),
+            'meilisearchKey'       => env('MEILISEARCH_KEY', config('scout.meilisearch.key')),
             'meilisearchAvailable' => $healthy,
         ]);
     }
@@ -45,7 +45,7 @@ class SearchController extends Controller
 
         return view('home', [
             'meilisearchHost'      => $host,
-            'meilisearchKey'       => config('scout.meilisearch.key'),
+            'meilisearchKey'       => env('MEILISEARCH_KEY', config('scout.meilisearch.key')),
             'meilisearchAvailable' => $healthy,
             'technologiesCount'    => Technology::query()->count(),
             'provincesCount'       => Province::query()->count(),
