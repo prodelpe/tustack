@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 
 class AppFresh extends Command
 {
-    protected $signature = 'app:fresh';
+    protected $signature = 'app:fresh {--enrich : Run companies:enrich after setup}';
 
     protected $description = 'Full app setup from scratch: migrate, seed, fetch jobs, index and estimate enrichment cost';
 
@@ -29,10 +29,13 @@ class AppFresh extends Command
         $this->call('scout:sync-index-settings');
         $this->call('scout:import', ['model' => 'App\\Models\\Company']);
 
-        $this->info('--- Enrichment cost estimate (not running) ---');
-        $this->call('companies:enrich', ['--estimate' => true]);
-
-        $this->info('Done. Run <fg=yellow>php artisan companies:enrich</> when ready to enrich.');
+        if ($this->option('enrich')) {
+            $this->call('companies:enrich');
+        } else {
+            $this->info('--- Enrichment cost estimate (not running) ---');
+            $this->call('companies:enrich', ['--estimate' => true]);
+            $this->info('Run <fg=yellow>php artisan companies:enrich</> when ready to enrich.');
+        }
 
         return self::SUCCESS;
     }
