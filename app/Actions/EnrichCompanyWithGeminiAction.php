@@ -14,7 +14,7 @@ class EnrichCompanyWithGeminiAction
     /**
      * @throws Throwable
      */
-    public function handle(Company $company): bool
+    public function handle(Company $company, TranslateTextAction $translator = new TranslateTextAction): bool
     {
         $apiKey = config('services.gemini.api_key');
 
@@ -57,17 +57,7 @@ class EnrichCompanyWithGeminiAction
                         'responseSchema'   => [
                             'type'       => 'object',
                             'properties' => [
-                                'description' => [
-                                    'type'       => 'object',
-                                    'nullable'   => true,
-                                    'properties' => [
-                                        'es' => ['type' => 'string', 'nullable' => true],
-                                        'ca' => ['type' => 'string', 'nullable' => true],
-                                        'eu' => ['type' => 'string', 'nullable' => true],
-                                        'gl' => ['type' => 'string', 'nullable' => true],
-                                        'en' => ['type' => 'string', 'nullable' => true],
-                                    ],
-                                ],
+                                'description' => ['type' => 'string', 'nullable' => true],
                                 'sector' => [
                                     'type'     => 'string',
                                     'nullable' => true,
@@ -88,8 +78,19 @@ class EnrichCompanyWithGeminiAction
             $raw  = $response->json('candidates.0.content.parts.0.text', '{}');
             $data = json_decode($raw, true) ?? [];
 
+            $descriptionEn = $data['description'] ?? null;
+            $description   = null;
+
+            if ($descriptionEn) {
+                $description = [
+                    'en' => $descriptionEn,
+                    'es' => $translator->handle($descriptionEn, 'es'),
+                    'ca' => $translator->handle($descriptionEn, 'ca'),
+                ];
+            }
+
             $company->update([
-                'description'     => $data['description'] ?? null,
+                'description'     => $description,
                 'sector'          => $data['sector'] ?? null,
                 'employees'       => $data['employees'] ?? null,
                 'website'         => $data['website'] ?? null,
