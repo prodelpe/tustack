@@ -19,7 +19,6 @@ return new class extends Migration
             $table->unsignedInteger('salary_min')->nullable();
             $table->unsignedInteger('salary_max')->nullable();
             $table->boolean('salary_is_predicted')->nullable();
-            $table->boolean('gemini_processed')->default(false);
             $table->timestamps();
         });
     }

@@ -10,7 +10,6 @@ readonly class AttachTechnologiesToOfferAction
 {
     public function __construct(
         private DetectTechnologiesAction $detectTechnologies,
-        private DetectTechnologiesWithGeminiAction $detectWithGemini,
     ) {}
 
     public function handle(JobOffer $offer, NormalizedJobOfferDTO $dto, Collection $technologies): void
@@ -20,11 +19,6 @@ readonly class AttachTechnologiesToOfferAction
         }
 
         $matched = $this->detectTechnologies->handle($dto, $technologies);
-
-        if ($matched->isEmpty() && ! $offer->gemini_processed) {
-            $matched = $this->detectWithGemini->handle($dto, $technologies);
-            $offer->update(['gemini_processed' => true]);
-        }
 
         if ($matched->isNotEmpty()) {
             $offer->technologies()->attach($matched->pluck('id'));

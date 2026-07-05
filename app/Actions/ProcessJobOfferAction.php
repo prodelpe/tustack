@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 readonly class ProcessJobOfferAction
 {
     public function __construct(
+        private DetectTechnologiesAction $detectTechnologies,
         private ResolveCompanyAction $resolveCompany,
         private UpsertJobOfferAction $upsertJobOffer,
         private AttachTechnologiesToOfferAction $attachTechnologies,
@@ -19,6 +20,12 @@ readonly class ProcessJobOfferAction
         $dto = $source->normalize($item);
 
         if (empty($dto->url)) {
+            return false;
+        }
+
+        $matched = $this->detectTechnologies->handle($dto, $technologies);
+
+        if ($matched->isEmpty()) {
             return false;
         }
 
