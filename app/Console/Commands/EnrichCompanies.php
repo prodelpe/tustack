@@ -13,7 +13,8 @@ class EnrichCompanies extends Command
     protected $signature = 'companies:enrich
                             {--limit=0 : Max companies to process (0 = all)}
                             {--sleep=4 : Seconds between requests}
-                            {--reset : Re-process already enriched companies}';
+                            {--reset : Re-process already enriched companies}
+                            {--estimate : Show estimated cost without processing}';
 
     protected $description = 'Enrich companies with Gemini (description, sector, employees, website)';
 
@@ -36,6 +37,14 @@ class EnrichCompanies extends Command
 
         if ($limit > 0) {
             $total = min($total, $limit);
+        }
+
+        if ($this->option('estimate')) {
+            $cost = $total * 0.00111;
+            $this->info("Estimate: {$total} companies × €0.00111 (Gemini) ≈ €" . number_format($cost, 2));
+            $this->line('<fg=yellow>Google Translate cost is negligible (<€0.01 extra).</>');
+            $this->line('Run without --estimate to process.');
+            return self::SUCCESS;
         }
 
         $this->info("Enriching {$total} companies (sleep: {$sleep}s between requests)...");
