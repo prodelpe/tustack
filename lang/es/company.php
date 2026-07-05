@@ -11,4 +11,6 @@ return [
     'about'             => 'Sobre la empresa',
     'type_consultancy'  => 'Consultora',
     'type_recruitment'  => 'Recruitment',
+    'save_bookmark'     => 'Guardar empresa',
+    'remove_bookmark'   => 'Eliminar de guardadas',
 ];

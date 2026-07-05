@@ -11,4 +11,6 @@ return [
     'about'             => 'About',
     'type_consultancy'  => 'Consultancy',
     'type_recruitment'  => 'Recruitment',
+    'save_bookmark'     => 'Save to My companies',
+    'remove_bookmark'   => 'Remove from My companies',
 ];

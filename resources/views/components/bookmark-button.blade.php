@@ -18,7 +18,7 @@
 >
     <x-outline-button
         @click="toggle"
-        x-bind:title="saved ? 'Remove from My companies' : 'Save to My companies'"
+        x-bind:title="saved ? '{{ __('company.remove_bookmark') }}' : '{{ __('company.save_bookmark') }}'"
         class="p-2"
     >
         <svg x-show="!saved" class="w-4 h-4 text-gray-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
