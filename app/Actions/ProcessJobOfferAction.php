@@ -8,6 +8,12 @@ use Illuminate\Support\Collection;
 
 readonly class ProcessJobOfferAction
 {
+    private const BLACKLISTED_COMPANIES = [
+        'jobleads',
+        'jobtome',
+        'domestiko.com',
+    ];
+
     public function __construct(
         private DetectTechnologiesAction $detectTechnologies,
         private ResolveCompanyAction $resolveCompany,
@@ -23,6 +29,10 @@ readonly class ProcessJobOfferAction
             return false;
         }
 
+        if ($this->isBlacklisted($dto->company)) {
+            return false;
+        }
+
         $matched = $this->detectTechnologies->handle($dto, $technologies);
 
         if ($matched->isEmpty()) {
@@ -34,5 +44,22 @@ readonly class ProcessJobOfferAction
         $this->attachTechnologies->handle($offer, $dto, $technologies);
 
         return true;
+    }
+
+    private function isBlacklisted(?string $company): bool
+    {
+        if (blank($company)) {
+            return false;
+        }
+
+        $normalized = strtolower(trim($company));
+
+        foreach (self::BLACKLISTED_COMPANIES as $blacklisted) {
+            if (str_contains($normalized, $blacklisted)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
