@@ -2,31 +2,27 @@
 
 namespace App\Console\Commands;
 
-use App\Actions\EnrichCompanyWithGeminiAction;
+use App\Jobs\EnrichCompanyJob;
 use App\Models\CommandLog;
 use App\Models\Company;
 use Illuminate\Console\Command;
-use Throwable;
+use Illuminate\Support\Facades\Bus;
 
 class EnrichCompanies extends Command
 {
     protected $signature = 'companies:enrich
                             {--limit=0 : Max companies to process (0 = all)}
-                            {--sleep=4 : Seconds between requests}
                             {--reset : Re-process already enriched companies}
                             {--estimate : Show estimated cost without processing}';
 
     protected $description = 'Enrich companies with Gemini (description, sector, employees, website)';
 
-    public function handle(EnrichCompanyWithGeminiAction $action): int
+    public function handle(): int
     {
         $limit = (int) $this->option('limit');
-        $sleep = (int) $this->option('sleep');
 
         $query = Company::with(['jobOffers.technologies', 'province'])
-            ->when(! $this->option('reset'), function ($q) {
-                return $q->where('gemini_enriched', false);
-            });
+            ->when(! $this->option('reset'), fn ($q) => $q->where('gemini_enriched', false));
 
         $total = $query->count();
 
@@ -47,7 +43,19 @@ class EnrichCompanies extends Command
             return self::SUCCESS;
         }
 
-        $this->info("Enriching {$total} companies (sleep: {$sleep}s between requests)...");
+        if (! $this->hasQueueWorkers()) {
+            $this->error('No queue workers detected. Start them first:');
+            $this->line('  php artisan horizon');
+            return self::FAILURE;
+        }
+
+        $jobs = $query
+            ->when($limit > 0, fn ($q) => $q->limit($limit))
+            ->pluck('id')
+            ->map(fn (int $id) => new EnrichCompanyJob($id))
+            ->all();
+
+        $this->info("Dispatching {$total} enrichment jobs...");
 
         $log = CommandLog::create([
             'command'    => 'companies:enrich',
@@ -55,51 +63,38 @@ class EnrichCompanies extends Command
             'started_at' => now(),
         ]);
 
+        $batch = Bus::batch($jobs)
+            ->name('companies:enrich')
+            ->allowFailures()
+            ->dispatch();
+
         $bar = $this->output->createProgressBar($total);
         $bar->start();
 
-        $processed = 0;
-        $succeeded = 0;
-
-        try {
-            $query->when($limit > 0, function ($q) use ($limit) {
-                return $q->limit($limit);
-            })
-                ->each(function (Company $company) use ($action, $sleep, $bar, &$processed, &$succeeded) {
-                    $ok = $action->handle($company);
-
-                    if ($ok) {
-                        $succeeded++;
-                    }
-
-                    $processed++;
-                    $bar->advance();
-
-                    if ($sleep > 0) {
-                        sleep($sleep);
-                    }
-                });
-
-            $bar->finish();
-            $this->newLine();
-            $this->info("Done. {$succeeded}/{$processed} companies enriched successfully.");
-
-            $log->update([
-                'status'      => 'success',
-                'finished_at' => now(),
-                'stats'       => ['processed' => $processed, 'succeeded' => $succeeded, 'failed' => $processed - $succeeded],
-            ]);
-
-            return self::SUCCESS;
-        } catch (Throwable $e) {
-            $log->update([
-                'status'        => 'failed',
-                'finished_at'   => now(),
-                'error_message' => $e->getMessage(),
-                'stats'         => ['processed' => $processed, 'succeeded' => $succeeded, 'failed' => $processed - $succeeded],
-            ]);
-
-            throw $e;
+        while (! $batch->finished()) {
+            sleep(2);
+            $batch = Bus::findBatch($batch->id);
+            $bar->setProgress($batch->processedJobs());
         }
+
+        $bar->finish();
+        $this->newLine();
+
+        $failed = $batch->failedJobs;
+        $this->info("Done. {$batch->totalJobs} companies processed, {$failed} failed.");
+
+        $log->update([
+            'status'      => $failed > 0 ? 'partial' : 'success',
+            'finished_at' => now(),
+            'stats'       => ['total' => $batch->totalJobs, 'failed' => $failed],
+        ]);
+
+        return self::SUCCESS;
+    }
+
+    private function hasQueueWorkers(): bool
+    {
+        $output = shell_exec('ps aux | grep "[q]ueue:work\|[h]orizon"');
+        return ! empty(trim($output ?? ''));
     }
 }
