@@ -14,7 +14,4 @@ Artisan::command('inspire', function () {
 // Schedule::command('jobs:fetch --all')->dailyAt('00:00');
 // Schedule::command('companies:enrich --limit=50')->dailyAt('03:00');
 
-// Schedule::job(new App\Jobs\FetchSourceJob('adzuna'))->dailyAt('00:00');
-// Schedule::job(new App\Jobs\FetchSourceJob('jooble'))->dailyAt('00:00'); // disabled: API quota exhausted
-// Schedule::job(new App\Jobs\FetchSourceJob('tecnoempleo'))->dailyAt('00:00');
 Schedule::command('searches:notify')->dailyAt('08:00');
