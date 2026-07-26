@@ -4,52 +4,31 @@ namespace App\Http\Controllers;
 
 use App\Models\Province;
 use App\Models\Technology;
-use Illuminate\Support\Facades\Http;
+use App\Support\PublicSearch;
 
 class SearchController extends Controller
 {
     public function map()
     {
-        $host = config('scout.meilisearch.host');
-
-        try {
-            $healthy = Http::timeout(2)->get("{$host}/health")->successful();
-        } catch (\Throwable) {
-            $healthy = false;
-        }
-
-        return view('map', [
-            'meilisearchHost'      => $host,
-            'meilisearchKey'       => env('MEILISEARCH_KEY', config('scout.meilisearch.key')),
-            'meilisearchAvailable' => $healthy,
-        ]);
+        return view('map', PublicSearch::viewData());
     }
 
     public function home()
     {
-        $host = config('scout.meilisearch.host');
-
-        try {
-            $healthy = Http::timeout(2)->get("{$host}/health")->successful();
-        } catch (\Throwable) {
-            $healthy = false;
-        }
-
         $savedFilters = auth()->check()
-            ? auth()->user()->savedSearches()->get()->pluck('filters')->map(fn ($f) => [
-                'technologies' => $f['technologies'] ?? [],
-                'provinces'    => $f['provinces'] ?? [],
-                'query'        => $f['query'] ?? '',
-            ])->all()
+            ? auth()->user()->savedSearches()->get()->pluck('filters')->map(function (array $filters) {
+                return [
+                    'technologies' => $filters['technologies'] ?? [],
+                    'provinces'    => $filters['provinces'] ?? [],
+                    'query'        => $filters['query'] ?? '',
+                ];
+            })->all()
             : [];
 
-        return view('home', [
-            'meilisearchHost'      => $host,
-            'meilisearchKey'       => env('MEILISEARCH_KEY', config('scout.meilisearch.key')),
-            'meilisearchAvailable' => $healthy,
-            'technologiesCount'    => Technology::query()->count(),
-            'provincesCount'       => Province::query()->count(),
-            'savedFilters'         => $savedFilters,
-        ]);
+        return view('home', array_merge(PublicSearch::viewData(), [
+            'technologiesCount' => Technology::query()->count(),
+            'provincesCount'    => Province::query()->count(),
+            'savedFilters'      => $savedFilters,
+        ]));
     }
 }
