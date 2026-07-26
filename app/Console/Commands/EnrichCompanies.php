@@ -12,6 +12,7 @@ class EnrichCompanies extends Command
 {
     protected $signature = 'companies:enrich
                             {--limit=0 : Max companies to process (0 = all)}
+                            {--min-technologies=2 : Skip companies with fewer distinct technologies}
                             {--reset : Re-process already enriched companies}
                             {--estimate : Show estimated cost without processing}
                             {--no-snapshot : Skip updating the enrichment snapshot afterwards}';
@@ -20,10 +21,12 @@ class EnrichCompanies extends Command
 
     public function handle(): int
     {
-        $limit = (int) $this->option('limit');
+        $limit            = (int) $this->option('limit');
+        $minTechnologies  = (int) $this->option('min-technologies');
 
         $query = Company::with(['jobOffers.technologies', 'province'])
-            ->when(! $this->option('reset'), fn ($q) => $q->where('gemini_enriched', false));
+            ->when(! $this->option('reset'), fn ($q) => $q->where('gemini_enriched', false))
+            ->when($minTechnologies > 1, fn ($q) => $q->withMinimumTechnologies($minTechnologies));
 
         $total = $query->count();
 
@@ -39,6 +42,7 @@ class EnrichCompanies extends Command
         if ($this->option('estimate')) {
             $cost = $total * 0.00111;
             $this->info("Estimate: {$total} companies × €0.00111 (Gemini) ≈ €" . number_format($cost, 2));
+            $this->line("<fg=gray>Only companies with {$minTechnologies}+ distinct technologies are counted.</>");
             $this->line('<fg=yellow>Google Translate cost is negligible (<€0.01 extra).</>');
             $this->line('Run without --estimate to process.');
             return self::SUCCESS;

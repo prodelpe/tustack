@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Laravel\Scout\Searchable;
 
 class Company extends Model
@@ -62,6 +64,22 @@ public function searchableAs(): string
                                     ? ['lat' => (float) $this->latitude, 'lng' => (float) $this->longitude]
                                     : null,
         ];
+    }
+
+    /**
+     * Companies whose offers mention at least $minimum distinct technologies.
+     * A single technology usually means a non-tech company that happened to
+     * name a tool in an offer.
+     */
+    public function scopeWithMinimumTechnologies(Builder $query, int $minimum): void
+    {
+        $query->whereIn('id', function (QueryBuilder $subquery) use ($minimum) {
+            $subquery->select('job_offers.company_id')
+                ->from('job_offers')
+                ->join('job_offer_technology', 'job_offer_technology.job_offer_id', '=', 'job_offers.id')
+                ->groupBy('job_offers.company_id')
+                ->havingRaw('COUNT(DISTINCT job_offer_technology.technology_id) >= ?', [$minimum]);
+        });
     }
 
     public function province(): BelongsTo

@@ -3,8 +3,14 @@
 namespace App\Actions;
 
 use App\Models\Company;
+use App\Models\User;
+use App\Notifications\GeminiUnavailable;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Throwable;
 
 class EnrichCompanyWithGeminiAction
@@ -107,9 +113,45 @@ class EnrichCompanyWithGeminiAction
                 'error'   => $e->getMessage(),
             ]);
 
+            // Quota, billing or network problems say nothing about this company,
+            // so it stays pending and gets retried on the next run.
+            if ($this->isTemporaryFailure($e)) {
+                $this->alertAdmins($e);
+
+                return false;
+            }
+
             $company->update(['gemini_enriched' => true]);
 
             return false;
         }
+    }
+
+    private function isTemporaryFailure(Throwable $e): bool
+    {
+        if ($e instanceof ConnectionException) {
+            return true;
+        }
+
+        if ($e instanceof RequestException) {
+            $status = $e->response->status();
+
+            return $status === 429 || $status === 402 || $status >= 500;
+        }
+
+        return false;
+    }
+
+    private function alertAdmins(Throwable $e): void
+    {
+        // One alert per outage instead of one per company in the batch.
+        if (! Cache::add('gemini-unavailable-alert', true, now()->addHours(6))) {
+            return;
+        }
+
+        Notification::send(
+            User::query()->where('is_admin', true)->get(),
+            new GeminiUnavailable($e->getMessage())
+        );
     }
 }
