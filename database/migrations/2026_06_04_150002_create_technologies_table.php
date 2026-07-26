@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug')->unique();
             $table->json('aliases')->nullable();
+            $table->unsignedBigInteger('searches_count')->default(0);
             $table->timestamps();
         });
     }

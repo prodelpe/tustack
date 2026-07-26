@@ -12,8 +12,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->json('filters');
+            // MySQL cannot index a JSON column, hence the hash.
+            $table->string('filters_hash', 32)->nullable();
             $table->timestamp('last_notified_at')->nullable();
             $table->timestamps();
+
+            $table->unique(['user_id', 'filters_hash']);
         });
     }
 

@@ -11,6 +11,11 @@ return new class extends Migration
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->json('description')->nullable();
+            $table->string('sector')->nullable();
+            $table->string('employees')->nullable();
+            $table->string('website')->nullable();
+            $table->boolean('gemini_enriched')->default(false);
             $table->decimal('longitude', 10, 7)->nullable();
             $table->decimal('latitude', 10, 7)->nullable();
             $table->string('location')->nullable();
