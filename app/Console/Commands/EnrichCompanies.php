@@ -13,7 +13,8 @@ class EnrichCompanies extends Command
     protected $signature = 'companies:enrich
                             {--limit=0 : Max companies to process (0 = all)}
                             {--reset : Re-process already enriched companies}
-                            {--estimate : Show estimated cost without processing}';
+                            {--estimate : Show estimated cost without processing}
+                            {--no-snapshot : Skip updating the enrichment snapshot afterwards}';
 
     protected $description = 'Enrich companies with Gemini (description, sector, employees, website)';
 
@@ -88,6 +89,10 @@ class EnrichCompanies extends Command
             'finished_at' => now(),
             'stats'       => ['total' => $batch->totalJobs, 'failed' => $failed],
         ]);
+
+        if (! $this->option('no-snapshot')) {
+            $this->call('enrichment:export');
+        }
 
         return self::SUCCESS;
     }

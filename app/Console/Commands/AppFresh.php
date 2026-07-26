@@ -6,7 +6,9 @@ use Illuminate\Console\Command;
 
 class AppFresh extends Command
 {
-    protected $signature = 'app:fresh {--enrich : Run companies:enrich after setup}';
+    protected $signature = 'app:fresh
+                            {--restore : Restore the enrichment snapshot after fetching}
+                            {--enrich : Run companies:enrich after setup}';
 
     protected $description = 'Full app setup from scratch: migrate, seed, fetch jobs, index and estimate enrichment cost';
 
@@ -32,6 +34,11 @@ class AppFresh extends Command
         $this->call('migrate:fresh');
         $this->call('db:seed');
         $this->call('jobs:fetch', ['--all' => true]);
+
+        if ($this->option('restore')) {
+            $this->call('enrichment:import');
+        }
+
         $this->call('scout:sync-index-settings');
         $this->call('scout:import', ['model' => 'App\\Models\\Company']);
 
