@@ -14,7 +14,9 @@ class CheckAppAvailable
             return $next($request);
         }
 
-        if ($request->is('admin') || $request->is('admin/*')) {
+        // The admin and the Telegram webhook must keep working while the site
+        // is closed to the public.
+        if ($request->is('admin') || $request->is('admin/*') || $request->is('telegram/webhook')) {
             return $next($request);
         }
 
