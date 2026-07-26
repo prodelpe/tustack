@@ -51,9 +51,9 @@ class CommandLogResource extends Resource
                         if (! $record->stats) return '—';
 
                         return match ($record->command) {
-                            'jobs:fetch'       => "Total: {$record->stats['total']} offers",
-                            'companies:enrich' => "Enriched: {$record->stats['succeeded']}/{$record->stats['processed']}",
-                            'searches:notify'  => "Dispatched: {$record->stats['dispatched']}",
+                            'jobs:fetch'       => 'Queries: ' . data_get($record->stats, 'total_queries', '?') . ' · failed: ' . data_get($record->stats, 'failed', 0),
+                            'companies:enrich' => 'Companies: ' . data_get($record->stats, 'total', '?') . ' · failed: ' . data_get($record->stats, 'failed', 0),
+                            'searches:notify'  => 'Dispatched: ' . data_get($record->stats, 'dispatched', 0),
                             default            => '—',
                         };
                     }),
