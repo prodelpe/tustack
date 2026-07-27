@@ -43,6 +43,8 @@ return [
 
     'available' => (bool) env('APP_AVAILABLE', true),
 
+    'noindex' => (bool) env('APP_NOINDEX', false),
+
     /*
     |--------------------------------------------------------------------------
     | Application URL

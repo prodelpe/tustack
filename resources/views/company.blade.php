@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('title', $seoTitle)
+@section('description', $seoDescription)
+
 @section('content')
 
 <main class="mx-auto max-w-6xl px-4 py-10">

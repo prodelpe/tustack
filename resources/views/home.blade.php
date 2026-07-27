@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('title', __('seo.home_title'))
+@section('description', __('seo.home_description'))
+
 @if($meilisearchAvailable)
 @section('header-slot')
 <button
