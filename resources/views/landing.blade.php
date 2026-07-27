@@ -29,7 +29,7 @@
         </p>
 
         <x-outline-button
-            href="{{ route('home', array_filter(['tech[0]' => $technology->name, 'prov[0]' => $province?->name])) }}"
+            :href="$searchUrl"
             class="mt-5 gap-1.5 px-3 py-1.5 text-xs text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-300"
         >
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -43,20 +43,25 @@
 
     <ul class="divide-y divide-gray-100 rounded-2xl border border-gray-200 dark:divide-slate-800 dark:border-slate-800">
         @foreach($companies as $company)
-            <li class="flex items-center justify-between gap-4 px-5 py-4">
-                <div class="min-w-0">
-                    <a href="{{ route('companies.show', $company) }}" class="font-medium text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400">
-                        {{ $company->name }}
-                    </a>
-                    @if($company->city || $company->province)
-                        <p class="mt-0.5 truncate text-sm text-gray-500 dark:text-slate-400">
-                            {{ collect([$company->city, $company->province?->name])->filter()->unique()->join(', ') }}
-                        </p>
-                    @endif
-                </div>
-                <span class="shrink-0 text-sm text-gray-400 dark:text-slate-500">
-                    {{ $company->job_offers_count }} {{ __('landing.offers_label') }}
-                </span>
+            <li>
+                <a
+                    href="{{ route('companies.show', $company) }}"
+                    class="group flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-gray-50 dark:hover:bg-slate-900/40"
+                >
+                    <span class="min-w-0">
+                        <span class="block font-medium text-gray-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400">
+                            {{ $company->name }}
+                        </span>
+                        @if($company->city || $company->province)
+                            <span class="mt-0.5 block truncate text-sm text-gray-500 dark:text-slate-400">
+                                {{ collect([$company->city, $company->province?->name])->filter()->unique()->join(', ') }}
+                            </span>
+                        @endif
+                    </span>
+                    <span class="shrink-0 text-sm text-gray-400 dark:text-slate-500">
+                        {{ $company->job_offers_count }} {{ __('landing.offers_label') }}
+                    </span>
+                </a>
             </li>
         @endforeach
     </ul>
@@ -68,8 +73,8 @@
     @endif
 
     @if($otherProvinces->isNotEmpty())
-        <section class="mt-12">
-            <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+        <section class="mt-14 border-t border-gray-100 pt-8 dark:border-slate-800">
+            <h2 class="mb-5 text-lg font-semibold text-gray-900 dark:text-white">
                 {{ __('landing.other_provinces', ['technology' => $technology->name]) }}
             </h2>
             <div class="flex flex-wrap gap-2">
@@ -84,8 +89,8 @@
     @endif
 
     @if($otherTechnologies->isNotEmpty())
-        <section class="mt-10">
-            <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+        <section class="mt-14 border-t border-gray-100 pt-8 dark:border-slate-800">
+            <h2 class="mb-5 text-lg font-semibold text-gray-900 dark:text-white">
                 {{ __('landing.other_technologies', ['location' => $location]) }}
             </h2>
             <div class="flex flex-wrap gap-2">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Company;
 use App\Models\Province;
 use App\Models\Technology;
+use App\Support\SearchUrl;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -36,6 +37,7 @@ class LandingController extends Controller
         return view('landing', $data + [
             'technology' => $technology,
             'province'   => $province,
+            'searchUrl'  => SearchUrl::withFilters([$technology->name], array_filter([$province?->name])),
         ]);
     }
 

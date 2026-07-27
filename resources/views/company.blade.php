@@ -138,8 +138,8 @@
     @endif
 
     @if (! empty($landings))
-        <div class="mt-12">
-            <p class="mb-4 text-xs font-medium uppercase tracking-widest text-gray-400 dark:text-slate-500">{{ __('landing.company_landings') }}</p>
+        <div class="mt-14 border-t border-gray-100 pt-8 dark:border-slate-800">
+            <p class="mb-5 text-xs font-medium uppercase tracking-widest text-gray-400 dark:text-slate-500">{{ __('landing.company_landings') }}</p>
             <div class="flex flex-wrap gap-2">
                 @foreach ($landings as $landing)
                     <a
