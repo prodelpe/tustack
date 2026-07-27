@@ -40,6 +40,10 @@
 @endsection
 @endif
 
+@push('schema')
+<x-json-ld :data="$schema" />
+@endpush
+
 @section('content')
 
 @if(!$meilisearchAvailable)

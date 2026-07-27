@@ -6,6 +6,7 @@ use App\Models\Company;
 use App\Models\Province;
 use App\Models\Technology;
 use App\Support\SearchUrl;
+use App\Support\StructuredData;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -34,10 +35,23 @@ class LandingController extends Controller
 
         abort_if($data['stats']['companies'] < config('seo.minimum_companies'), 404);
 
+        $heading = __('landing.heading', [
+            'technology' => $technology->name,
+            'location'   => $province?->name ?? __('landing.country'),
+        ]);
+
         return view('landing', $data + [
             'technology' => $technology,
             'province'   => $province,
+            'heading'    => $heading,
             'searchUrl'  => SearchUrl::withFilters([$technology->name], array_filter([$province?->name])),
+            'schema'     => StructuredData::landing(
+                $heading,
+                $technology,
+                $province,
+                $data['companies'],
+                $data['stats']['companies']
+            ),
         ]);
     }
 

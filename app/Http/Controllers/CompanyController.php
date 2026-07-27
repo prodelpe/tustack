@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use App\Support\LandingPages;
+use App\Support\StructuredData;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -34,6 +35,7 @@ class CompanyController extends Controller
         $seoTitle       = $this->seoTitle($company, $technologies);
         $seoDescription = $this->seoDescription($company, $technologies);
         $landings       = $this->landings($company, $technologies);
+        $schema         = StructuredData::company($company, $technologies, $seoDescription);
 
         return view('company', compact(
             'company',
@@ -44,7 +46,8 @@ class CompanyController extends Controller
             'similarCompanies',
             'seoTitle',
             'seoDescription',
-            'landings'
+            'landings',
+            'schema'
         ));
     }
 

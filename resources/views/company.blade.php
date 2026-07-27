@@ -3,6 +3,10 @@
 @section('title', $seoTitle)
 @section('description', $seoDescription)
 
+@push('schema')
+<x-json-ld :data="$schema" />
+@endpush
+
 @section('content')
 
 <main class="mx-auto max-w-6xl px-4 py-10">

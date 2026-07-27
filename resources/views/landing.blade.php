@@ -13,12 +13,16 @@
 @section('title', __('landing.meta_title', $replacements))
 @section('description', __('landing.meta_description', $replacements))
 
+@push('schema')
+<x-json-ld :data="$schema" />
+@endpush
+
 @section('content')
 <main class="mx-auto max-w-6xl px-4 py-10">
 
     <header class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-            {{ __('landing.heading', $replacements) }}
+            {{ $heading }}
         </h1>
 
         <p class="mt-3 max-w-3xl text-gray-600 dark:text-slate-400">

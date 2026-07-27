@@ -6,6 +6,7 @@ use App\Models\Province;
 use App\Models\Technology;
 use App\Support\LandingPages;
 use App\Support\PublicSearch;
+use App\Support\StructuredData;
 
 class SearchController extends Controller
 {
@@ -31,6 +32,7 @@ class SearchController extends Controller
             'provincesCount'    => Province::query()->count(),
             'savedFilters'      => $savedFilters,
             'highlights'        => LandingPages::highlights(),
+            'schema'            => StructuredData::website(),
         ]));
     }
 }
