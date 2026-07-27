@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CompanyController;
 use App\Models\Company;
+use App\Http\Controllers\HumansController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\TrackTechnologySearchController;
 use Illuminate\Support\Facades\Route;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
+Route::get('/humans.txt', HumansController::class)->name('humans');
 Route::get('/robots.txt', RobotsController::class)->name('robots');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 

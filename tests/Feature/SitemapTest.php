@@ -32,6 +32,14 @@ class SitemapTest extends TestCase
         $this->assertContains(url('/en/companies/acme'), $locations);
     }
 
+    public function test_humans_is_readable_but_not_indexable(): void
+    {
+        $this->get('/humans.txt')
+            ->assertOk()
+            ->assertHeader('X-Robots-Tag', 'noindex, nofollow')
+            ->assertSee('Pau Rodellino');
+    }
+
     public function test_robots_blocks_everything_while_the_site_is_closed(): void
     {
         config(['app.noindex' => true]);

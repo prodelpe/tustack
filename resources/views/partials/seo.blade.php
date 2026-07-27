@@ -6,6 +6,7 @@
 <title>@yield('title', __('seo.default_title')) · TuStack</title>
 <meta name="description" content="@yield('description', __('seo.default_description'))">
 <link rel="canonical" href="{{ url()->current() }}">
+<link rel="author" href="{{ url('humans.txt') }}">
 
 @if(config('app.noindex'))
     <meta name="robots" content="noindex, nofollow">
