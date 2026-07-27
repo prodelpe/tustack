@@ -16,7 +16,7 @@ readonly class SendTelegramAlertAction
         $lines = ["<b>New companies matching «{$savedSearch->describe()}»</b>\n"];
 
         foreach ($companies->take(10) as $company) {
-            $lines[] = '• <a href="' . route('companies.show', $company) . '">' . $company->name . '</a>';
+            $lines[] = '• <a href="' . route('companies.show', $company) . '">' . e($company->display_name) . '</a>';
         }
 
         if ($companies->count() > 10) {

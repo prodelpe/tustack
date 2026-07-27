@@ -8,7 +8,7 @@
         >
             <div>
                 <p class="font-medium text-gray-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-300">
-                    {{ $company->name }}
+                    {{ $company->display_name }}
                 </p>
                 @if ($company->city || $company->province)
                     <p class="mt-0.5 text-xs text-gray-400 dark:text-slate-500">

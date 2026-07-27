@@ -6,7 +6,7 @@ Hi {{ $user->name }},
 We found **{{ $companies->count() }}** new {{ Str::plural('company', $companies->count()) }} matching **{{ $savedSearch->describe() }}**:
 
 @foreach ($companies as $company)
-**[{{ $company->name }}]({{ url('/companies/' . $company->id) }})**
+**[{{ $company->display_name }}]({{ route('companies.show', $company) }})**
 {{ collect([$company->city, $company->province?->name])->filter()->unique()->implode(', ') }}
 
 @endforeach

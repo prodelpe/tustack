@@ -17,7 +17,7 @@
         <div class="flex items-start justify-between gap-4">
             <div>
                 <div class="flex items-center gap-2">
-                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $company->name }}</h1>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $company->display_name }}</h1>
                     @if ($company->sector === 'it_consulting')
                         <x-company-type-badge type="consultancy" />
                     @elseif ($company->sector === 'recruitment')
@@ -124,7 +124,7 @@
                     >
                         <div class="flex items-start justify-between gap-2">
                             <p class="font-medium text-gray-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-300">
-                                {{ $similar->name }}
+                                {{ $similar->display_name }}
                             </p>
                             @if ($similar->sector === 'it_consulting')
                                 <x-company-type-badge type="consultancy" />

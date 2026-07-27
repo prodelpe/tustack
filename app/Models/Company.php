@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Support\CompanyName;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -73,6 +75,12 @@ class Company extends Model
         return 'slug';
     }
 
+    /** The stored name is never rewritten: only how it is shown. */
+    protected function displayName(): Attribute
+    {
+        return Attribute::get(fn () => CompanyName::display($this->name ?? ''));
+    }
+
     public function searchableAs(): string
     {
         return 'devstack_companies';
@@ -88,7 +96,7 @@ class Company extends Model
 
         return [
             'id'               => $this->id,
-            'name'             => $this->name,
+            'name'             => $this->display_name,
             'slug'             => $this->slug,
             'city'             => $this->city,
             'province_id'      => $this->province_id,

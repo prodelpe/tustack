@@ -65,7 +65,7 @@ class CompanyController extends Controller
         return [
             ['label' => 'TuStack', 'url' => route('home')],
             ['label' => __('nav.companies'), 'url' => route('home')],
-            ['label' => $company->name, 'url' => url()->current()],
+            ['label' => $company->display_name, 'url' => url()->current()],
         ];
     }
 
@@ -114,20 +114,20 @@ class CompanyController extends Controller
         $stack = $technologies->take(3)->pluck('name')->join(', ');
 
         if (blank($stack)) {
-            return $company->name;
+            return $company->display_name;
         }
 
         $location = $company->city ?: $company->province?->name;
 
         if (blank($location)) {
             return __('seo.company_title_no_location', [
-                'company'      => $company->name,
+                'company'      => $company->display_name,
                 'technologies' => $stack,
             ]);
         }
 
         return __('seo.company_title', [
-            'company'      => $company->name,
+            'company'      => $company->display_name,
             'technologies' => $stack,
             'location'     => $location,
         ]);
@@ -144,11 +144,11 @@ class CompanyController extends Controller
         $stack = $technologies->take(5)->pluck('name')->join(', ');
 
         if (blank($stack)) {
-            return __('seo.company_description_minimal', ['company' => $company->name]);
+            return __('seo.company_description_minimal', ['company' => $company->display_name]);
         }
 
         return __('seo.company_description', [
-            'company'      => $company->name,
+            'company'      => $company->display_name,
             'technologies' => $stack,
         ]);
     }

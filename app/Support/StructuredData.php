@@ -49,7 +49,7 @@ class StructuredData
     {
         $organization = array_filter([
             '@type'       => 'Organization',
-            'name'        => $company->name,
+            'name'        => $company->display_name,
             'description' => $description,
             'url'         => $company->website,
             'address'     => self::address($company),
@@ -72,7 +72,7 @@ class StructuredData
             return [
                 '@type'    => 'ListItem',
                 'position' => $index + 1,
-                'name'     => $company->name,
+                'name'     => $company->display_name,
                 'url'      => route('companies.show', $company),
             ];
         })->all();

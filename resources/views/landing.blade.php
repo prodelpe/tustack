@@ -56,7 +56,7 @@
                 >
                     <span class="min-w-0">
                         <span class="block font-medium text-gray-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400">
-                            {{ $company->name }}
+                            {{ $company->display_name }}
                         </span>
                         @if($company->city || $company->province)
                             <span class="mt-0.5 block truncate text-sm text-gray-500 dark:text-slate-400">
