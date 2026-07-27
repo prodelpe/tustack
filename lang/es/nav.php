@@ -12,4 +12,7 @@ return [
     'companies'   => 'Empresas',
     'menu'        => 'Menú',
     'close_menu'  => 'Cerrar menú',
+    'view_list'     => 'Lista',
+    'view_map'      => 'Mapa',
+    'view_trends'   => 'Tendencias',
 ];

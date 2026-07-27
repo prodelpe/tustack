@@ -103,6 +103,11 @@ search.on('render', () => {
     if (listLink && window.__HOME_URL__) {
         listLink.href = buildLinkUrl(window.__HOME_URL__, { techs })
     }
+
+    const mapLink = document.getElementById('map-link')
+    if (mapLink && window.__MAP_URL__) {
+        mapLink.href = buildLinkUrl(window.__MAP_URL__, { techs })
+    }
 })
 
 search.start()

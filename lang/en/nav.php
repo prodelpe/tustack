@@ -12,4 +12,7 @@ return [
     'companies'   => 'Companies',
     'menu'        => 'Menu',
     'close_menu'  => 'Close menu',
+    'view_list'     => 'List',
+    'view_map'      => 'Map',
+    'view_trends'   => 'Trends',
 ];

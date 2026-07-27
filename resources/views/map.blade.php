@@ -19,8 +19,9 @@
 
             {{-- Mapa --}}
             <div class="min-w-0 flex-1">
+                <x-view-switcher current="map" />
+
                 <div class="mb-4 flex flex-wrap items-center gap-3">
-                    <x-back-to-list-link />
                     {{-- Outside the sidebar on purpose: inside it, the count would
                          be hidden in the filter panel on small screens. --}}
                     <span id="stats" class="text-xs text-gray-400 dark:text-slate-500"></span>
@@ -38,6 +39,7 @@
     window.__MEILISEARCH_HOST__ = @json($meilisearchHost);
     window.__MEILISEARCH_KEY__  = @json($meilisearchKey);
     window.__HOME_URL__         = @json(route('home'));
+    window.__TENDENCIES_URL__   = @json(route('tendencies'));
     window.__COMPANY_URL__      = @json(route('companies.show', ['company' => '__SLUG__']));
 </script>
 @vite('resources/js/map.js')

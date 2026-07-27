@@ -142,6 +142,11 @@ search.on('render', () => {
     if (listLink && window.__HOME_URL__) {
         listLink.href = buildLinkUrl(window.__HOME_URL__, { techs, provs, excludeConsultancies })
     }
+
+    const trendsLink = document.getElementById('trends-link')
+    if (trendsLink && window.__TENDENCIES_URL__) {
+        trendsLink.href = buildLinkUrl(window.__TENDENCIES_URL__, { techs })
+    }
 })
 
 const excludeCheckbox = document.getElementById('exclude-consultancies')

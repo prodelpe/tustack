@@ -20,8 +20,9 @@
             <x-search-sidebar :showConsultancyFilter="false" :showProvinces="false" />
 
             <div class="min-w-0 flex-1">
+                <x-view-switcher current="trends" />
+
                 <div class="mb-4 flex flex-wrap items-center gap-3">
-                    <x-back-to-list-link />
                     <div id="clear-filters"></div>
                 </div>
 
@@ -48,6 +49,7 @@
     window.__MEILISEARCH_KEY__     = @json($meilisearchKey);
     window.__TENDENCY_DATA_URL__   = @json(route('tendency-data'));
     window.__HOME_URL__            = @json(route('home'));
+    window.__MAP_URL__             = @json(route('map'));
 </script>
 @vite('resources/js/trends.js')
 @endpush
