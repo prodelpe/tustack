@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CompanyController;
+use App\Models\Company;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SavedCompanyController;
 use App\Http\Controllers\SavedSearchController;
@@ -23,7 +24,14 @@ Route::group([
 ], function () {
     Route::get('/', [SearchController::class, 'home'])->name('home');
     Route::get('/map', [SearchController::class, 'map'])->name('map');
-    Route::get('/companies/{company}', [CompanyController::class, 'show'])->name('companies.show');
+    // Legacy numeric urls kept alive: alerts sent before the slugs existed
+    // still point here. Registered first so it wins over the English path.
+    Route::get('/companies/{id}', function (string $id) {
+        return redirect()->route('companies.show', Company::findOrFail($id), 301);
+    })->whereNumber('id');
+
+    Route::get(LaravelLocalization::transRoute('routes.companies'), [CompanyController::class, 'show'])
+        ->name('companies.show');
 
     Route::get('/salary-insights', SalaryInsightsController::class)->name('salary-insights');
     Route::get('/tendencies', TendenciesController::class)->name('tendencies');

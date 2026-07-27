@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 
 class Company extends Model
@@ -21,6 +23,7 @@ class Company extends Model
 
     protected $fillable = [
         'name',
+        'slug',
         'location',
         'country',
         'city',
@@ -34,7 +37,43 @@ class Company extends Model
         'gemini_enriched',
     ];
 
-public function searchableAs(): string
+    protected static function booted(): void
+    {
+        // Slugs are assigned once and never regenerated: a renamed company keeps
+        // its url so existing links and rankings survive.
+        static::saving(function (Company $company) {
+            if (blank($company->slug)) {
+                $company->slug = static::uniqueSlug($company->name, $company->id);
+            }
+        });
+    }
+
+    public static function uniqueSlug(string $name, ?int $ignoreId = null): string
+    {
+        $base   = Str::slug($name) ?: 'company';
+        $slug   = $base;
+        $suffix = 2;
+
+        while (
+            static::query()
+                ->where('slug', $slug)
+                ->when($ignoreId, function (Builder $query, int $id) {
+                    $query->whereKeyNot($id);
+                })
+                ->exists()
+        ) {
+            $slug = $base . '-' . $suffix++;
+        }
+
+        return $slug;
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    public function searchableAs(): string
     {
         return 'devstack_companies';
     }
@@ -50,6 +89,7 @@ public function searchableAs(): string
         return [
             'id'               => $this->id,
             'name'             => $this->name,
+            'slug'             => $this->slug,
             'city'             => $this->city,
             'province_id'      => $this->province_id,
             'province_name'    => $this->province?->name,
@@ -109,7 +149,7 @@ public function searchableAs(): string
         );
     }
 
-    public function similarCompanies(int $limit = 6): \Illuminate\Database\Eloquent\Collection
+    public function similarCompanies(int $limit = 6): EloquentCollection
     {
         $technologyIds = $this->jobOffers
             ->flatMap->technologies
@@ -117,7 +157,7 @@ public function searchableAs(): string
             ->pluck('id');
 
         if ($technologyIds->isEmpty()) {
-            return collect();
+            return new EloquentCollection();
         }
 
         return static::selectRaw('companies.*, COUNT(DISTINCT t.id) as shared_tech_count')

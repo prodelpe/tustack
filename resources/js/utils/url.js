@@ -1,3 +1,7 @@
+export function companyUrl(slug) {
+    return window.__COMPANY_URL__.replace('__SLUG__', slug)
+}
+
 export function buildLinkUrl(baseUrl, { techs = [], provs = [], excludeConsultancies = false, excludeRecruitment = false } = {}) {
     const params = new URLSearchParams()
     techs.forEach((t, i) => params.set(`tech[${i}]`, t))

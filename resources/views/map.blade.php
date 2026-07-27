@@ -36,6 +36,7 @@
     window.__MEILISEARCH_HOST__ = @json($meilisearchHost);
     window.__MEILISEARCH_KEY__  = @json($meilisearchKey);
     window.__HOME_URL__         = @json(route('home'));
+    window.__COMPANY_URL__      = @json(route('companies.show', ['company' => '__SLUG__']));
 </script>
 @vite('resources/js/map.js')
 @endpush

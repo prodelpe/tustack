@@ -1,5 +1,5 @@
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch'
-import { buildLinkUrl } from './utils/url'
+import { buildLinkUrl, companyUrl } from './utils/url'
 import instantsearch from 'instantsearch.js'
 import { history } from 'instantsearch.js/es/lib/routers'
 import {
@@ -118,7 +118,7 @@ search.addWidgets([
 
             const popup = `
                 <div class="map-popup">
-                    <a href="/companies/${hit.id}" class="map-popup__name">${hit.name}</a>
+                    <a href="${companyUrl(hit.slug)}" class="map-popup__name">${hit.name}</a>
                     ${location ? `<p class="map-popup__location">${location}</p>` : ''}
                     <div class="map-popup__techs">${techs}</div>
                 </div>

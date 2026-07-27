@@ -1,5 +1,5 @@
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch'
-import { buildLinkUrl } from './utils/url'
+import { buildLinkUrl, companyUrl } from './utils/url'
 import instantsearch from 'instantsearch.js'
 import { history } from 'instantsearch.js/es/lib/routers'
 import {
@@ -124,7 +124,7 @@ search.addWidgets([
         container: '#hits',
         templates: {
             item: (hit) => `
-                <a href="/companies/${hit.id}" class="hit-card">
+                <a href="${companyUrl(hit.slug)}" class="hit-card">
                     <div class="hit-card__header">
                         <div>
                             <h2 class="hit-card__name">

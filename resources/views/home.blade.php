@@ -128,6 +128,7 @@
     window.__MEILISEARCH_HOST__    = @json($meilisearchHost);
     window.__MEILISEARCH_KEY__     = @json($meilisearchKey);
     window.__SAVED_FILTERS__       = @json($savedFilters);
+    window.__COMPANY_URL__         = @json(route('companies.show', ['company' => '__SLUG__']));
     window.__MAP_URL__             = @json(route('map'));
     window.__TENDENCIES_URL__      = @json(route('tendencies'));
     window.__TRACK_SEARCH_URL__    = @json(route('track-search'));
