@@ -10,4 +10,5 @@ return [
     'theme_dark'   => 'Oscuro',
     'breadcrumb'   => 'Migas de pan',
     'companies'   => 'Empresas',
+    'menu'        => 'Menú',
 ];

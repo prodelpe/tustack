@@ -10,4 +10,5 @@ return [
     'theme_dark'   => 'Dark',
     'breadcrumb'   => 'Breadcrumb',
     'companies'   => 'Companies',
+    'menu'        => 'Menu',
 ];

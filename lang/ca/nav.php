@@ -10,4 +10,5 @@ return [
     'theme_dark'   => 'Fosc',
     'breadcrumb'   => 'Molles de pa',
     'companies'   => 'Empreses',
+    'menu'        => 'Menú',
 ];
