@@ -45,7 +45,7 @@ class StructuredData
         ];
     }
 
-    public static function company(Company $company, Collection $technologies, string $description): array
+    public static function company(Company $company, Collection $technologies, string $description, array $trail): array
     {
         $organization = array_filter([
             '@type'       => 'Organization',
@@ -61,12 +61,12 @@ class StructuredData
             '@context' => 'https://schema.org',
             '@graph'   => [
                 $organization + ['mainEntityOfPage' => ['@type' => 'WebPage', '@id' => url()->current()]],
-                self::breadcrumb([$company->name => url()->current()]),
+                self::breadcrumb($trail),
             ],
         ];
     }
 
-    public static function landing(string $heading, Technology $technology, ?Province $province, Collection $companies, int $total): array
+    public static function landing(string $heading, Collection $companies, int $total, array $trail): array
     {
         $items = $companies->values()->map(function (Company $company, int $index) {
             return [
@@ -86,31 +86,25 @@ class StructuredData
                     'numberOfItems'   => $total,
                     'itemListElement' => $items,
                 ],
-                self::breadcrumb([$heading => url()->current()]),
+                self::breadcrumb($trail),
             ],
         ];
     }
 
     /**
-     * @param array<string, string> $trail label => url
+     * @param array<int, array{label: string, url: string}> $trail the same trail
+     *        the page shows, so the markup can never drift from what is visible
      */
     private static function breadcrumb(array $trail): array
     {
-        $items = [[
-            '@type'    => 'ListItem',
-            'position' => 1,
-            'name'     => 'TuStack',
-            'item'     => route('home'),
-        ]];
+        $items = [];
 
-        $position = 2;
-
-        foreach ($trail as $label => $url) {
+        foreach (array_values($trail) as $index => $crumb) {
             $items[] = [
                 '@type'    => 'ListItem',
-                'position' => $position++,
-                'name'     => $label,
-                'item'     => $url,
+                'position' => $index + 1,
+                'name'     => $crumb['label'],
+                'item'     => $crumb['url'],
             ];
         }
 

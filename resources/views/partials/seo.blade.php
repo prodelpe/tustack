@@ -15,6 +15,8 @@
 @foreach($locales as $localeCode => $properties)
     <link rel="alternate" hreflang="{{ $localeCode }}" href="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}">
 @endforeach
+{{-- What to serve to someone whose language matches none of ours. --}}
+<link rel="alternate" hreflang="x-default" href="{{ LaravelLocalization::getLocalizedURL(config('app.fallback_locale'), null, [], true) }}">
 
 <meta property="og:site_name" content="TuStack">
 <meta property="og:type" content="website">

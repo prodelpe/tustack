@@ -8,4 +8,5 @@ return [
     'theme_system' => 'Sistema',
     'theme_light'  => 'Claro',
     'theme_dark'   => 'Oscuro',
+    'breadcrumb'   => 'Migas de pan',
 ];

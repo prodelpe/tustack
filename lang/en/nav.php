@@ -8,4 +8,5 @@ return [
     'theme_system' => 'System',
     'theme_light'  => 'Light',
     'theme_dark'   => 'Dark',
+    'breadcrumb'   => 'Breadcrumb',
 ];

@@ -8,4 +8,5 @@ return [
     'theme_system' => 'Sistema',
     'theme_light'  => 'Clar',
     'theme_dark'   => 'Fosc',
+    'breadcrumb'   => 'Molles de pa',
 ];

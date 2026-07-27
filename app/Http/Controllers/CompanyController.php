@@ -35,7 +35,8 @@ class CompanyController extends Controller
         $seoTitle       = $this->seoTitle($company, $technologies);
         $seoDescription = $this->seoDescription($company, $technologies);
         $landings       = $this->landings($company, $technologies);
-        $schema         = StructuredData::company($company, $technologies, $seoDescription);
+        $breadcrumbs    = $this->breadcrumbs($company, $landings);
+        $schema         = StructuredData::company($company, $technologies, $seoDescription, $breadcrumbs);
 
         return view('company', compact(
             'company',
@@ -47,8 +48,25 @@ class CompanyController extends Controller
             'seoTitle',
             'seoDescription',
             'landings',
+            'breadcrumbs',
             'schema'
         ));
+    }
+
+    /**
+     * The first landing page this company belongs to doubles as the middle
+     * crumb: it is the closest thing to a category the company has.
+     *
+     * @param array<int, array{label: string, url: string}> $landings
+     * @return array<int, array{label: string, url: string}>
+     */
+    private function breadcrumbs(Company $company, array $landings): array
+    {
+        return array_values(array_filter([
+            ['label' => 'TuStack', 'url' => route('home')],
+            $landings[0] ?? null,
+            ['label' => $company->name, 'url' => url()->current()],
+        ]));
     }
 
     /**

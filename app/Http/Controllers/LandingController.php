@@ -40,19 +40,46 @@ class LandingController extends Controller
             'location'   => $province?->name ?? __('landing.country'),
         ]);
 
+        $breadcrumbs = $this->breadcrumbs($technology, $province, $heading);
+
         return view('landing', $data + [
-            'technology' => $technology,
-            'province'   => $province,
-            'heading'    => $heading,
-            'searchUrl'  => SearchUrl::withFilters([$technology->name], array_filter([$province?->name])),
-            'schema'     => StructuredData::landing(
+            'technology'  => $technology,
+            'province'    => $province,
+            'heading'     => $heading,
+            'breadcrumbs' => $breadcrumbs,
+            'searchUrl'   => SearchUrl::withFilters([$technology->name], array_filter([$province?->name])),
+            'schema'      => StructuredData::landing(
                 $heading,
-                $technology,
-                $province,
                 $data['companies'],
-                $data['stats']['companies']
+                $data['stats']['companies'],
+                $breadcrumbs
             ),
         ]);
+    }
+
+    /**
+     * On a province page the hub of the same technology is the parent, which
+     * gives crawlers and visitors a way up instead of a dead end.
+     *
+     * @return array<int, array{label: string, url: string}>
+     */
+    private function breadcrumbs(Technology $technology, ?Province $province, string $heading): array
+    {
+        $trail = [['label' => 'TuStack', 'url' => route('home')]];
+
+        if ($province) {
+            $trail[] = [
+                'label' => __('landing.heading', [
+                    'technology' => $technology->name,
+                    'location'   => __('landing.country'),
+                ]),
+                'url' => route('landing.technology', ['technology' => $technology]),
+            ];
+        }
+
+        $trail[] = ['label' => $heading, 'url' => url()->current()];
+
+        return $trail;
     }
 
     private function build(Technology $technology, ?Province $province): array

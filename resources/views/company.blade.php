@@ -11,6 +11,8 @@
 
 <main class="mx-auto max-w-6xl px-4 py-10">
 
+    <x-breadcrumbs :trail="$breadcrumbs" />
+
     <div class="mb-8">
         <div class="flex items-start justify-between gap-4">
             <div>

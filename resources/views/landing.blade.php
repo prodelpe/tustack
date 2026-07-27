@@ -20,6 +20,8 @@
 @section('content')
 <main class="mx-auto max-w-6xl px-4 py-10">
 
+    <x-breadcrumbs :trail="$breadcrumbs" />
+
     <header class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
             {{ $heading }}

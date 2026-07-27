@@ -47,6 +47,23 @@ class StructuredDataTest extends TestCase
         $this->assertStringContainsString('GeoCoordinates', $content);
     }
 
+    public function test_the_visible_breadcrumbs_match_the_markup(): void
+    {
+        $company = Company::create(['name' => 'Acme']);
+
+        $content = $this->get(route('companies.show', $company))->getContent();
+
+        preg_match('#<nav aria-label="' . __('nav.breadcrumb') . '".*?</nav>#s', $content, $visible);
+        preg_match('#<script type="application/ld\+json">(.*?)</script>#s', $content, $json);
+
+        $names = collect(json_decode($json[1], true)['@graph'])
+            ->firstWhere('@type', 'BreadcrumbList')['itemListElement'];
+
+        foreach ($names as $item) {
+            $this->assertStringContainsString($item['name'], $visible[0] ?? '');
+        }
+    }
+
     public function test_the_markup_is_valid_json(): void
     {
         $company = Company::create(['name' => 'Acme </script><script>alert(1)</script>']);
