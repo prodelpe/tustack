@@ -137,7 +137,9 @@
     @apply flex items-start justify-between gap-4;
 }
 .hit-card__name {
-    @apply font-semibold text-gray-900 dark:text-white;
+    /* Flex with a gap instead of a margin on the badge: when the badge wraps to
+       its own line on a narrow card, a left margin left it visibly indented. */
+    @apply flex flex-wrap items-center gap-x-2 gap-y-1 font-semibold text-gray-900 dark:text-white;
 }
 .hit-card__location {
     @apply mt-0.5 text-sm text-gray-500 dark:text-slate-400;
@@ -157,7 +159,7 @@
 }
 
 .hit-card__type-badge {
-    @apply rounded-full border px-2 py-0.5 text-xs font-medium align-middle ml-2;
+    @apply shrink-0 rounded-full border px-2 py-0.5 text-xs font-medium;
 }
 .hit-card__type-badge--consultancy {
     @apply border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300;

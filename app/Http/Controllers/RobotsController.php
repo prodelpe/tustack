@@ -2,32 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\Robots;
 use Illuminate\Http\Response;
 
+/**
+ * Fallback for environments that route /robots.txt to the application. Web
+ * servers usually special-case that path and serve it as a static file, which
+ * is what `php artisan robots:build` writes — see the command for why.
+ */
 class RobotsController extends Controller
 {
     public function __invoke(): Response
     {
-        $lines = ['User-agent: *'];
-
-        if (config('app.noindex') || ! config('app.available')) {
-            $lines[] = 'Disallow: /';
-
-            return $this->plainText($lines);
-        }
-
-        foreach (['/admin', '/dashboard', '/login', '/register', '/profile'] as $private) {
-            $lines[] = 'Disallow: ' . $private;
-        }
-
-        $lines[] = '';
-        $lines[] = 'Sitemap: ' . route('sitemap');
-
-        return $this->plainText($lines);
-    }
-
-    private function plainText(array $lines): Response
-    {
-        return response(implode("\n", $lines) . "\n", 200, ['Content-Type' => 'text/plain']);
+        return response(Robots::content(), 200, ['Content-Type' => 'text/plain']);
     }
 }
