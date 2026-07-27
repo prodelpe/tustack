@@ -13,4 +13,8 @@ return [
     'clear_filters'         => 'Clear filters',
     'show_more'             => 'Show more',
     'show_less'             => 'Show less',
+
+    'filters'                 => 'Filters',
+    'show_results'            => 'Show results',
+    'close_filters'           => 'Close filters',
 ];

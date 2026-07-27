@@ -15,23 +15,23 @@
             </div>
         </div>
     @else
-        <div class="flex gap-8">
+        <div class="lg:flex lg:gap-8">
 
             <x-search-sidebar :showConsultancyFilter="false" :showProvinces="false" />
 
-            <div class="flex-1 min-w-0">
-                <div class="mb-4 flex items-center gap-4">
+            <div class="min-w-0 flex-1">
+                <div class="mb-4 flex flex-wrap items-center gap-3">
                     <x-back-to-list-link />
                     <div id="clear-filters"></div>
                 </div>
 
                 <div class="mb-6">
-                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ __('tendencies.title') }}</h1>
+                    <h1 class="text-2xl font-bold sm:text-3xl text-gray-900 dark:text-white">{{ __('tendencies.title') }}</h1>
                     <p class="mt-1 text-sm text-gray-500 dark:text-slate-400">{{ __('tendencies.subtitle') }}</p>
                 </div>
 
-                <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-                    <div style="position: relative; height: 460px;">
+                <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+                    <div class="relative h-[320px] sm:h-[400px] lg:h-[460px]">
                         <canvas id="trends-chart"></canvas>
                     </div>
                 </div>

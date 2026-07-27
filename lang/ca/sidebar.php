@@ -13,4 +13,8 @@ return [
     'clear_filters'         => 'Netejar filtres',
     'show_more'             => 'Veure més',
     'show_less'             => 'Veure menys',
+
+    'filters'                 => 'Filtres',
+    'show_results'            => 'Veure resultats',
+    'close_filters'           => 'Tancar filtres',
 ];

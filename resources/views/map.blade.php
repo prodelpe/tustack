@@ -13,21 +13,20 @@
             </div>
         </div>
     @else
-        <div class="flex gap-8">
+        <div class="lg:flex lg:gap-8">
 
-            <x-search-sidebar>
-                <p class="mb-6 text-xs text-gray-400 dark:text-slate-500">
-                    <span id="stats"></span>
-                </p>
-            </x-search-sidebar>
+            <x-search-sidebar />
 
             {{-- Mapa --}}
-            <div class="flex-1 min-w-0">
-                <div class="mb-4 flex items-center gap-4">
+            <div class="min-w-0 flex-1">
+                <div class="mb-4 flex flex-wrap items-center gap-3">
                     <x-back-to-list-link />
+                    {{-- Outside the sidebar on purpose: inside it, the count would
+                         be hidden in the filter panel on small screens. --}}
+                    <span id="stats" class="text-xs text-gray-400 dark:text-slate-500"></span>
                     <div id="clear-filters"></div>
                 </div>
-                <div id="map" class="w-full rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden" style="height: 600px;"></div>
+                <div id="map" class="h-[60vh] min-h-[380px] w-full overflow-hidden rounded-2xl border border-gray-200 dark:border-slate-800 lg:h-[600px]"></div>
             </div>
 
         </div>

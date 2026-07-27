@@ -5,6 +5,29 @@ import { trendChart } from './trend-chart';
 
 Alpine.data('trendChart', trendChart(Chart));
 
+Alpine.data('filterPanel', () => ({
+    open: false,
+    count: 0,
+    init() {
+        // The search widgets already broadcast the active refinements, so the
+        // badge on the trigger stays in sync without touching search logic.
+        window.addEventListener('search-updated', (event) => {
+            const { technologies = [], provinces = [], query = '' } = event.detail || {}
+            this.count = technologies.length + provinces.length + (query ? 1 : 0)
+        })
+
+        this.$watch('open', (open) => {
+            document.body.classList.toggle('overflow-hidden', open)
+        })
+    },
+    toggle() {
+        this.open = !this.open
+    },
+    close() {
+        this.open = false
+    },
+}));
+
 Alpine.data('themeToggle', () => ({
     theme: localStorage.getItem('theme') ?? 'system',
     init() {

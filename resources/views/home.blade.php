@@ -58,8 +58,8 @@
     </div>
 </main>
 @else
-<main class="mx-auto max-w-6xl px-4 py-8">
-    <div class="flex gap-8">
+<main class="mx-auto max-w-6xl px-4 py-6 lg:py-8">
+    <div class="lg:flex lg:gap-8">
 
         <x-search-sidebar>
             <p class="mb-6 text-xs text-gray-400 dark:text-slate-500">
@@ -68,9 +68,9 @@
         </x-search-sidebar>
 
         {{-- Resultats --}}
-        <div class="flex-1 min-w-0">
-            <div class="mb-4 flex items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
+        <div class="min-w-0 flex-1">
+            <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-3">
                     <div id="stats" class="text-sm text-gray-500 dark:text-slate-400"></div>
                     <div id="clear-filters"></div>
                     <x-outline-button id="map-link" :href="route('map')" class="gap-1.5 px-3 py-1.5 text-xs text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-300">
