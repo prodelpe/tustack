@@ -5,6 +5,15 @@ import { trendChart } from './trend-chart';
 
 Alpine.data('trendChart', trendChart(Chart));
 
+// Counted so that closing one panel does not unlock scrolling while another
+// one is still open.
+let scrollLocks = 0
+
+function lockScroll(locked) {
+    scrollLocks = Math.max(0, scrollLocks + (locked ? 1 : -1))
+    document.body.classList.toggle('overflow-hidden', scrollLocks > 0)
+}
+
 Alpine.data('filterPanel', () => ({
     open: false,
     count: 0,
@@ -16,9 +25,20 @@ Alpine.data('filterPanel', () => ({
             this.count = technologies.length + provinces.length + (query ? 1 : 0)
         })
 
-        this.$watch('open', (open) => {
-            document.body.classList.toggle('overflow-hidden', open)
-        })
+        this.$watch('open', lockScroll)
+    },
+    toggle() {
+        this.open = !this.open
+    },
+    close() {
+        this.open = false
+    },
+}));
+
+Alpine.data('navMenu', () => ({
+    open: false,
+    init() {
+        this.$watch('open', lockScroll)
     },
     toggle() {
         this.open = !this.open

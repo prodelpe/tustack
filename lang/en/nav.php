@@ -11,4 +11,5 @@ return [
     'breadcrumb'   => 'Breadcrumb',
     'companies'   => 'Companies',
     'menu'        => 'Menu',
+    'close_menu'  => 'Close menu',
 ];

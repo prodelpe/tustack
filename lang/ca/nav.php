@@ -11,4 +11,5 @@ return [
     'breadcrumb'   => 'Molles de pa',
     'companies'   => 'Empreses',
     'menu'        => 'Menú',
+    'close_menu'  => 'Tancar menú',
 ];

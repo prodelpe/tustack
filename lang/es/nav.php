@@ -11,4 +11,5 @@ return [
     'breadcrumb'   => 'Migas de pan',
     'companies'   => 'Empresas',
     'menu'        => 'Menú',
+    'close_menu'  => 'Cerrar menú',
 ];
