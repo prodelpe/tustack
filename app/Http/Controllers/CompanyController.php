@@ -63,6 +63,7 @@ class CompanyController extends Controller
     private function breadcrumbs(Company $company): array
     {
         return [
+            ['label' => 'TuStack', 'url' => route('home')],
             ['label' => __('nav.companies'), 'url' => route('home')],
             ['label' => $company->name, 'url' => url()->current()],
         ];
