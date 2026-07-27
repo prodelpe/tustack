@@ -38,22 +38,27 @@
             </button>
         </div>
 
-        {{-- Slides in from the right, mirroring the filters panel on the left so
+        {{-- Teleported to the body on purpose: the header's backdrop-blur makes it
+             the containing block for fixed children, so a panel left in here would
+             be positioned and clipped against the header instead of the viewport.
+             Slides in from the right, mirroring the filters panel on the left so
              navigation and filtering never come from the same edge. The links are
              duplicated rather than moved because they carry no state, unlike the
              search facets, which must exist exactly once on the page. --}}
+        <template x-teleport="body">
+        <div class="sm:hidden">
         <div
             x-show="open"
             x-cloak
             x-transition.opacity
             @click="close()"
-            class="fixed inset-0 z-30 bg-gray-900/40 sm:hidden"
+            class="fixed inset-0 z-40 bg-gray-900/40"
             aria-hidden="true"
         ></div>
 
         <div
             :class="open ? 'translate-x-0' : 'translate-x-full'"
-            class="fixed inset-y-0 right-0 z-40 w-[78%] max-w-xs space-y-3 overflow-y-auto bg-white p-4 shadow-xl transition-transform duration-200 dark:bg-slate-950 sm:hidden"
+            class="fixed inset-y-0 right-0 z-50 w-[78%] max-w-xs space-y-3 overflow-y-auto bg-white p-4 shadow-xl transition-transform duration-200 dark:bg-slate-950"
         >
             <div class="mb-2 flex items-center justify-between">
                 <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ __('nav.menu') }}</p>
@@ -86,5 +91,7 @@
                 <x-locale-switcher class="flex items-center gap-0.5 rounded-full border border-gray-200 bg-white p-1 dark:border-slate-700 dark:bg-slate-800" />
             </div>
         </div>
+        </div>
+        </template>
     </div>
 </header>
