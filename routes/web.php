@@ -3,6 +3,8 @@
 use App\Http\Controllers\CompanyController;
 use App\Models\Company;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RobotsController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SavedCompanyController;
 use App\Http\Controllers\SavedSearchController;
 use App\Http\Controllers\SearchController;
@@ -15,6 +17,9 @@ use App\Http\Controllers\TrackTechnologySearchController;
 use Illuminate\Support\Facades\Route;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
+Route::get('/robots.txt', RobotsController::class)->name('robots');
+Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+
 Route::post('/telegram/webhook', TelegramWebhookController::class)->name('telegram.webhook');
 Route::post('/track-search', TrackTechnologySearchController::class)->name('track-search');
 
@@ -23,7 +28,7 @@ Route::group([
     'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath'],
 ], function () {
     Route::get('/', [SearchController::class, 'home'])->name('home');
-    Route::get('/map', [SearchController::class, 'map'])->name('map');
+    Route::get(LaravelLocalization::transRoute('routes.map'), [SearchController::class, 'map'])->name('map');
     // Legacy numeric urls kept alive: alerts sent before the slugs existed
     // still point here. Registered first so it wins over the English path.
     Route::get('/companies/{id}', function (string $id) {
@@ -34,7 +39,7 @@ Route::group([
         ->name('companies.show');
 
     Route::get('/salary-insights', SalaryInsightsController::class)->name('salary-insights');
-    Route::get('/tendencies', TendenciesController::class)->name('tendencies');
+    Route::get(LaravelLocalization::transRoute('routes.tendencies'), TendenciesController::class)->name('tendencies');
     Route::get('/tendency-data', TendencyDataController::class)->name('tendency-data');
 
     Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])->name('social.redirect');
