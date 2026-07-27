@@ -125,6 +125,36 @@
 </main>
 @endif
 
+@if($highlights['combinations']->isNotEmpty())
+<section class="mx-auto max-w-6xl px-4 pb-14">
+    <div class="border-t border-gray-100 pt-8 dark:border-slate-800">
+        <h2 class="mb-5 text-sm font-medium uppercase tracking-widest text-gray-400 dark:text-slate-500">
+            {{ __('home.popular_searches') }}
+        </h2>
+        <div class="flex flex-wrap gap-2">
+            @foreach($highlights['combinations'] as $combination)
+                <a
+                    href="{{ route('landing.technology-province', ['technology' => $combination->technology, 'province' => $combination->province]) }}"
+                    class="rounded-full border border-gray-200 px-3 py-1.5 text-sm text-gray-600 transition hover:border-indigo-300 hover:text-indigo-600 dark:border-slate-800 dark:text-slate-400 dark:hover:border-indigo-500/40 dark:hover:text-indigo-400"
+                >{{ $combination->technology_name }} · {{ $combination->province_name }} <span class="text-gray-400 dark:text-slate-500">{{ $combination->companies }}</span></a>
+            @endforeach
+        </div>
+
+        <h2 class="mb-5 mt-10 text-sm font-medium uppercase tracking-widest text-gray-400 dark:text-slate-500">
+            {{ __('home.browse_by_technology') }}
+        </h2>
+        <div class="flex flex-wrap gap-2">
+            @foreach($highlights['hubs'] as $hub)
+                <a
+                    href="{{ route('landing.technology', ['technology' => $hub->slug]) }}"
+                    class="rounded-full border border-gray-200 px-3 py-1.5 text-sm text-gray-600 transition hover:border-indigo-300 hover:text-indigo-600 dark:border-slate-800 dark:text-slate-400 dark:hover:border-indigo-500/40 dark:hover:text-indigo-400"
+                >{{ $hub->name }}</a>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
 @if($meilisearchAvailable)
 @push('scripts')
 <script>

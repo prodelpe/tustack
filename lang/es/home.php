@@ -14,4 +14,7 @@ return [
     'offers_tracked'            => 'ofertas registradas',
     'offer'                     => 'oferta registrada',
     'offers'                    => 'ofertas registradas',
+
+    'popular_searches'            => 'Búsquedas populares',
+    'browse_by_technology'        => 'Explorar por tecnología',
 ];

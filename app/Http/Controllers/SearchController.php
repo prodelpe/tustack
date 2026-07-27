@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Province;
 use App\Models\Technology;
+use App\Support\LandingPages;
 use App\Support\PublicSearch;
 
 class SearchController extends Controller
@@ -29,6 +30,7 @@ class SearchController extends Controller
             'technologiesCount' => Technology::query()->count(),
             'provincesCount'    => Province::query()->count(),
             'savedFilters'      => $savedFilters,
+            'highlights'        => LandingPages::highlights(),
         ]));
     }
 }

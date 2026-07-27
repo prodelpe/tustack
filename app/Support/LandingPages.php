@@ -27,6 +27,42 @@ class LandingPages
         });
     }
 
+    /**
+     * Links for the home page: the biggest combinations plus every hub, so
+     * there is a path from the most authoritative page of the site down to
+     * every landing page.
+     *
+     * @return array{combinations: \Illuminate\Support\Collection, hubs: \Illuminate\Support\Collection}
+     */
+    public static function highlights(int $limit = 12): array
+    {
+        return Cache::remember('landing.highlights', now()->addHours(12), function () use ($limit) {
+            return [
+                'combinations' => self::base()
+                    ->join('provinces', 'provinces.id', '=', 'companies.province_id')
+                    ->select([
+                        'technologies.name as technology_name',
+                        'technologies.slug as technology',
+                        'provinces.name as province_name',
+                        'provinces.slug as province',
+                    ])
+                    ->selectRaw('COUNT(DISTINCT companies.id) as companies')
+                    ->groupBy('technologies.name', 'technologies.slug', 'provinces.name', 'provinces.slug')
+                    ->havingRaw('COUNT(DISTINCT companies.id) >= ?', [config('seo.minimum_companies')])
+                    ->orderByDesc('companies')
+                    ->limit($limit)
+                    ->get(),
+
+                'hubs' => self::base()
+                    ->select(['technologies.name', 'technologies.slug'])
+                    ->groupBy('technologies.name', 'technologies.slug')
+                    ->havingRaw('COUNT(DISTINCT companies.id) >= ?', [config('seo.minimum_companies')])
+                    ->orderBy('technologies.name')
+                    ->get(),
+            ];
+        });
+    }
+
     public static function hasHub(string $technologySlug): bool
     {
         return in_array($technologySlug, self::all()['hubs'], strict: true);

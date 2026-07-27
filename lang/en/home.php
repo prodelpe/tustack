@@ -14,4 +14,7 @@ return [
     'offers_tracked'            => 'offers tracked',
     'offer'                     => 'offer tracked',
     'offers'                    => 'offers tracked',
+
+    'popular_searches'            => 'Popular searches',
+    'browse_by_technology'        => 'Browse by technology',
 ];
