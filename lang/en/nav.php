@@ -9,4 +9,5 @@ return [
     'theme_light'  => 'Light',
     'theme_dark'   => 'Dark',
     'breadcrumb'   => 'Breadcrumb',
+    'companies'   => 'Companies',
 ];

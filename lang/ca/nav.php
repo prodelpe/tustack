@@ -9,4 +9,5 @@ return [
     'theme_light'  => 'Clar',
     'theme_dark'   => 'Fosc',
     'breadcrumb'   => 'Molles de pa',
+    'companies'   => 'Empreses',
 ];

@@ -9,4 +9,5 @@ return [
     'theme_light'  => 'Claro',
     'theme_dark'   => 'Oscuro',
     'breadcrumb'   => 'Migas de pan',
+    'companies'   => 'Empresas',
 ];
