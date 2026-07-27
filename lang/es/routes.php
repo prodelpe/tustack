@@ -4,4 +4,6 @@ return [
     'companies' => 'empresas/{company}',
     'map' => 'mapa',
     'tendencies' => 'tendencias',
+    'technology' => 'empresas-{technology}',
+    'technology_province' => 'empresas-{technology}-{province}',
 ];

@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Technology extends Model
 {
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     protected $fillable = [
         'name',
         'slug',

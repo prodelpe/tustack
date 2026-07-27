@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Support\LandingPages;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
@@ -48,6 +49,31 @@ class SitemapController extends Controller
                 'changefreq' => 'daily',
                 'priority'   => '0.7',
             ];
+        }
+
+        $landings = LandingPages::all();
+
+        foreach ($landings['hubs'] as $technology) {
+            $entries[] = [
+                'urls'       => $this->localizedUrls($locales, 'routes.technology', ['technology' => $technology]),
+                'lastmod'    => null,
+                'changefreq' => 'weekly',
+                'priority'   => '0.8',
+            ];
+        }
+
+        foreach ($landings['combinations'] as $technology => $provinces) {
+            foreach ($provinces as $province) {
+                $entries[] = [
+                    'urls'       => $this->localizedUrls($locales, 'routes.technology_province', [
+                        'technology' => $technology,
+                        'province'   => $province,
+                    ]),
+                    'lastmod'    => null,
+                    'changefreq' => 'weekly',
+                    'priority'   => '0.8',
+                ];
+            }
         }
 
         Company::query()

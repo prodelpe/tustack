@@ -137,6 +137,20 @@
         </div>
     @endif
 
+    @if (! empty($landings))
+        <div class="mt-12">
+            <p class="mb-4 text-xs font-medium uppercase tracking-widest text-gray-400 dark:text-slate-500">{{ __('landing.company_landings') }}</p>
+            <div class="flex flex-wrap gap-2">
+                @foreach ($landings as $landing)
+                    <a
+                        href="{{ $landing['url'] }}"
+                        class="rounded-full border border-gray-200 px-3 py-1 text-sm text-gray-600 transition hover:border-indigo-300 hover:text-indigo-600 dark:border-slate-800 dark:text-slate-400 dark:hover:border-indigo-500/40 dark:hover:text-indigo-400"
+                    >{{ $landing['label'] }}</a>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
 </main>
 
 @endsection

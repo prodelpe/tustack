@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\CompanyController;
 use App\Models\Company;
+use App\Support\SeoRoutePatterns;
 use App\Http\Controllers\HumansController;
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
@@ -39,6 +41,16 @@ Route::group([
 
     Route::get(LaravelLocalization::transRoute('routes.companies'), [CompanyController::class, 'show'])
         ->name('companies.show');
+
+    // Two parameters first: otherwise empresas-laravel-madrid would match the
+    // single-parameter route with the province glued to the technology.
+    Route::get(LaravelLocalization::transRoute('routes.technology_province'), [LandingController::class, 'technologyInProvince'])
+        ->where(['technology' => SeoRoutePatterns::technologies(), 'province' => SeoRoutePatterns::provinces()])
+        ->name('landing.technology-province');
+
+    Route::get(LaravelLocalization::transRoute('routes.technology'), [LandingController::class, 'technology'])
+        ->where(['technology' => SeoRoutePatterns::technologies()])
+        ->name('landing.technology');
 
     Route::get('/salary-insights', SalaryInsightsController::class)->name('salary-insights');
     Route::get(LaravelLocalization::transRoute('routes.tendencies'), TendenciesController::class)->name('tendencies');

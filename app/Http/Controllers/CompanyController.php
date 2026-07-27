@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Support\LandingPages;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -32,6 +33,7 @@ class CompanyController extends Controller
 
         $seoTitle       = $this->seoTitle($company, $technologies);
         $seoDescription = $this->seoDescription($company, $technologies);
+        $landings       = $this->landings($company, $technologies);
 
         return view('company', compact(
             'company',
@@ -41,8 +43,49 @@ class CompanyController extends Controller
             'salary',
             'similarCompanies',
             'seoTitle',
-            'seoDescription'
+            'seoDescription',
+            'landings'
         ));
+    }
+
+    /**
+     * Links to the landing pages this company belongs to, skipping the ones
+     * that do not exist so no page ever links to a 404.
+     *
+     * @return array<int, array{label: string, url: string}>
+     */
+    private function landings(Company $company, Collection $technologies): array
+    {
+        $links = [];
+
+        foreach ($technologies->take(4) as $technology) {
+            if (LandingPages::hasCombination($technology->slug, $company->province?->slug)) {
+                $links[] = [
+                    'label' => __('landing.heading', [
+                        'technology' => $technology->name,
+                        'location'   => $company->province->name,
+                    ]),
+                    'url' => route('landing.technology-province', [
+                        'technology' => $technology,
+                        'province'   => $company->province,
+                    ]),
+                ];
+
+                continue;
+            }
+
+            if (LandingPages::hasHub($technology->slug)) {
+                $links[] = [
+                    'label' => __('landing.heading', [
+                        'technology' => $technology->name,
+                        'location'   => __('landing.country'),
+                    ]),
+                    'url' => route('landing.technology', ['technology' => $technology]),
+                ];
+            }
+        }
+
+        return $links;
     }
 
     private function seoTitle(Company $company, Collection $technologies): string
