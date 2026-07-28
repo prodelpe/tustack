@@ -19,7 +19,7 @@ readonly class ResolveCompanyAction
 
         $company = Company::query()->firstOrCreate(['name' => $dto->name]);
 
-        if ($company->wasRecentlyCreated || $company->city === null) {
+        if ($company->wasRecentlyCreated || $company->city === null || $company->province_id === null) {
             $this->updateCompany->handle($company, $dto);
         }
 

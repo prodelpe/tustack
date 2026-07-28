@@ -13,13 +13,15 @@ readonly class UpdateCompanyAction
 
     public function handle(Company $company, CompanyDTO $dto): Company
     {
+        $province = $this->resolveProvince->handle($dto->province, $dto->city, $dto->location);
+
         $company->update([
-            'location'    => $dto->location,
-            'country'     => $dto->country,
-            'city'        => $dto->city,
-            'province_id' => $this->resolveProvince->handle($dto->province),
-            'latitude'    => $dto->latitude,
-            'longitude'   => $dto->longitude,
+            'location'    => $dto->location ?: $company->location,
+            'country'     => $dto->country ?: $company->country,
+            'city'        => $dto->city ?: $company->city,
+            'province_id' => $province ?? $company->province_id,
+            'latitude'    => $dto->latitude ?? $company->latitude,
+            'longitude'   => $dto->longitude ?? $company->longitude,
         ]);
 
         return $company;

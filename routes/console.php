@@ -14,4 +14,5 @@ Artisan::command('inspire', function () {
 // Schedule::command('jobs:fetch --all')->dailyAt('00:00');
 // Schedule::command('companies:enrich --limit=50')->dailyAt('03:00');
 
+Schedule::command('companies:resolve-provinces')->dailyAt('01:30');
 Schedule::command('searches:notify')->dailyAt('08:00');
