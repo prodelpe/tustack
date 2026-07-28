@@ -6,15 +6,8 @@ use App\Support\Robots;
 use Illuminate\Console\Command;
 
 /**
- * Writes public/robots.txt so the web server can serve it natively.
- *
- * Nginx templates commonly carry `location = /robots.txt { ... }` without
- * passing the path to PHP. When the file is missing, that block 404s and the
- * error page hands the request to the application: the body comes out right and
- * the status stays 404, which crawlers read as "no restrictions at all". A real
- * file sidesteps every server configuration.
- *
- * Run it on deploy and after changing APP_NOINDEX or APP_AVAILABLE.
+ * Nginx serves /robots.txt as a static file without passing it to PHP, and a
+ * missing file 404s. Run on deploy and after changing the flags.
  */
 class BuildRobotsFile extends Command
 {
