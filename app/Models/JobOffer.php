@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\JobTitle;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -24,6 +25,13 @@ class JobOffer extends Model
         'published_at'       => 'date',
         'salary_is_predicted' => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (JobOffer $offer) {
+            $offer->title_normalized = JobTitle::normalize($offer->title);
+        });
+    }
 
     public function company(): BelongsTo
     {
