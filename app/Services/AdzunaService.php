@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\DTOs\NormalizedJobOfferDTO;
 use App\Services\Contracts\JobSourceInterface;
+use App\Support\JobUrl;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
@@ -75,11 +76,8 @@ class AdzunaService implements JobSourceInterface
         $area = $raw['location']['area'] ?? [];
         $areaCount = count($area);
 
-        $rawUrl = $raw['redirect_url'] ?? '';
-        $cleanUrl = $rawUrl ? strtok($rawUrl, '?') : '';
-
         return new NormalizedJobOfferDTO(
-            url: $cleanUrl,
+            url: JobUrl::canonical($raw['redirect_url'] ?? null),
             source: 'adzuna',
             title: $raw['title'] ?? null,
             company: $raw['company']['display_name'] ?? null,

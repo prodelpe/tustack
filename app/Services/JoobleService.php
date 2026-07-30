@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Actions\ParseSalaryStringAction;
 use App\DTOs\NormalizedJobOfferDTO;
 use App\Services\Contracts\JobSourceInterface;
+use App\Support\JobUrl;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -69,7 +70,7 @@ class JoobleService implements JobSourceInterface
         $salary        = app(ParseSalaryStringAction::class)->handle($raw['salary'] ?? null);
 
         return new NormalizedJobOfferDTO(
-            url:               $raw['link'] ?? '',
+            url:               JobUrl::canonical($raw['link'] ?? null),
             source:            'jooble',
             title:             $raw['title'] ?? null,
             company:           $raw['company'] ?? null,

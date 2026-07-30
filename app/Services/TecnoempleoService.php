@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Actions\ParseSalaryStringAction;
 use App\DTOs\NormalizedJobOfferDTO;
 use App\Services\Contracts\JobSourceInterface;
+use App\Support\JobUrl;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
@@ -68,7 +69,7 @@ class TecnoempleoService implements JobSourceInterface
         $city = trim(str_replace('y otras', '', $cityMatch[1] ?? '')) ?: null;
 
         return new NormalizedJobOfferDTO(
-            url:               $raw['url'] ?? '',
+            url:               JobUrl::canonical($raw['url'] ?? null),
             source:            'tecnoempleo',
             title:             $raw['title'] ?? null,
             company:           $raw['company'] ?? null,
