@@ -164,7 +164,6 @@ search.addWidgets([
 ])
 
 let trackedTechs = new Set()
-let initialRenderDone = false
 let salaryFetchTimer = null
 let lastSalaryTechs = ''
 
@@ -236,7 +235,7 @@ function fetchSalaryInsights(techs) {
     }, 300)
 }
 
-function trackNewTechs(techs) {
+function trackNewTechs(techs, province) {
     if (window.__IS_ADMIN__) return
 
     const newTechs = techs.filter(t => !trackedTechs.has(t))
@@ -247,7 +246,7 @@ function trackNewTechs(techs) {
     fetch(window.__TRACK_SEARCH_URL__, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ technologies: newTechs }),
+        body: JSON.stringify({ technologies: newTechs, province: province || null }),
         keepalive: true,
     }).catch(() => {})
 }
@@ -257,10 +256,7 @@ search.on('render', () => {
     const techs = state.refinementList?.technology_names || []
     const provs  = state.refinementList?.province_name || []
 
-    if (!initialRenderDone) {
-        initialRenderDone = true
-        trackNewTechs(techs)
-    }
+    trackNewTechs(techs, provs[0])
 
     fetchSalaryInsights(techs)
 

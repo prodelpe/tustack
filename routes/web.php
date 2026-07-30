@@ -16,7 +16,7 @@ use App\Http\Controllers\SalaryInsightsController;
 use App\Http\Controllers\TendenciesController;
 use App\Http\Controllers\TendencyDataController;
 use App\Http\Controllers\SocialAuthController;
-use App\Http\Controllers\TrackTechnologySearchController;
+use App\Http\Controllers\TrackSearchController;
 use Illuminate\Support\Facades\Route;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
@@ -25,7 +25,7 @@ Route::get('/robots.txt', RobotsController::class)->name('robots');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 
 Route::post('/telegram/webhook', TelegramWebhookController::class)->name('telegram.webhook');
-Route::post('/track-search', TrackTechnologySearchController::class)->name('track-search');
+Route::post('/track-search', TrackSearchController::class)->middleware('throttle:30,1')->name('track-search');
 
 Route::group([
     'prefix'     => LaravelLocalization::setLocale(),
