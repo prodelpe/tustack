@@ -105,6 +105,40 @@ class UpsertJobOfferTest extends TestCase
         $this->assertSame(40000, $offer->salary_max);
     }
 
+    public function test_an_implausible_salary_is_not_stored(): void
+    {
+        $this->upsert->handle($this->offer(
+            url: 'https://example.test/1',
+            salaryMin: 55,
+            salaryMax: 77,
+        ), $this->company);
+
+        $offer = JobOffer::first();
+
+        $this->assertNull($offer->salary_min);
+        $this->assertNull($offer->salary_max);
+    }
+
+    public function test_an_implausible_salary_never_overwrites_a_good_one(): void
+    {
+        $this->upsert->handle($this->offer(
+            url: 'https://example.test/1',
+            salaryMin: 30000,
+            salaryMax: 40000,
+        ), $this->company);
+
+        $this->upsert->handle($this->offer(
+            url: 'https://example.test/1',
+            salaryMin: 22515,
+            salaryMax: 89,
+        ), $this->company);
+
+        $offer = JobOffer::first();
+
+        $this->assertSame(30000, $offer->salary_min);
+        $this->assertSame(40000, $offer->salary_max);
+    }
+
     private function offer(
         string $url,
         string $title = 'Backend Developer',

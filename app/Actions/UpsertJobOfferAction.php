@@ -6,6 +6,7 @@ use App\DTOs\NormalizedJobOfferDTO;
 use App\Models\Company;
 use App\Models\JobOffer;
 use App\Support\JobTitle;
+use App\Support\PlausibleSalary;
 use Illuminate\Support\Carbon;
 
 class UpsertJobOfferAction
@@ -44,12 +45,14 @@ class UpsertJobOfferAction
 
     private function refresh(JobOffer $offer, NormalizedJobOfferDTO $dto): JobOffer
     {
+        $salary = PlausibleSalary::filter($dto->salaryMin, $dto->salaryMax);
+
         $offer->update([
             'url'                 => $dto->url,
             'published_at'        => $this->latestDate($offer->published_at, $dto->publishedAt),
             'description'         => $dto->description ?: $offer->description,
-            'salary_min'          => $dto->salaryMin ?? $offer->salary_min,
-            'salary_max'          => $dto->salaryMax ?? $offer->salary_max,
+            'salary_min'          => $salary['min'] ?? $offer->salary_min,
+            'salary_max'          => $salary['max'] ?? $offer->salary_max,
             'salary_is_predicted' => $dto->salaryIsPredicted ?? $offer->salary_is_predicted,
         ]);
 
@@ -73,6 +76,8 @@ class UpsertJobOfferAction
 
     private function create(NormalizedJobOfferDTO $dto, ?Company $company): JobOffer
     {
+        $salary = PlausibleSalary::filter($dto->salaryMin, $dto->salaryMax);
+
         return JobOffer::query()->create([
             'url'                 => $dto->url,
             'company_id'          => $company?->id,
@@ -80,8 +85,8 @@ class UpsertJobOfferAction
             'description'         => $dto->description,
             'source'              => $dto->source,
             'published_at'        => $dto->publishedAt,
-            'salary_min'          => $dto->salaryMin,
-            'salary_max'          => $dto->salaryMax,
+            'salary_min'          => $salary['min'],
+            'salary_max'          => $salary['max'],
             'salary_is_predicted' => $dto->salaryIsPredicted,
         ]);
     }

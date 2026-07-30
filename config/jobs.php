@@ -9,4 +9,8 @@ return [
      */
     'duplicate_window_days' => 60,
 
+    'salary_floor' => 10000,
+
+    'salary_ceiling' => 300000,
+
 ];

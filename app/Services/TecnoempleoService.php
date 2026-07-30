@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Actions\ParseSalaryStringAction;
 use App\DTOs\NormalizedJobOfferDTO;
 use App\Services\Contracts\JobSourceInterface;
 use App\Support\JobUrl;
+use App\Support\Salary;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
@@ -63,7 +63,7 @@ class TecnoempleoService implements JobSourceInterface
 
     public function normalize(array $raw): NormalizedJobOfferDTO
     {
-        $salary = app(ParseSalaryStringAction::class)->handle($raw['salary'] ?? null);
+        $salary = Salary::parse($raw['salary'] ?? null);
 
         preg_match('/^([^(]+)/', $raw['location'] ?? '', $cityMatch);
         $city = trim(str_replace('y otras', '', $cityMatch[1] ?? '')) ?: null;
