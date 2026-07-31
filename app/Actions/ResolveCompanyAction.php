@@ -4,6 +4,7 @@ namespace App\Actions;
 
 use App\DTOs\CompanyDTO;
 use App\Models\Company;
+use App\Support\CompanyName;
 
 readonly class ResolveCompanyAction
 {
@@ -17,7 +18,10 @@ readonly class ResolveCompanyAction
             return null;
         }
 
-        $company = Company::query()->firstOrCreate(['name' => $dto->name]);
+        $company = Company::query()->firstOrCreate(
+            ['name_normalized' => CompanyName::normalize($dto->name)],
+            ['name' => $dto->name],
+        );
 
         if ($company->wasRecentlyCreated || $company->city === null || $company->province_id === null) {
             $this->updateCompany->handle($company, $dto);

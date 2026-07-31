@@ -47,6 +47,8 @@ class Company extends Model
             if (blank($company->slug)) {
                 $company->slug = static::uniqueSlug($company->name, $company->id);
             }
+
+            $company->name_normalized = CompanyName::normalize($company->name);
         });
     }
 
