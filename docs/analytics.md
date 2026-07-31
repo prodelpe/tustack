@@ -27,13 +27,15 @@ itself through `POST /track-search`, rate limited to 30 a minute.
 ## Excluding your own visits
 
 The admin check only applies while logged in. To stop Umami counting a
-browser for good, run this once in its console:
+browser for good, open the tracked site itself — tustack.es, not the Umami
+dashboard, since local storage belongs to the origin the tracker runs on —
+and run this once in the console:
 
 ```js
 localStorage.setItem('umami.disabled', 1)
 ```
 
-Do it on every device you browse the live site from.
+Once per browser and per device, and again if you ever clear site data.
 
 ## Where Umami runs
 

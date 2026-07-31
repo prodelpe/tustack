@@ -77,12 +77,112 @@ class UpsertJobOfferTest extends TestCase
         $this->assertSame(2, JobOffer::count());
     }
 
-    public function test_offers_from_different_sources_are_kept_apart(): void
+    public function test_the_same_vacancy_seen_on_two_boards_is_one_offer(): void
     {
         $this->upsert->handle($this->offer(url: 'https://example.test/1', source: 'adzuna'), $this->company);
         $this->upsert->handle($this->offer(url: 'https://example.test/2', source: 'jooble'), $this->company);
 
+        $this->assertSame(1, JobOffer::count());
+    }
+
+    public function test_two_boards_are_only_merged_inside_the_window(): void
+    {
+        $days = config('jobs.cross_source_window_days');
+
+        $this->upsert->handle($this->offer(
+            url: 'https://example.test/1',
+            source: 'adzuna',
+            publishedAt: now()->subDays($days + 5)->toDateString(),
+        ), $this->company);
+
+        $this->upsert->handle($this->offer(
+            url: 'https://example.test/2',
+            source: 'jooble',
+            publishedAt: now()->toDateString(),
+        ), $this->company);
+
         $this->assertSame(2, JobOffer::count());
+    }
+
+    public function test_the_title_comes_from_the_source_that_keeps_its_accents(): void
+    {
+        $this->upsert->handle($this->offer(
+            url: 'https://example.test/1',
+            title: 'Programador Senior',
+            source: 'adzuna',
+        ), $this->company);
+
+        $this->upsert->handle($this->offer(
+            url: 'https://example.test/2',
+            title: 'Programador Sénior',
+            source: 'jooble',
+        ), $this->company);
+
+        $offer = JobOffer::sole();
+
+        $this->assertSame('Programador Sénior', $offer->title);
+        $this->assertSame('jooble', $offer->source);
+        $this->assertSame('https://example.test/2', $offer->url);
+    }
+
+    public function test_a_worse_source_never_takes_over_the_title(): void
+    {
+        $this->upsert->handle($this->offer(
+            url: 'https://example.test/1',
+            title: 'Programador Sénior',
+            source: 'jooble',
+        ), $this->company);
+
+        $this->upsert->handle($this->offer(
+            url: 'https://example.test/2',
+            title: 'Programador Senior',
+            source: 'adzuna',
+        ), $this->company);
+
+        $offer = JobOffer::sole();
+
+        $this->assertSame('Programador Sénior', $offer->title);
+        $this->assertSame('jooble', $offer->source);
+    }
+
+    public function test_the_longest_description_wins(): void
+    {
+        $this->upsert->handle($this->offer(
+            url: 'https://example.test/1',
+            source: 'adzuna',
+            description: 'A long and detailed account of the role and the team',
+        ), $this->company);
+
+        $this->upsert->handle($this->offer(
+            url: 'https://example.test/2',
+            source: 'jooble',
+            description: 'Short snippet',
+        ), $this->company);
+
+        $this->assertSame(
+            'A long and detailed account of the role and the team',
+            JobOffer::sole()->description,
+        );
+    }
+
+    public function test_a_salary_from_either_board_is_kept(): void
+    {
+        $this->upsert->handle($this->offer(
+            url: 'https://example.test/1',
+            source: 'adzuna',
+        ), $this->company);
+
+        $this->upsert->handle($this->offer(
+            url: 'https://example.test/2',
+            source: 'jooble',
+            salaryMin: 35000,
+            salaryMax: 45000,
+        ), $this->company);
+
+        $offer = JobOffer::sole();
+
+        $this->assertSame(35000, $offer->salary_min);
+        $this->assertSame(45000, $offer->salary_max);
     }
 
     public function test_refreshing_never_drops_details_the_new_reading_lacks(): void
@@ -146,6 +246,7 @@ class UpsertJobOfferTest extends TestCase
         ?string $publishedAt = null,
         ?int $salaryMin = null,
         ?int $salaryMax = null,
+        string $description = 'Something about PHP',
     ): NormalizedJobOfferDTO {
         return new NormalizedJobOfferDTO(
             url: $url,
@@ -161,7 +262,7 @@ class UpsertJobOfferTest extends TestCase
             salaryMin: $salaryMin,
             salaryMax: $salaryMax,
             salaryIsPredicted: null,
-            description: 'Something about PHP',
+            description: $description,
             publishedAt: $publishedAt ?? now()->toDateString(),
         );
     }

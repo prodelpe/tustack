@@ -7,16 +7,19 @@ use App\Models\Company;
 use App\Models\JobOffer;
 use App\Support\JobTitle;
 use App\Support\PlausibleSalary;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 
 class UpsertJobOfferAction
 {
     public function handle(NormalizedJobOfferDTO $dto, ?Company $company): JobOffer
     {
-        $existing = $this->findByUrl($dto->url) ?? $this->findRepublished($dto, $company);
+        $existing = $this->findByUrl($dto->url)
+            ?? $this->findRepublished($dto, $company)
+            ?? $this->findOnAnotherSource($dto, $company);
 
         if ($existing) {
-            return $this->refresh($existing, $dto);
+            return $this->merge($existing, $dto);
         }
 
         return $this->create($dto, $company);
@@ -29,6 +32,20 @@ class UpsertJobOfferAction
 
     private function findRepublished(NormalizedJobOfferDTO $dto, ?Company $company): ?JobOffer
     {
+        return $this->sameVacancy($dto, $company, config('jobs.duplicate_window_days'))
+            ?->where('source', $dto->source)
+            ->first();
+    }
+
+    private function findOnAnotherSource(NormalizedJobOfferDTO $dto, ?Company $company): ?JobOffer
+    {
+        return $this->sameVacancy($dto, $company, config('jobs.cross_source_window_days'))
+            ?->where('source', '!=', $dto->source)
+            ->first();
+    }
+
+    private function sameVacancy(NormalizedJobOfferDTO $dto, ?Company $company, int $days): ?Builder
+    {
         $title = JobTitle::normalize($dto->title);
 
         if ($company === null || blank($title)) {
@@ -37,26 +54,53 @@ class UpsertJobOfferAction
 
         return JobOffer::query()
             ->where('company_id', $company->id)
-            ->where('source', $dto->source)
             ->where('title_normalized', $title)
-            ->where('published_at', '>=', now()->subDays(config('jobs.duplicate_window_days')))
-            ->first();
+            ->where('published_at', '>=', now()->subDays($days));
     }
 
-    private function refresh(JobOffer $offer, NormalizedJobOfferDTO $dto): JobOffer
+    private function merge(JobOffer $offer, NormalizedJobOfferDTO $dto): JobOffer
     {
-        $salary = PlausibleSalary::filter($dto->salaryMin, $dto->salaryMax);
+        $salary   = PlausibleSalary::filter($dto->salaryMin, $dto->salaryMax);
+        $incoming = $this->prefers($dto->source, $offer->source);
 
         $offer->update([
-            'url'                 => $dto->url,
+            'title'               => $incoming ? $dto->title : $offer->title,
+            'url'                 => $incoming ? $dto->url : $offer->url,
+            'source'              => $incoming ? $dto->source : $offer->source,
+            'description'         => $this->longest($dto->description, $offer->description),
             'published_at'        => $this->latestDate($offer->published_at, $dto->publishedAt),
-            'description'         => $dto->description ?: $offer->description,
             'salary_min'          => $salary['min'] ?? $offer->salary_min,
             'salary_max'          => $salary['max'] ?? $offer->salary_max,
             'salary_is_predicted' => $dto->salaryIsPredicted ?? $offer->salary_is_predicted,
         ]);
 
         return $offer;
+    }
+
+    private function prefers(string $incoming, ?string $stored): bool
+    {
+        return $this->priority($incoming) <= $this->priority($stored);
+    }
+
+    private function priority(?string $source): int
+    {
+        $order = config('jobs.title_source_priority');
+        $index = array_search($source, $order, true);
+
+        return $index === false ? count($order) : $index;
+    }
+
+    private function longest(?string $incoming, ?string $stored): ?string
+    {
+        if (blank($incoming)) {
+            return $stored;
+        }
+
+        if (blank($stored)) {
+            return $incoming;
+        }
+
+        return mb_strlen($incoming) > mb_strlen($stored) ? $incoming : $stored;
     }
 
     private function latestDate(?Carbon $stored, ?string $incoming): ?Carbon

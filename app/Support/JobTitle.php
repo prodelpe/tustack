@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use Illuminate\Support\Str;
+
 class JobTitle
 {
     public static function normalize(?string $title): ?string
@@ -10,6 +12,8 @@ class JobTitle
             return null;
         }
 
-        return mb_strtolower(trim(preg_replace('/\s+/u', ' ', $title)));
+        $title = mb_strtolower(trim(preg_replace('/\s+/u', ' ', $title)));
+
+        return Str::ascii($title);
     }
 }
