@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Support\CompanyName;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -107,6 +108,7 @@ class Company extends Model
             'technology_ids'   => $technologies->pluck('id')->values()->all(),
             'technology_names' => $technologies->pluck('name')->values()->all(),
             'job_offers_count' => $this->jobOffers->count(),
+            'active_offers_count' => $this->activeOffersCount(),
             'last_offer_at'    => $this->jobOffers->max('published_at'),
             'is_consultancy'   => $this->sector === 'it_consulting',
             'is_recruitment'   => $this->sector === 'recruitment',
@@ -140,6 +142,25 @@ class Company extends Model
     public function jobOffers(): HasMany
     {
         return $this->hasMany(JobOffer::class);
+    }
+
+    public function activeJobOffers(): HasMany
+    {
+        return $this->jobOffers()->where('published_at', '>=', self::activeSince());
+    }
+
+    public static function activeSince(): Carbon
+    {
+        return now()->subMonths(config('jobs.active_offer_months'))->startOfDay();
+    }
+
+    private function activeOffersCount(): int
+    {
+        $since = self::activeSince();
+
+        return $this->jobOffers
+            ->filter(fn (JobOffer $offer) => $offer->published_at?->gte($since))
+            ->count();
     }
 
     public function savedByUsers(): BelongsToMany

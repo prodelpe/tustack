@@ -26,6 +26,8 @@ class CompanyController extends Controller
             ->orderByDesc('published_at')
             ->paginate(10);
 
+        $activeOffers = $company->activeJobOffers()->count();
+
         $isSaved = Auth::check() && Auth::user()->savedCompanies()->where('company_id', $company->id)->exists();
 
         $salary = $this->getSalaryStats($company);
@@ -42,6 +44,7 @@ class CompanyController extends Controller
             'company',
             'technologies',
             'jobOffers',
+            'activeOffers',
             'isSaved',
             'salary',
             'similarCompanies',

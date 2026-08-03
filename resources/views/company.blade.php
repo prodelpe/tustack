@@ -33,7 +33,10 @@
             </div>
             <div class="flex items-center gap-3 shrink-0">
                 <span class="rounded-full border border-indigo-200 bg-indigo-50 px-4 py-1.5 text-sm text-indigo-600 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300">
-                    {{ $jobOffers->count() }} {{ $jobOffers->count() === 1 ? __('company.position') : __('company.positions') }}
+                    @if ($activeOffers)
+                        {{ $activeOffers }} {{ $activeOffers === 1 ? __('home.offer_active') : __('home.offers_active') }} ·
+                    @endif
+                    {{ $jobOffers->total() }} {{ __('home.offers_historic') }}
                 </span>
 
                 @auth

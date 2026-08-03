@@ -36,7 +36,7 @@ const search = instantsearch({
                 const index = uiState['devstack_companies'] || {}
                 const techs = index.refinementList?.technology_names
                 const provs = index.refinementList?.province_name
-                const defaultSort = 'devstack_companies:job_offers_count:desc'
+                const defaultSort = 'devstack_companies:active_offers_count:desc'
                 return {
                     q: index.query || undefined,
                     tech: techs?.length ? techs : undefined,
@@ -53,7 +53,7 @@ const search = instantsearch({
                     'devstack_companies': {
                         query: routeState.q || '',
                         page: routeState.page || 1,
-                        sortBy: routeState.sort || 'devstack_companies:job_offers_count:desc',
+                        sortBy: routeState.sort || 'devstack_companies:active_offers_count:desc',
                         refinementList: {
                             technology_names: toArray(routeState.tech),
                             province_name: toArray(routeState.prov),
@@ -73,7 +73,7 @@ search.addWidgets([
     sortBy({
         container: '#sort-by',
         items: [
-            { label: window.__I18N__.sortMostOffers,     value: 'devstack_companies:job_offers_count:desc' },
+            { label: window.__I18N__.sortMostOffers,     value: 'devstack_companies:active_offers_count:desc' },
             { label: window.__I18N__.sortRecentActivity, value: 'devstack_companies:last_offer_at:desc' },
             { label: window.__I18N__.sortNameAZ,         value: 'devstack_companies:name:asc' },
         ],
@@ -139,7 +139,7 @@ search.addWidgets([
                             ` : ''}
                         </div>
                         ${hit.job_offers_count ? `
-                            <span class="hit-card__offers-count">${hit.job_offers_count} ${hit.job_offers_count === 1 ? window.__I18N__.offer : window.__I18N__.offers}</span>
+                            <span class="hit-card__offers-count">${offerCounts(hit)}</span>
                         ` : ''}
                     </div>
                     <div class="hit-card__techs">
@@ -162,6 +162,18 @@ search.addWidgets([
         container: '#pagination',
     }),
 ])
+
+function offerCounts(hit) {
+    const active = hit.active_offers_count ?? 0
+    const total  = hit.job_offers_count
+    const label  = active === 1 ? window.__I18N__.offerActive : window.__I18N__.offersActive
+
+    if (!active) {
+        return `${total} ${window.__I18N__.offersHistoric}`
+    }
+
+    return `${active} ${label} · ${total} ${window.__I18N__.offersHistoric}`
+}
 
 let trackedTechs = new Set()
 let salaryFetchTimer = null

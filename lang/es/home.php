@@ -14,6 +14,9 @@ return [
     'offers_tracked'            => 'ofertas registradas',
     'offer'                     => 'oferta registrada',
     'offers'                    => 'ofertas registradas',
+    'offer_active'              => 'activa',
+    'offers_active'             => 'activas',
+    'offers_historic'           => 'históricas',
 
     'popular_searches'            => 'Búsquedas populares',
     'browse_by_technology'        => 'Explorar por tecnología',

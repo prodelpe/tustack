@@ -65,7 +65,10 @@
                         @endif
                     </span>
                     <span class="shrink-0 text-sm text-gray-400 dark:text-slate-500">
-                        {{ $company->job_offers_count }} {{ __('landing.offers_label') }}
+                        @if ($company->active_job_offers_count)
+                            {{ $company->active_job_offers_count }} {{ $company->active_job_offers_count === 1 ? __('home.offer_active') : __('home.offers_active') }} ·
+                        @endif
+                        {{ $company->job_offers_count }} {{ __('home.offers_historic') }}
                     </span>
                 </a>
             </li>

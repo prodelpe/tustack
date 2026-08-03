@@ -14,6 +14,9 @@ return [
     'offers_tracked'            => 'offers tracked',
     'offer'                     => 'offer tracked',
     'offers'                    => 'offers tracked',
+    'offer_active'              => 'active',
+    'offers_active'             => 'active',
+    'offers_historic'           => 'in total',
 
     'popular_searches'            => 'Popular searches',
     'browse_by_technology'        => 'Browse by technology',

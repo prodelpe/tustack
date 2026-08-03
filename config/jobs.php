@@ -22,6 +22,13 @@ return [
      */
     'title_source_priority' => ['jooble', 'tecnoempleo', 'adzuna'],
 
+    /*
+     * Offers are never deleted, so the stored total says more about how long a
+     * company has been in the catalogue than about whether it is hiring. This
+     * is the window that counts as hiring now. Same as the trends page.
+     */
+    'active_offer_months' => 12,
+
     'salary_floor' => 10000,
 
     'salary_ceiling' => 300000,
