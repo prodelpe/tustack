@@ -33,11 +33,11 @@ class ImportCompanyEnrichment extends Command
         // A bulk restore would fire one Meilisearch request per company.
         Company::withoutSyncingToSearch(function () use ($snapshot, $force, &$matched, &$restored, $bar) {
             collect($snapshot)->chunk(500)->each(function (Collection $chunk) use ($force, &$matched, &$restored, $bar) {
-                $companies = Company::query()->whereIn('name', $chunk->keys())->get();
-
                 $entries = $chunk->keyBy(function (array $entry, string $name) {
                     return CompanyEnrichmentSnapshot::key($name);
                 });
+
+                $companies = Company::query()->whereIn('name_normalized', $entries->keys())->get();
 
                 foreach ($companies as $company) {
                     $entry = $entries->get(CompanyEnrichmentSnapshot::key($company->name));

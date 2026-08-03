@@ -22,10 +22,14 @@ class CompanyEnrichmentSnapshot
         return file_exists(self::path());
     }
 
-    /** MySQL compares names case insensitively, PHP array keys do not. */
+    /**
+     * The same comparable form used to match companies, so paid enrichment is
+     * still found when the surviving name spells the company differently:
+     * "NexTReT, S.L." in the snapshot meets "NexTReT" in the database.
+     */
     public static function key(string $name): string
     {
-        return mb_strtolower(trim($name));
+        return CompanyName::normalize($name) ?? mb_strtolower(trim($name));
     }
 
     public static function read(): array
