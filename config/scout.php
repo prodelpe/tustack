@@ -144,6 +144,9 @@ return [
                 'filterableAttributes' => ['technology_ids', 'technology_names', 'province_id', 'province_name', 'is_consultancy', 'is_recruitment'],
                 'searchableAttributes' => ['name', 'city', 'technology_names', 'province_name'],
                 'sortableAttributes'   => ['name', 'job_offers_count', 'active_offers_count', 'last_offer_at'],
+                // Meilisearch caps the reported total at 1000 by default, so
+                // the home page claimed 1000 companies when there were 2371.
+                'pagination'           => ['maxTotalHits' => 20000],
             ],
         ],
     ],

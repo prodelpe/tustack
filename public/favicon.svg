@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+    <style>
+        /* The T follows the tab bar: dark on light, light on dark. */
+        .t { fill: #111827 }
+        .s { fill: #6366f1 }
+        @media (prefers-color-scheme: dark) {
+            .t { fill: #ffffff }
+            .s { fill: #818cf8 }
+        }
+    </style>
+    <text x="2" y="50" class="t"
+          font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+          font-size="56" font-weight="700">T</text>
+    <text x="31" y="50" class="s"
+          font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+          font-size="56" font-weight="700">S</text>
+</svg>

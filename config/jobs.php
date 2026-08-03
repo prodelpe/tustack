@@ -29,6 +29,23 @@ return [
      */
     'active_offer_months' => 12,
 
+    /*
+     * Names that are not employers. Boards resell each other, so aggregators
+     * arrive as companies, and Jooble files unrelated ads under a name that
+     * has nothing to do with them: Tamarind Intelligence is a tobacco
+     * regulation research firm that arrived with 296 engineering vacancies in
+     * twelve days, and Elpuertodesantamaria is a town. Compared without case,
+     * accents or punctuation.
+     */
+    'blacklisted_companies' => [
+        'jobleads',
+        'jobtome',
+        'jobtailor',
+        'domestiko.com',
+        'tamarind intelligence',
+        'elpuertodesantamaria',
+    ],
+
     'salary_floor' => 10000,
 
     'salary_ceiling' => 300000,

@@ -41,4 +41,12 @@
 
         <span>© {{ date('Y') }} TuStack by <a href="https://prodelpe.com" target="_blank" rel="noopener" class="hover:text-gray-600 dark:hover:text-slate-300 transition">prodelpe.com</a></span>
     </div>
+
+    <div class="mx-auto max-w-6xl px-4 pb-6 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-gray-400 dark:text-slate-500">
+        @foreach (App\Support\LegalDocument::DOCUMENTS as $document)
+            <a href="{{ route('legal.' . $document) }}" class="hover:text-gray-600 dark:hover:text-slate-300 transition">
+                {{ __('legal.' . $document . '_heading') }}
+            </a>
+        @endforeach
+    </div>
 </footer>

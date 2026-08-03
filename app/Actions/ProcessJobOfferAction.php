@@ -4,16 +4,11 @@ namespace App\Actions;
 
 use App\DTOs\CompanyDTO;
 use App\Services\Contracts\JobSourceInterface;
+use App\Support\CompanyName;
 use Illuminate\Support\Collection;
 
 readonly class ProcessJobOfferAction
 {
-    private const BLACKLISTED_COMPANIES = [
-        'jobleads',
-        'jobtome',
-        'domestiko.com',
-    ];
-
     public function __construct(
         private DetectTechnologiesAction $detectTechnologies,
         private ResolveCompanyAction $resolveCompany,
@@ -52,10 +47,10 @@ readonly class ProcessJobOfferAction
             return false;
         }
 
-        $normalized = strtolower(trim($company));
+        $normalized = CompanyName::normalize($company);
 
-        foreach (self::BLACKLISTED_COMPANIES as $blacklisted) {
-            if (str_contains($normalized, $blacklisted)) {
+        foreach (config('jobs.blacklisted_companies') as $blacklisted) {
+            if (str_contains($normalized, CompanyName::normalize($blacklisted))) {
                 return true;
             }
         }
