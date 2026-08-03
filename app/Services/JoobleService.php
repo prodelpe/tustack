@@ -17,7 +17,7 @@ class JoobleService implements JobSourceInterface
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function search(string $query, ?string $location = null, int $page = 1): array
+    public function search(string $query, ?string $location = null, int $page = 1, ?int $sinceDays = null): array
     {
         $body = [
             'keywords'     => $query,
@@ -27,6 +27,10 @@ class JoobleService implements JobSourceInterface
 
         if ($location) {
             $body['location'] = $location;
+        }
+
+        if ($sinceDays !== null) {
+            $body['datecreatedfrom'] = now()->subDays($sinceDays)->toDateString();
         }
 
         $response = Http::withHeader('Content-Type', 'application/json')
@@ -42,13 +46,13 @@ class JoobleService implements JobSourceInterface
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function fetchAll(string $query, ?string $location = null, ?int $maxPages = null): array
+    public function fetchAll(string $query, ?string $location = null, ?int $maxPages = null, ?int $sinceDays = null): array
     {
         $offers = [];
         $page   = 1;
 
         do {
-            $data    = $this->search($query, $location, $page);
+            $data    = $this->search($query, $location, $page, $sinceDays);
             $results = $data['jobs'] ?? [];
             $offers  = array_merge($offers, $results);
             $total   = $data['totalCount'] ?? 0;

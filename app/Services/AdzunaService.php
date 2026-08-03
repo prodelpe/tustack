@@ -24,7 +24,7 @@ class AdzunaService implements JobSourceInterface
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function search(string $query, ?string $location = null, int $page = 1): array
+    public function search(string $query, ?string $location = null, int $page = 1, ?int $sinceDays = null): array
     {
         $params = [
             'app_id' => config('adzuna.app_id'),
@@ -36,6 +36,10 @@ class AdzunaService implements JobSourceInterface
 
         if ($location) {
             $params['where'] = $location;
+        }
+
+        if ($sinceDays !== null) {
+            $params['max_days_old'] = $sinceDays;
         }
 
         $response = $this->client->get(
@@ -52,13 +56,13 @@ class AdzunaService implements JobSourceInterface
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function fetchAll(string $query, ?string $location = null, ?int $maxPages = null): array
+    public function fetchAll(string $query, ?string $location = null, ?int $maxPages = null, ?int $sinceDays = null): array
     {
         $offers = [];
         $page = 1;
 
         do {
-            $data = $this->search($query, $location, $page);
+            $data = $this->search($query, $location, $page, $sinceDays);
             $results = $data['results'] ?? [];
             $offers = array_merge($offers, $results);
             $total = $data['count'] ?? 0;

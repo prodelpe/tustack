@@ -5,6 +5,7 @@ namespace App\Services;
 use App\DTOs\NormalizedJobOfferDTO;
 use App\Services\Contracts\JobSourceInterface;
 use App\Support\JobUrl;
+use Illuminate\Support\Carbon;
 use App\Support\Salary;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -44,21 +45,40 @@ class TecnoempleoService implements JobSourceInterface
         return $this->parse($response->body());
     }
 
-    public function fetchAll(string $query, ?string $location = null, ?int $maxPages = null): array
+    public function fetchAll(string $query, ?string $location = null, ?int $maxPages = null, ?int $sinceDays = null): array
     {
         $offers = [];
         $page   = 1;
+        $cutoff = $sinceDays === null ? null : now()->subDays($sinceDays)->startOfDay();
 
         do {
             $results = $this->search($query, $location, $page);
-            $offers  = array_merge($offers, $results);
+            $fresh   = $this->freshEnough($results, $cutoff);
+            $offers  = array_merge($offers, $fresh);
             $page++;
         } while (
-            count($results) > 0
+            count($results) > 0 && count($fresh) === count($results)
             && ($maxPages === null || $page <= $maxPages)
         );
 
         return $offers;
+    }
+
+    /**
+     * Results arrive newest first, so the first page holding anything older
+     * than the cutoff is also the last one worth asking for.
+     */
+    private function freshEnough(array $results, ?Carbon $cutoff): array
+    {
+        if ($cutoff === null) {
+            return $results;
+        }
+
+        return array_values(array_filter($results, function (array $offer) use ($cutoff) {
+            $date = $offer['published_at'] ?? null;
+
+            return $date === null || Carbon::parse($date)->gte($cutoff);
+        }));
     }
 
     public function normalize(array $raw): NormalizedJobOfferDTO
