@@ -16,7 +16,7 @@ class TechnologySeeder extends Seeder
             ['name' => 'Django',         'slug' => 'django',        'aliases' => []],
             ['name' => 'FastAPI',        'slug' => 'fastapi',       'aliases' => ['fast api']],
             ['name' => 'Node.js',        'slug' => 'nodejs',        'aliases' => ['node', 'nodejs', 'node js']],
-            ['name' => 'Express',        'slug' => 'express',       'aliases' => ['expressjs', 'express.js']],
+            ['name' => 'Express',        'slug' => 'express',       'aliases' => ['expressjs', 'express.js'], 'ambiguous' => true],
             ['name' => 'Spring Boot',    'slug' => 'spring-boot',   'aliases' => ['spring', 'springboot', 'spring framework', 'spring mvc']],
             ['name' => '.NET',           'slug' => 'dotnet',        'aliases' => ['dotnet', 'asp.net', 'aspnet', '.net core', 'dotnet core', 'asp.net core', 'blazor']],
             ['name' => 'Ruby on Rails',  'slug' => 'rails',         'aliases' => ['rails', 'ror']],
@@ -32,7 +32,7 @@ class TechnologySeeder extends Seeder
             // Mobile
             ['name' => 'Flutter',        'slug' => 'flutter',       'aliases' => []],
             ['name' => 'React Native',   'slug' => 'react-native',  'aliases' => ['react native', 'rn']],
-            ['name' => 'Swift',          'slug' => 'swift',         'aliases' => ['swiftui', 'swift ui']],
+            ['name' => 'Swift',          'slug' => 'swift',         'aliases' => ['swiftui', 'swift ui'], 'ambiguous' => true],
             ['name' => 'Kotlin',         'slug' => 'kotlin',        'aliases' => ['kotlin multiplatform', 'kmp']],
 
             // Databases
@@ -57,7 +57,7 @@ class TechnologySeeder extends Seeder
             ['name' => 'Python',         'slug' => 'python',        'aliases' => []],
             ['name' => 'Java',           'slug' => 'java',          'aliases' => []],
             ['name' => 'PHP',            'slug' => 'php',           'aliases' => []],
-            ['name' => 'Go',             'slug' => 'go',            'aliases' => ['golang']],
+            ['name' => 'Go',             'slug' => 'go',            'aliases' => ['golang'], 'ambiguous' => true],
             ['name' => 'Rust',           'slug' => 'rust',          'aliases' => []],
             ['name' => 'C#',             'slug' => 'csharp',        'aliases' => ['csharp', 'c sharp']],
         ];
@@ -65,7 +65,11 @@ class TechnologySeeder extends Seeder
         foreach ($technologies as $tech) {
             Technology::query()->updateOrCreate(
                 ['slug' => $tech['slug']],
-                ['name' => $tech['name'], 'aliases' => $tech['aliases'] ?: null]
+                [
+                    'name'      => $tech['name'],
+                    'aliases'   => $tech['aliases'] ?: null,
+                    'ambiguous' => $tech['ambiguous'] ?? false,
+                ]
             );
         }
     }

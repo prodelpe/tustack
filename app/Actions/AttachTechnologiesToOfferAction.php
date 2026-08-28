@@ -18,7 +18,7 @@ readonly class AttachTechnologiesToOfferAction
             return;
         }
 
-        $matched = $this->detectTechnologies->handle($dto, $technologies);
+        $matched = $this->detectTechnologies->handle($dto->title, $dto->description, $technologies);
 
         if ($matched->isNotEmpty()) {
             $offer->technologies()->attach($matched->pluck('id'));

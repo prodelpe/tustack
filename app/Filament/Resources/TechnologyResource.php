@@ -35,6 +35,9 @@ class TechnologyResource extends Resource
                 Forms\Components\TagsInput::make('aliases')
                     ->placeholder('Add alias…')
                     ->helperText('Variants the detector will also match: reactjs, react.js, golang…'),
+                Forms\Components\Toggle::make('ambiguous')
+                    ->label('The name is also an ordinary word')
+                    ->helperText('On: the bare name only counts beside something technical. Go reads as go-to-market far more often than as the language.'),
             ]);
     }
 
@@ -47,6 +50,9 @@ class TechnologyResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('slug')
                     ->searchable(),
+                Tables\Columns\IconColumn::make('ambiguous')
+                    ->label('Ordinary word')
+                    ->boolean(),
             ])
             ->filters([])
             ->actions([

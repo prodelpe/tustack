@@ -28,7 +28,7 @@ readonly class ProcessJobOfferAction
             return false;
         }
 
-        $matched = $this->detectTechnologies->handle($dto, $technologies);
+        $matched = $this->detectTechnologies->handle($dto->title, $dto->description, $technologies);
 
         if ($matched->isEmpty()) {
             return false;
