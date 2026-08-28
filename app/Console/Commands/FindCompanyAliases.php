@@ -88,6 +88,31 @@ class FindCompanyAliases extends Command
             foreach ($chunk->values() as $index => $candidate) {
                 $same = $verdicts[$index] ?? false;
 
+                // The candidates were worked out before the first merge, so by
+                // now either side may have been absorbed by an earlier one in
+                // this same run: Roche swallows F. Hoffmann-La Roche AG, and
+                // the pair that would give F. Hoffmann-La Roche AG the Gruppe
+                // points at a company that is gone.
+                $survivor = $this->current($candidate['survivor']);
+                $absorbed = $this->current($candidate['absorbed']);
+
+                // Resolving can swap the two round: Avanade is absorbed first,
+                // so the pair that named it survivor now names its keeper. The
+                // shortest name has to win again or "Avanade Spain SL" ends up
+                // being the name on the page.
+                if ($survivor && $absorbed && ! $survivor->is($absorbed)) {
+                    [$survivor, $absorbed] = FindCompanyAliasCandidatesAction::shorterFirst($survivor, $absorbed);
+                }
+
+                if ($survivor === null || $absorbed === null || $survivor->is($absorbed)) {
+                    $this->line('  <fg=gray>settled</> <fg=gray>' . $candidate['absorbed']->name . ' already belongs to ' . ($survivor?->name ?? 'another company') . '</>');
+
+                    continue;
+                }
+
+                $candidate['survivor'] = $survivor;
+                $candidate['absorbed'] = $absorbed;
+
                 $this->line(sprintf(
                     '  %s <fg=gray>%s</> %s <fg=gray>(%s)</>',
                     $same ? '<fg=green>merge </>' : '<fg=gray>keep  </>',
@@ -175,6 +200,16 @@ class FindCompanyAliases extends Command
         }
 
         $this->info($proposed . ' pairs left for review in the admin.');
+    }
+
+    /**
+     * Where a company lives now: itself, or whatever swallowed it. Merging
+     * repoints the aliases of the company it removes, so one lookup is enough.
+     */
+    private function current(Company $company): ?Company
+    {
+        return Company::query()->find($company->id)
+            ?? CompanyAlias::companyFor($company->name_normalized);
     }
 
     /** A no is worth storing too: it is what stops the pair being paid for again. */

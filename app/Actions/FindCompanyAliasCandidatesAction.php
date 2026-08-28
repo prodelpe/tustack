@@ -165,7 +165,7 @@ readonly class FindCompanyAliasCandidatesAction
                     continue;
                 }
 
-                [$survivor, $absorbed] = $this->shorterFirst($company, $other);
+                [$survivor, $absorbed] = self::shorterFirst($company, $other);
 
                 if (! $this->namesSomeone($survivor->name)) {
                     continue;
@@ -182,8 +182,15 @@ readonly class FindCompanyAliasCandidatesAction
         return $found;
     }
 
-    /** The shorter name is the one to show, and the older one settles a tie. */
-    private function shorterFirst(Company $first, Company $second): array
+    /**
+     * The shorter name is the one to show, and the older one settles a tie:
+     * "Accenture" reads better than "Accenture España". Public because the
+     * command has to apply the same rule again after a chain of merges swaps
+     * which of the two is still standing.
+     *
+     * @return array{0: Company, 1: Company} survivor first
+     */
+    public static function shorterFirst(Company $first, Company $second): array
     {
         $byLength = mb_strlen($first->name) <=> mb_strlen($second->name);
 
