@@ -7,6 +7,7 @@ use App\Actions\FindCompanyAliasCandidatesAction;
 use App\Actions\MergeCompaniesAction;
 use App\Models\Company;
 use App\Models\CompanyAlias;
+use App\Support\Gemini;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
@@ -24,6 +25,13 @@ class FindCompanyAliases extends Command
         AskGeminiAboutCompanyNamesAction $gemini,
         MergeCompaniesAction $merge,
     ): int {
+        // --dry-run still asks Gemini, so it is stopped here too.
+        if (! Gemini::isEnabled()) {
+            $this->error(Gemini::whyItIsOff());
+
+            return self::FAILURE;
+        }
+
         $dryRun = (bool) $this->option('dry-run');
         $limit  = (int) ($this->option('limit') ?: config('companies.alias_max_pairs_per_run'));
 

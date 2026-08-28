@@ -5,6 +5,7 @@ namespace App\Actions;
 use App\Models\Company;
 use App\Models\User;
 use App\Notifications\GeminiUnavailable;
+use App\Support\Gemini;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
@@ -22,12 +23,13 @@ class EnrichCompanyWithGeminiAction
      */
     public function handle(Company $company, TranslateTextAction $translator = new TranslateTextAction): bool
     {
-        $apiKey = config('services.gemini.api_key');
+        if (! Gemini::isEnabled()) {
+            Log::warning(Gemini::whyItIsOff(), ['company' => $company->name]);
 
-        if (blank($apiKey)) {
-            Log::warning('Gemini API key not configured.');
             return false;
         }
+
+        $apiKey = config('services.gemini.api_key');
 
         $techStack = $company->jobOffers
             ->flatMap

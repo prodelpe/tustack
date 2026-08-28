@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Support\Gemini;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -97,13 +98,13 @@ class AskGeminiAboutCompanyNamesAction
 
     private function ask(string $prompt, array $schema): ?array
     {
-        $apiKey = config('services.gemini.api_key');
-
-        if (blank($apiKey)) {
-            Log::warning('Gemini API key not configured.');
+        if (! Gemini::isEnabled()) {
+            Log::warning(Gemini::whyItIsOff());
 
             return null;
         }
+
+        $apiKey = config('services.gemini.api_key');
 
         try {
             $response = Http::timeout(60)->post(
