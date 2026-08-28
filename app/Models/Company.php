@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Support\CompanyName;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -87,6 +88,52 @@ class Company extends Model
     public function searchableAs(): string
     {
         return 'devstack_companies';
+    }
+
+    /**
+     * A company nobody can find by stack has no place in a search by stack.
+     * Otis and Radisson Hotel Group came in through offers that read as
+     * technologies and read as nothing once that was corrected. The page stays
+     * reachable and the rows are untouched: only the catalogue leaves them out.
+     */
+    public function shouldBeSearchable(): bool
+    {
+        $this->loadMissing('jobOffers.technologies');
+
+        return $this->jobOffers->flatMap->technologies->isNotEmpty();
+    }
+
+    /** Companies with something to say about a stack. */
+    public function scopeInCatalogue(Builder $query): void
+    {
+        $query->whereHas('jobOffers.technologies');
+    }
+
+    /**
+     * The stack in the order that says something: the technology the company
+     * publishes most first, and when it was last seen. A flat list of thirty
+     * badges answers nothing.
+     *
+     * @return Collection<int, array{technology: Technology, offers: int, last_offer_at: ?Carbon}>
+     */
+    public function technologyStack(): Collection
+    {
+        return Technology::query()
+            ->join('job_offer_technology', 'job_offer_technology.technology_id', '=', 'technologies.id')
+            ->join('job_offers', 'job_offers.id', '=', 'job_offer_technology.job_offer_id')
+            ->where('job_offers.company_id', $this->id)
+            ->select(['technologies.id', 'technologies.name', 'technologies.slug'])
+            ->selectRaw('COUNT(DISTINCT job_offers.id) as offers_count')
+            ->selectRaw('MAX(job_offers.published_at) as last_offer_at')
+            ->groupBy('technologies.id', 'technologies.name', 'technologies.slug')
+            ->orderByDesc('offers_count')
+            ->orderBy('technologies.name')
+            ->get()
+            ->map(fn (Technology $technology) => [
+                'technology'    => $technology,
+                'offers'        => (int) $technology->offers_count,
+                'last_offer_at' => $technology->last_offer_at ? Carbon::parse($technology->last_offer_at) : null,
+            ]);
     }
 
     public function toSearchableArray(): array

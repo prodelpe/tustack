@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Company;
+use App\Models\JobOffer;
+use App\Models\Technology;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -10,9 +12,18 @@ class SitemapTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_the_sitemap_lists_every_company_in_every_locale(): void
+    public function test_the_sitemap_lists_every_catalogued_company_in_every_locale(): void
     {
-        Company::create(['name' => 'Acme']);
+        $company = Company::create(['name' => 'Acme']);
+
+        $offer = JobOffer::create([
+            'company_id' => $company->id,
+            'title'      => 'Java Developer',
+            'url'        => 'https://example.test/java',
+            'source'     => 'jooble',
+        ]);
+
+        $offer->technologies()->attach(Technology::create(['name' => 'Java', 'slug' => 'java']));
 
         $response = $this->get('/sitemap.xml');
 

@@ -81,16 +81,42 @@
             </div>
         @endif
 
-        @if ($technologies->isNotEmpty())
-            <div class="mt-5">
-                <p class="mb-2 text-xs font-medium uppercase tracking-widest text-gray-400 dark:text-slate-500">{{ __('company.tech_stack') }}</p>
-                <div class="flex flex-wrap gap-2">
-                    @foreach ($technologies as $tech)
-                        <x-tech-badge>{{ $tech->name }}</x-tech-badge>
+        @php
+            $visible = $stack->take(8);
+            $folded  = $stack->skip(8);
+            $busiest = $stack->max('offers') ?? 0;
+        @endphp
+
+        <div class="mt-8">
+            <p class="text-xs font-medium uppercase tracking-widest text-gray-400 dark:text-slate-500">
+                {{ $company->sector === 'recruitment' ? __('company.tech_stack_recruiter') : __('company.tech_stack') }}
+            </p>
+
+            @if ($stack->isNotEmpty())
+                <p class="mb-4 mt-1 text-xs text-gray-400 dark:text-slate-500">{{ __('company.stack_hint') }}</p>
+
+                <div class="space-y-2">
+                    @foreach ($visible as $item)
+                        <x-technology-row :item="$item" :max="$busiest" />
                     @endforeach
                 </div>
-            </div>
-        @endif
+
+                @if ($folded->isNotEmpty())
+                    <details class="mt-3">
+                        <summary class="cursor-pointer text-xs text-gray-500 transition hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400">
+                            {{ __('company.more_technologies', ['count' => $folded->count()]) }}
+                        </summary>
+                        <div class="mt-2 space-y-2">
+                            @foreach ($folded as $item)
+                                <x-technology-row :item="$item" :max="$busiest" />
+                            @endforeach
+                        </div>
+                    </details>
+                @endif
+            @else
+                <p class="mt-2 text-sm text-gray-500 dark:text-slate-400">{{ __('company.no_stack') }}</p>
+            @endif
+        </div>
 
         @if ($salary)
             <div class="mt-4">
@@ -99,7 +125,7 @@
         @endif
     </div>
 
-    <div>
+    <div class="mt-12 border-t border-gray-100 pt-8 dark:border-slate-800">
         <p class="mb-4 text-xs font-medium uppercase tracking-widest text-gray-400 dark:text-slate-500">
             {{ __('company.job_offers') }} · {{ $jobOffers->total() }}
         </p>

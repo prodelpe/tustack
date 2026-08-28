@@ -76,7 +76,10 @@ class SitemapController extends Controller
             }
         }
 
+        // A company with no stack answers no search on this site, so listing it
+        // asks Google to index a page that says nothing.
         Company::query()
+            ->inCatalogue()
             ->select(['slug', 'updated_at'])
             ->orderBy('id')
             ->chunk(500, function ($companies) use ($locales, &$entries) {
