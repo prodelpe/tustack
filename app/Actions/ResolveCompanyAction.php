@@ -4,6 +4,7 @@ namespace App\Actions;
 
 use App\DTOs\CompanyDTO;
 use App\Models\Company;
+use App\Models\CompanyAlias;
 use App\Support\CompanyName;
 
 readonly class ResolveCompanyAction
@@ -18,12 +19,18 @@ readonly class ResolveCompanyAction
             return null;
         }
 
-        $company = Company::query()->firstOrCreate(
-            ['name_normalized' => CompanyName::normalize($dto->name)],
-            ['name' => $dto->name],
-        );
+        $normalized = CompanyName::normalize($dto->name);
 
-        if ($company->wasRecentlyCreated || $company->city === null || $company->province_id === null) {
+        // A merged name arrives again on every fetch, so without the aliases the
+        // company we just removed would be created anew the same night.
+        $company = Company::query()->where('name_normalized', $normalized)->first()
+            ?? CompanyAlias::companyFor($normalized);
+
+        $created = $company === null;
+
+        $company ??= Company::create(['name' => $dto->name]);
+
+        if ($created || $company->city === null || $company->province_id === null) {
             $this->updateCompany->handle($company, $dto);
         }
 

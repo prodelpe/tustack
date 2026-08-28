@@ -19,6 +19,12 @@ Artisan::command('inspire', function () {
 // Schedule::command('jobs:fetch --all --since=4')->dailyAt('00:00');
 // Schedule::command('jobs:fetch --all')->monthlyOn(1, '00:00');
 // Schedule::command('companies:enrich --limit=50')->dailyAt('03:00');
+//
+// Company names only arrive with the fetch, so with the fetch off this asks
+// about nothing. It belongs with the two above: it spends money, and the first
+// pass over the catalogue is meant to be read with --dry-run before it runs on
+// its own. Once nightly, the few names of the day cost a fraction of a cent.
+// Schedule::command('companies:find-aliases')->dailyAt('02:30');
 
 Schedule::command('companies:resolve-provinces')->dailyAt('01:30');
 Schedule::command('searches:notify')->dailyAt('08:00');

@@ -41,6 +41,22 @@ class CompanyName
             ?: mb_strtolower(trim($name));
     }
 
+    /**
+     * The comparable form split into words, so one name can be looked for
+     * inside another: "Otis" reads inside "Otis Elevator Company".
+     */
+    public static function comparableWords(?string $name): array
+    {
+        if (blank($name)) {
+            return [];
+        }
+
+        $pattern = '/\b(' . implode('|', self::LEGAL_FORMS) . ')\b/';
+        $words   = preg_replace($pattern, ' ', self::words($name));
+
+        return preg_split('/\s+/', trim($words), flags: PREG_SPLIT_NO_EMPTY) ?: [];
+    }
+
     private static function words(string $name): string
     {
         $name = str_replace('.', '', Str::ascii(mb_strtolower(trim($name))));
