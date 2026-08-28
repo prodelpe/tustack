@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\CompanyController;
 use App\Models\Company;
+use App\Support\LegalDocument;
 use App\Support\SeoRoutePatterns;
 use App\Http\Controllers\HumansController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\LegalController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
@@ -16,7 +18,7 @@ use App\Http\Controllers\SalaryInsightsController;
 use App\Http\Controllers\TendenciesController;
 use App\Http\Controllers\TendencyDataController;
 use App\Http\Controllers\SocialAuthController;
-use App\Http\Controllers\TrackTechnologySearchController;
+use App\Http\Controllers\TrackSearchController;
 use Illuminate\Support\Facades\Route;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
@@ -25,7 +27,7 @@ Route::get('/robots.txt', RobotsController::class)->name('robots');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 
 Route::post('/telegram/webhook', TelegramWebhookController::class)->name('telegram.webhook');
-Route::post('/track-search', TrackTechnologySearchController::class)->name('track-search');
+Route::post('/track-search', TrackSearchController::class)->middleware('throttle:30,1')->name('track-search');
 
 Route::group([
     'prefix'     => LaravelLocalization::setLocale(),
@@ -51,6 +53,12 @@ Route::group([
     Route::get(LaravelLocalization::transRoute('routes.technology'), [LandingController::class, 'technology'])
         ->where(['technology' => SeoRoutePatterns::technologies()])
         ->name('landing.technology');
+
+    foreach (LegalDocument::DOCUMENTS as $document) {
+        Route::get(LaravelLocalization::transRoute('routes.' . $document), [LegalController::class, 'show'])
+            ->defaults('document', $document)
+            ->name('legal.' . $document);
+    }
 
     Route::get('/salary-insights', SalaryInsightsController::class)->name('salary-insights');
     Route::get(LaravelLocalization::transRoute('routes.tendencies'), TendenciesController::class)->name('tendencies');

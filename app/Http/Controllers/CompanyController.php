@@ -16,15 +16,17 @@ class CompanyController extends Controller
     {
         $company->load(['jobOffers.technologies', 'province']);
 
-        $technologies = $company->jobOffers
-            ->flatMap->technologies
-            ->unique('id')
-            ->sortBy('name')
-            ->values();
+        // Ordered by how much the company publishes of each, so the title and
+        // the description name what it really works with, not what comes first
+        // in the alphabet.
+        $stack        = $company->technologyStack();
+        $technologies = $stack->pluck('technology');
 
         $jobOffers = $company->jobOffers()
             ->orderByDesc('published_at')
             ->paginate(10);
+
+        $activeOffers = $company->activeJobOffers()->count();
 
         $isSaved = Auth::check() && Auth::user()->savedCompanies()->where('company_id', $company->id)->exists();
 
@@ -40,8 +42,10 @@ class CompanyController extends Controller
 
         return view('company', compact(
             'company',
+            'stack',
             'technologies',
             'jobOffers',
+            'activeOffers',
             'isSaved',
             'salary',
             'similarCompanies',

@@ -13,7 +13,8 @@ class FetchJobs extends Command
     protected $signature = 'jobs:fetch
                             {query? : Keyword to search for}
                             {--all : Fetch for every technology in the database}
-                            {--pages= : Max pages to fetch per source (default: all)}';
+                            {--pages= : Max pages to fetch per source (default: all)}
+                            {--since= : Only offers published in the last N days (default: all)}';
 
     protected $description = 'Fetch job offers from all sources in parallel via queue';
 
@@ -26,10 +27,11 @@ class FetchJobs extends Command
             return self::FAILURE;
         }
 
-        $maxPages = $this->option('pages') ? (int) $this->option('pages') : null;
+        $maxPages  = $this->option('pages') ? (int) $this->option('pages') : null;
+        $sinceDays = $this->option('since') ? (int) $this->option('since') : null;
 
         $jobs = collect($queries)
-            ->map(fn (string $query) => new FetchJobOffersJob($query, $maxPages))
+            ->map(fn (string $query) => new FetchJobOffersJob($query, $maxPages, $sinceDays))
             ->all();
 
         $log = CommandLog::create([

@@ -35,7 +35,12 @@ return [
         ],
     ],
 
+    /*
+     * Every Gemini call costs money, so it is off unless someone says
+     * otherwise. See App\Support\Gemini.
+     */
     'gemini' => [
+        'enabled' => env('GEMINI_ENABLED', false),
         'api_key' => env('GEMINI_API_KEY'),
     ],
 

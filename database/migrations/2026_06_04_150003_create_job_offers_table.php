@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('company_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('title');
+            $table->string('title_normalized')->nullable();
             $table->text('description')->nullable();
             $table->string('url')->unique();
             $table->string('source');
@@ -20,6 +21,8 @@ return new class extends Migration
             $table->unsignedInteger('salary_max')->nullable();
             $table->boolean('salary_is_predicted')->nullable();
             $table->timestamps();
+
+            $table->index(['company_id', 'title_normalized']);
         });
     }
 

@@ -16,10 +16,12 @@ class Technology extends Model
         'name',
         'slug',
         'aliases',
+        'ambiguous',
     ];
 
     protected $casts = [
-        'aliases' => 'array',
+        'aliases'   => 'array',
+        'ambiguous' => 'boolean',
     ];
 
     public function jobOffers(): BelongsToMany

@@ -20,7 +20,10 @@ class CompanyEnrichmentTest extends TestCase
     {
         parent::setUp();
 
-        config(['services.gemini.api_key' => 'test-key']);
+        config([
+            'services.gemini.enabled' => true,
+            'services.gemini.api_key' => 'test-key',
+        ]);
         Notification::fake();
     }
 

@@ -8,7 +8,9 @@
 <link rel="canonical" href="{{ url()->current() }}">
 <link rel="author" href="{{ url('humans.txt') }}">
 
-@if(config('app.noindex'))
+{{-- Pages can ask to stay out of search results on their own: the legal ones
+     carry the owner's name, and there is no reason to make it searchable. --}}
+@if(config('app.noindex') || ($noindex ?? false))
     <meta name="robots" content="noindex, nofollow">
 @endif
 

@@ -98,7 +98,8 @@ class LandingController extends Controller
     {
         return $this->scope($technology, $province)
             ->with('province')
-            ->withCount('jobOffers')
+            ->withCount(['jobOffers', 'activeJobOffers'])
+            ->orderByDesc('active_job_offers_count')
             ->orderByDesc('job_offers_count')
             ->orderBy('name')
             ->limit(config('seo.companies_per_page'))

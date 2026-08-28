@@ -2,9 +2,10 @@
 
 namespace App\Services;
 
-use App\Actions\ParseSalaryStringAction;
 use App\DTOs\NormalizedJobOfferDTO;
 use App\Services\Contracts\JobSourceInterface;
+use App\Support\JobUrl;
+use App\Support\Salary;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
@@ -16,7 +17,7 @@ class JoobleService implements JobSourceInterface
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function search(string $query, ?string $location = null, int $page = 1): array
+    public function search(string $query, ?string $location = null, int $page = 1, ?int $sinceDays = null): array
     {
         $body = [
             'keywords'     => $query,
@@ -26,6 +27,10 @@ class JoobleService implements JobSourceInterface
 
         if ($location) {
             $body['location'] = $location;
+        }
+
+        if ($sinceDays !== null) {
+            $body['datecreatedfrom'] = now()->subDays($sinceDays)->toDateString();
         }
 
         $response = Http::withHeader('Content-Type', 'application/json')
@@ -41,13 +46,13 @@ class JoobleService implements JobSourceInterface
      * @throws RequestException
      * @throws ConnectionException
      */
-    public function fetchAll(string $query, ?string $location = null, ?int $maxPages = null): array
+    public function fetchAll(string $query, ?string $location = null, ?int $maxPages = null, ?int $sinceDays = null): array
     {
         $offers = [];
         $page   = 1;
 
         do {
-            $data    = $this->search($query, $location, $page);
+            $data    = $this->search($query, $location, $page, $sinceDays);
             $results = $data['jobs'] ?? [];
             $offers  = array_merge($offers, $results);
             $total   = $data['totalCount'] ?? 0;
@@ -66,10 +71,10 @@ class JoobleService implements JobSourceInterface
     public function normalize(array $raw): NormalizedJobOfferDTO
     {
         $locationParts = array_map('trim', explode(',', $raw['location'] ?? ''));
-        $salary        = app(ParseSalaryStringAction::class)->handle($raw['salary'] ?? null);
+        $salary        = Salary::parse($raw['salary'] ?? null);
 
         return new NormalizedJobOfferDTO(
-            url:               $raw['link'] ?? '',
+            url:               JobUrl::canonical($raw['link'] ?? null),
             source:            'jooble',
             title:             $raw['title'] ?? null,
             company:           $raw['company'] ?? null,

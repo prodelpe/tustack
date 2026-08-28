@@ -34,12 +34,16 @@ class AppFresh extends Command
         $this->call('migrate:fresh');
         $this->call('db:seed');
         $this->call('jobs:fetch', ['--all' => true]);
+        $this->call('companies:resolve-provinces');
 
         if ($this->option('restore')) {
             $this->call('enrichment:import');
         }
 
         $this->call('scout:sync-index-settings');
+        // Ids start over after migrate:fresh, so importing on top of the old
+        // index leaves documents for companies that no longer exist.
+        $this->call('scout:flush', ['model' => 'App\\Models\\Company']);
         $this->call('scout:import', ['model' => 'App\\Models\\Company']);
 
         if ($this->option('enrich')) {

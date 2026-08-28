@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Province;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class ProvinceSeeder extends Seeder
 {
@@ -23,8 +24,14 @@ class ProvinceSeeder extends Seeder
             'Zaragoza', 'Ceuta', 'Melilla',
         ];
 
+        // The slug is set here rather than left to the model event: province
+        // matching and the seo urls both read it, and a fresh install that
+        // silently seeded it empty broke both without any error.
         foreach ($provinces as $name) {
-            Province::query()->firstOrCreate(['name' => $name]);
+            Province::query()->updateOrCreate(
+                ['name' => $name],
+                ['slug' => Str::slug($name)],
+            );
         }
     }
 }

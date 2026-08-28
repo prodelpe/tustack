@@ -23,6 +23,7 @@ class FetchJobOffersJob implements ShouldQueue
     public function __construct(
         public readonly string $query,
         public readonly ?int $maxPages = null,
+        public readonly ?int $sinceDays = null,
     ) {}
 
     public function handle(ProcessJobOfferAction $processJobOffer): void
@@ -41,7 +42,7 @@ class FetchJobOffersJob implements ShouldQueue
 
         foreach ($sources as $name => $source) {
             try {
-                $raw = $source->fetchAll($this->query, null, $this->maxPages);
+                $raw = $source->fetchAll($this->query, null, $this->maxPages, $this->sinceDays);
 
                 foreach ($raw as $item) {
                     $processJobOffer->handle($item, $source, $technologies);

@@ -18,6 +18,59 @@ class CompanyName
     /** Legal forms and the like, always uppercase. */
     private const UPPERCASE = ['sl', 's.l', 's.l.', 'slu', 's.l.u', 'sa', 's.a', 's.a.', 'sau', 'scp', 'sll', 'ute', 'aie', 'llc', 'ltd', 'inc', 'bv', 'nv', 'gmbh', 'ag', 'srl', 'spa', 'plc', 'it', 'ti'];
 
+    /**
+     * Dropped when matching: boards write them as they please, or not at all.
+     * "spa" is deliberately absent, it is a word of its own around here.
+     */
+    private const LEGAL_FORMS = ['slu', 'sl', 'sau', 'sa', 'sll', 'scp', 'ute', 'aie', 'llc', 'ltd', 'inc', 'bv', 'nv', 'gmbh', 'ag', 'srl', 'plc'];
+
+    /**
+     * The comparable form of a name: no case, no accents, no punctuation and no
+     * legal form, so "Sopra-Steria" and "Sopra Steria, S.L." meet. Never shown.
+     */
+    public static function normalize(?string $name): ?string
+    {
+        if (blank($name)) {
+            return null;
+        }
+
+        $words = self::words($name);
+
+        return self::withoutLegalForms($words)
+            ?: str_replace(' ', '', $words)
+            ?: mb_strtolower(trim($name));
+    }
+
+    /**
+     * The comparable form split into words, so one name can be looked for
+     * inside another: "Otis" reads inside "Otis Elevator Company".
+     */
+    public static function comparableWords(?string $name): array
+    {
+        if (blank($name)) {
+            return [];
+        }
+
+        $pattern = '/\b(' . implode('|', self::LEGAL_FORMS) . ')\b/';
+        $words   = preg_replace($pattern, ' ', self::words($name));
+
+        return preg_split('/\s+/', trim($words), flags: PREG_SPLIT_NO_EMPTY) ?: [];
+    }
+
+    private static function words(string $name): string
+    {
+        $name = str_replace('.', '', Str::ascii(mb_strtolower(trim($name))));
+
+        return trim(preg_replace('/[^a-z0-9]+/', ' ', $name));
+    }
+
+    private static function withoutLegalForms(string $words): string
+    {
+        $pattern = '/\b(' . implode('|', self::LEGAL_FORMS) . ')\b/';
+
+        return str_replace(' ', '', preg_replace($pattern, ' ', $words));
+    }
+
     public static function display(string $name): string
     {
         $name = trim($name);

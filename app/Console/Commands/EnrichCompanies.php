@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Jobs\EnrichCompanyJob;
 use App\Models\CommandLog;
 use App\Models\Company;
+use App\Support\Gemini;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
 
@@ -37,6 +38,16 @@ class EnrichCompanies extends Command
 
         if ($limit > 0) {
             $total = min($total, $limit);
+        }
+
+        // Estimating is what you do while it is off, so only the spending is
+        // stopped here. Without this the batch would dispatch and every job
+        // would fail quietly, one by one.
+        if (! $this->option('estimate') && ! Gemini::isEnabled()) {
+            $this->error(Gemini::whyItIsOff());
+            $this->line('<fg=gray>Run with --estimate to see the cost without spending anything.</>');
+
+            return self::FAILURE;
         }
 
         if ($this->option('estimate')) {
