@@ -12,7 +12,9 @@ class GeminiUnavailable extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail', TelegramChannel::class];
+        // Telegram first: channels go out in order, and a failing mailer must
+        // not keep the message that is actually read from being sent.
+        return [TelegramChannel::class, 'mail'];
     }
 
     public function toMail(object $notifiable): MailMessage

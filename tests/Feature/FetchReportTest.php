@@ -32,7 +32,7 @@ class FetchReportTest extends TestCase
             'source_failures' => ['adzuna' => 12],
         ]));
 
-        $this->assertContains('mail', $report->via(new User));
+        $this->assertSame([TelegramChannel::class, 'mail'], $report->via(new User), 'Telegram goes out before a mailer that might fail');
         $this->assertStringContainsString('Adzuna en 12 cerques', $report->toTelegram(new User));
     }
 
@@ -94,6 +94,37 @@ class FetchReportTest extends TestCase
         Notification::assertSentTo($admin, FetchReport::class);
         Notification::assertNotSentTo($user, FetchReport::class);
         $this->assertArrayHasKey('new_offers_by_source', CommandLog::latest('id')->first()->stats);
+    }
+
+    /** What happened on production the first time: Resend was not installed. */
+    public function test_a_broken_mailer_does_not_crash_the_fetch(): void
+    {
+        // No Notification::fake() here: the point is to reach a real mailer.
+        Http::preventStrayRequests();
+        Http::fake();
+        Technology::create(['name' => 'Laravel', 'slug' => 'laravel']);
+        User::factory()->create(['is_admin' => true, 'telegram_chat_id' => null]);
+
+        config([
+            'mail.default'         => 'broken',
+            'mail.mailers.broken'  => ['transport' => 'does-not-exist'],
+        ]);
+
+        $this->artisan('jobs:fetch Laravel --pages=1 --report')
+            ->expectsOutputToContain('Report not delivered')
+            ->assertExitCode(0);
+
+        $this->assertNotSame('running', CommandLog::latest('id')->first()->status, 'the run must be recorded before the report');
+    }
+
+    public function test_a_stale_config_cache_does_not_make_the_run_give_up_at_once(): void
+    {
+        $this->adminAndUser();
+        config(['jobs.fetch_timeout_hours' => null]);
+
+        $this->artisan('jobs:fetch Laravel --pages=1')
+            ->doesntExpectOutputToContain('Gave up')
+            ->assertExitCode(0);
     }
 
     public function test_a_manual_run_stays_quiet(): void

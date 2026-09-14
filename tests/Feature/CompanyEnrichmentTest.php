@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Actions\EnrichCompanyWithGeminiAction;
 use App\Models\Company;
 use App\Models\User;
+use App\Notifications\Channels\TelegramChannel;
 use App\Notifications\GeminiUnavailable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
@@ -51,6 +52,14 @@ class CompanyEnrichmentTest extends TestCase
         }
 
         Notification::assertSentTimes(GeminiUnavailable::class, 1);
+    }
+
+    public function test_the_gemini_alert_goes_to_telegram_before_mail(): void
+    {
+        $this->assertSame(
+            [TelegramChannel::class, 'mail'],
+            (new GeminiUnavailable('quota'))->via(new User)
+        );
     }
 
     public function test_a_rejected_request_marks_the_company_as_processed(): void

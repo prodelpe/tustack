@@ -151,9 +151,15 @@ class EnrichCompanyWithGeminiAction
             return;
         }
 
-        Notification::send(
-            User::query()->where('is_admin', true)->get(),
-            new GeminiUnavailable($e->getMessage())
-        );
+        // An alert that cannot be delivered is logged, never thrown: the
+        // company has to stay pending whatever the mailer is doing.
+        try {
+            Notification::send(
+                User::query()->where('is_admin', true)->get(),
+                new GeminiUnavailable($e->getMessage())
+            );
+        } catch (Throwable $notDelivered) {
+            Log::error('The Gemini alert could not be delivered', ['error' => $notDelivered->getMessage()]);
+        }
     }
 }

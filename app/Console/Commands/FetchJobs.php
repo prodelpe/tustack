@@ -13,7 +13,9 @@ use App\Support\FetchRun;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Throwable;
 
 class FetchJobs extends Command
 {
@@ -62,7 +64,9 @@ class FetchJobs extends Command
 
         // Without workers the batch never moves and this loop would wait
         // forever, silently, with no report ever sent.
-        $deadline = now()->addHours(config('jobs.fetch_timeout_hours'));
+        // The default matters: a config cache from before this setting existed
+        // reads it as null, and the run gave up the moment it started.
+        $deadline = now()->addHours($this->timeoutHours());
 
         while (! $batch->finished()) {
             if (now()->greaterThan($deadline)) {
@@ -96,7 +100,7 @@ class FetchJobs extends Command
     {
         $batch->cancel();
 
-        $hours = config('jobs.fetch_timeout_hours');
+        $hours = $this->timeoutHours();
 
         $log->update([
             'status'        => 'failed',
@@ -138,16 +142,32 @@ class FetchJobs extends Command
         ];
     }
 
+    private function timeoutHours(): int
+    {
+        return (int) config('jobs.fetch_timeout_hours', 8) ?: 8;
+    }
+
+    /**
+     * The report is the last thing the run does and never the reason it fails:
+     * the data is in and logged by now. A broken mailer once took the Telegram
+     * message down with it and turned a good night into a crash.
+     */
     private function report(CommandLog $log): void
     {
         if (! $this->option('report')) {
             return;
         }
 
-        Notification::send(
-            User::query()->where('is_admin', true)->get(),
-            new FetchReport($log->fresh())
-        );
+        try {
+            Notification::send(
+                User::query()->where('is_admin', true)->get(),
+                new FetchReport($log->fresh())
+            );
+        } catch (Throwable $e) {
+            Log::error('The fetch report could not be delivered', ['error' => $e->getMessage()]);
+
+            $this->warn('Report not delivered: ' . $e->getMessage());
+        }
     }
 
     private function resolveQueries(): array
