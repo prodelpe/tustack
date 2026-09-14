@@ -14,13 +14,18 @@ Artisan::command('inspire', function () {
 // late. Once a month everything is asked for again, so nothing stays missing
 // for long and offers that changed at the source are picked up. The nightly
 // run steps aside on the first, or both would start at the same minute.
-Schedule::command('jobs:fetch --all --since=4')
+// --report sends the morning summary to the admins; withoutOverlapping keeps a
+// run that hangs from piling a second one on top of it the next night.
+Schedule::command('jobs:fetch --all --since=4 --report')
     ->dailyAt('00:00')
+    ->withoutOverlapping()
     ->skip(function () {
         return now()->day === 1;
     });
 
-Schedule::command('jobs:fetch --all')->monthlyOn(1, '00:00');
+Schedule::command('jobs:fetch --all --report')
+    ->monthlyOn(1, '00:00')
+    ->withoutOverlapping();
 
 // Everything that spends money waits for GEMINI_ENABLED, so turning it on is a
 // change to .env and never to code. With the switch off these are skipped

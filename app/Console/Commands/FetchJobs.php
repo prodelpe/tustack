@@ -4,9 +4,16 @@ namespace App\Console\Commands;
 
 use App\Jobs\FetchJobOffersJob;
 use App\Models\CommandLog;
+use App\Models\Company;
+use App\Models\JobOffer;
 use App\Models\Technology;
+use App\Models\User;
+use App\Notifications\FetchReport;
+use App\Support\FetchRun;
+use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Notification;
 
 class FetchJobs extends Command
 {
@@ -14,7 +21,8 @@ class FetchJobs extends Command
                             {query? : Keyword to search for}
                             {--all : Fetch for every technology in the database}
                             {--pages= : Max pages to fetch per source (default: all)}
-                            {--since= : Only offers published in the last N days (default: all)}';
+                            {--since= : Only offers published in the last N days (default: all)}
+                            {--report : Send the result to the admins: Telegram always, mail when something needs a look}';
 
     protected $description = 'Fetch job offers from all sources in parallel via queue';
 
@@ -31,7 +39,9 @@ class FetchJobs extends Command
         $sinceDays = $this->option('since') ? (int) $this->option('since') : null;
 
         $jobs = collect($queries)
-            ->map(fn (string $query) => new FetchJobOffersJob($query, $maxPages, $sinceDays))
+            ->map(function (string $query) use ($maxPages, $sinceDays) {
+                return new FetchJobOffersJob($query, $maxPages, $sinceDays);
+            })
             ->all();
 
         $log = CommandLog::create([
@@ -50,7 +60,15 @@ class FetchJobs extends Command
         $bar = $this->output->createProgressBar(count($jobs));
         $bar->start();
 
+        // Without workers the batch never moves and this loop would wait
+        // forever, silently, with no report ever sent.
+        $deadline = now()->addHours(config('jobs.fetch_timeout_hours'));
+
         while (! $batch->finished()) {
+            if (now()->greaterThan($deadline)) {
+                return $this->giveUp($log, $batch);
+            }
+
             sleep(2);
             $batch = Bus::findBatch($batch->id);
             $bar->setProgress($batch->processedJobs());
@@ -59,16 +77,77 @@ class FetchJobs extends Command
         $bar->finish();
         $this->newLine();
 
-        $failed = $batch->failedJobs;
-        $this->info("Done. {$batch->totalJobs} queries processed, {$failed} failed.");
+        $stats = $this->stats($log, $batch);
 
         $log->update([
-            'status'      => $failed > 0 ? 'partial' : 'success',
+            'status'      => $stats['failed'] > 0 || ! empty($stats['source_failures']) ? 'partial' : 'success',
             'finished_at' => now(),
-            'stats'       => ['total_queries' => $batch->totalJobs, 'failed' => $failed],
+            'stats'       => $stats,
         ]);
 
+        $this->info("Done. {$stats['total_queries']} queries processed, {$stats['failed']} failed, {$stats['new_offers']} new offers.");
+
+        $this->report($log);
+
         return self::SUCCESS;
+    }
+
+    private function giveUp(CommandLog $log, Batch $batch): int
+    {
+        $batch->cancel();
+
+        $hours = config('jobs.fetch_timeout_hours');
+
+        $log->update([
+            'status'        => 'failed',
+            'finished_at'   => now(),
+            'error_message' => "Gave up after {$hours}h with {$batch->processedJobs()} of {$batch->totalJobs} queries done. Are the queue workers (Horizon) running?",
+            'stats'         => $this->stats($log, $batch),
+        ]);
+
+        $this->newLine();
+        $this->error($log->error_message);
+
+        $this->report($log);
+
+        return self::FAILURE;
+    }
+
+    /** What the night actually brought, not only whether the queries ran. */
+    private function stats(CommandLog $log, Batch $batch): array
+    {
+        $since = $log->started_at;
+
+        return [
+            'total_queries'        => $batch->totalJobs,
+            'failed'               => $batch->failedJobs,
+            'source_failures'      => FetchRun::sourceFailures($batch->id),
+            'new_offers'           => JobOffer::query()->where('created_at', '>=', $since)->count(),
+            'new_offers_by_source' => JobOffer::query()
+                ->where('created_at', '>=', $since)
+                ->selectRaw('source, COUNT(*) as total')
+                ->groupBy('source')
+                ->pluck('total', 'source')
+                ->map(function ($total) {
+                    return (int) $total;
+                })
+                ->all(),
+            'new_companies'        => Company::query()->where('created_at', '>=', $since)->count(),
+            'total_offers'         => JobOffer::query()->count(),
+            'total_companies'      => Company::query()->count(),
+        ];
+    }
+
+    private function report(CommandLog $log): void
+    {
+        if (! $this->option('report')) {
+            return;
+        }
+
+        Notification::send(
+            User::query()->where('is_admin', true)->get(),
+            new FetchReport($log->fresh())
+        );
     }
 
     private function resolveQueries(): array

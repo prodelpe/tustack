@@ -7,6 +7,7 @@ use App\Models\Technology;
 use App\Services\AdzunaService;
 use App\Services\JoobleService;
 use App\Services\TecnoempleoService;
+use App\Support\FetchRun;
 use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -51,6 +52,10 @@ class FetchJobOffersJob implements ShouldQueue
                 Log::warning("FetchJobOffersJob failed [{$name}] for query [{$this->query}]", [
                     'error' => $e->getMessage(),
                 ]);
+
+                if ($this->batch()) {
+                    FetchRun::recordSourceFailure($this->batch()->id, $name);
+                }
             }
         }
     }

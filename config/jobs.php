@@ -46,6 +46,13 @@ return [
         'elpuertodesantamaria',
     ],
 
+    /*
+     * How long jobs:fetch waits for its batch before giving up and raising the
+     * alarm. A full monthly pass takes a few hours; a night that never ends
+     * almost always means the queue workers are down.
+     */
+    'fetch_timeout_hours' => 8,
+
     'salary_floor' => 10000,
 
     'salary_ceiling' => 300000,

@@ -38,8 +38,9 @@ class CommandLogResource extends Resource
                     ->badge()
                     ->color(fn (string $state) => match ($state) {
                         'success' => 'success',
+                        'partial' => 'warning',
                         'failed'  => 'danger',
-                        'running' => 'warning',
+                        'running' => 'info',
                         default   => 'gray',
                     }),
                 TextColumn::make('duration')
@@ -78,6 +79,7 @@ class CommandLogResource extends Resource
                 SelectFilter::make('status')
                     ->options([
                         'success' => 'Success',
+                        'partial' => 'Partial',
                         'failed'  => 'Failed',
                         'running' => 'Running',
                     ]),
