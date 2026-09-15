@@ -21,8 +21,14 @@ L.Icon.Default.mergeOptions({ iconUrl: markerIcon, iconRetinaUrl: markerIcon2x, 
 
 // Init map centered on Spain
 const map = L.map('map').setView([40.4, -3.7], 6)
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+// OpenStreetMap refuses tiles when the browser does not say which site asks
+// for them, and CloudPanel sends Referrer-Policy: same-origin on every page,
+// which says nothing. The attribute on the tile images overrides it for them
+// alone: OSM receives the origin, never a path or a search. The a/b/c
+// subdomains are no longer recommended by OSM.
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    referrerPolicy: 'strict-origin-when-cross-origin',
 }).addTo(map)
 
 const markers = L.layerGroup().addTo(map)
