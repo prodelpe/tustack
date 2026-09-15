@@ -44,10 +44,6 @@ class FetchJobOffersJob implements ShouldQueue
         foreach ($sources as $name => $source) {
             try {
                 $raw = $source->fetchAll($this->query, null, $this->maxPages, $this->sinceDays);
-
-                foreach ($raw as $item) {
-                    $processJobOffer->handle($item, $source, $technologies);
-                }
             } catch (Throwable $e) {
                 Log::warning("FetchJobOffersJob failed [{$name}] for query [{$this->query}]", [
                     'error' => $e->getMessage(),
@@ -55,6 +51,25 @@ class FetchJobOffersJob implements ShouldQueue
 
                 if ($this->batch()) {
                     FetchRun::recordSourceFailure($this->batch()->id, $name);
+                }
+
+                continue;
+            }
+
+            // One offer that throws must cost that offer and nothing else. Before,
+            // the exception left the loop and every offer after it was lost: 66
+            // queries on the first fetch in production.
+            foreach ($raw as $item) {
+                try {
+                    $processJobOffer->handle($item, $source, $technologies);
+                } catch (Throwable $e) {
+                    Log::warning("FetchJobOffersJob could not store an offer [{$name}] for query [{$this->query}]", [
+                        'error' => $e->getMessage(),
+                    ]);
+
+                    if ($this->batch()) {
+                        FetchRun::recordOfferFailure($this->batch()->id, $name);
+                    }
                 }
             }
         }

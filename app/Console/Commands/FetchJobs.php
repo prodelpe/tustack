@@ -84,7 +84,7 @@ class FetchJobs extends Command
         $stats = $this->stats($log, $batch);
 
         $log->update([
-            'status'      => $stats['failed'] > 0 || ! empty($stats['source_failures']) ? 'partial' : 'success',
+            'status'      => $stats['failed'] > 0 || ! empty($stats['source_failures']) || ! empty($stats['offer_failures']) ? 'partial' : 'success',
             'finished_at' => now(),
             'stats'       => $stats,
         ]);
@@ -126,6 +126,7 @@ class FetchJobs extends Command
             'total_queries'        => $batch->totalJobs,
             'failed'               => $batch->failedJobs,
             'source_failures'      => FetchRun::sourceFailures($batch->id),
+            'offer_failures'       => FetchRun::offerFailures($batch->id),
             'new_offers'           => JobOffer::query()->where('created_at', '>=', $since)->count(),
             'new_offers_by_source' => JobOffer::query()
                 ->where('created_at', '>=', $since)

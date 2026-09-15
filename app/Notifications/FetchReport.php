@@ -50,6 +50,10 @@ class FetchReport extends Notification
             $lines[] = '⚠️ Errors: ' . $failures;
         }
 
+        if ($offers = $this->offerFailures()) {
+            $lines[] = '⚠️ Ofertes no guardades: ' . $offers;
+        }
+
         if ($this->stat('new_offers') === 0) {
             $lines[] = '⚠️ No ha entrat cap oferta nova';
         }
@@ -72,6 +76,10 @@ class FetchReport extends Notification
 
         if ($failures = $this->sourceFailures()) {
             $mail->line('Errors per font: ' . $failures . '. Pot ser una clau caducada, una quota esgotada o una web que ha canviat.');
+        }
+
+        if ($offers = $this->offerFailures()) {
+            $mail->line('Ofertes que no s\'han pogut guardar: ' . $offers . '. La resta de la cerca sí que s\'ha guardat; el motiu és al log de Laravel.');
         }
 
         if (filled($this->log->error_message)) {
@@ -117,6 +125,23 @@ class FetchReport extends Notification
 
         foreach ($failures as $source => $count) {
             $parts[] = ucfirst($source) . ' en ' . $count . ' cerques';
+        }
+
+        return implode(' · ', $parts);
+    }
+
+    private function offerFailures(): ?string
+    {
+        $failures = $this->log->stats['offer_failures'] ?? [];
+
+        if (empty($failures)) {
+            return null;
+        }
+
+        $parts = [];
+
+        foreach ($failures as $source => $count) {
+            $parts[] = ucfirst($source) . ' ' . $count;
         }
 
         return implode(' · ', $parts);

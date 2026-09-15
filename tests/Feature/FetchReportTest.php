@@ -36,6 +36,17 @@ class FetchReportTest extends TestCase
         $this->assertStringContainsString('Adzuna en 12 cerques', $report->toTelegram(new User));
     }
 
+    public function test_offers_that_could_not_be_stored_are_reported_and_need_a_look(): void
+    {
+        $report = new FetchReport($this->log('partial', [
+            'new_offers'     => 300,
+            'offer_failures' => ['jooble' => 3],
+        ]));
+
+        $this->assertContains('mail', $report->via(new User));
+        $this->assertStringContainsString('Ofertes no guardades: Jooble 3', $report->toTelegram(new User));
+    }
+
     /** Every board broken without an exception looks exactly like this. */
     public function test_a_night_with_nothing_new_adds_the_mail_even_without_errors(): void
     {
