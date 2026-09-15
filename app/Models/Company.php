@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Support\CompanyName;
+use App\Support\MapLocation;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
@@ -159,9 +160,7 @@ class Company extends Model
             'last_offer_at'    => $this->jobOffers->max('published_at'),
             'is_consultancy'   => $this->sector === 'it_consulting',
             'is_recruitment'   => $this->sector === 'recruitment',
-            '_geo'             => $this->latitude && $this->longitude
-                                    ? ['lat' => (float) $this->latitude, 'lng' => (float) $this->longitude]
-                                    : null,
+            '_geo'             => MapLocation::for($this),
         ];
     }
 

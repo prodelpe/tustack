@@ -9,8 +9,11 @@ import {
     stats,
 } from 'instantsearch.js/es/widgets'
 import { connectHits } from 'instantsearch.js/es/connectors'
-import L from 'leaflet'
+import L from './leaflet'
+import 'leaflet.markercluster'
 import 'leaflet/dist/leaflet.css'
+import 'leaflet.markercluster/dist/MarkerCluster.css'
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 
 // Fix Leaflet default marker icons with Vite
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
@@ -31,7 +34,9 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     referrerPolicy: 'strict-origin-when-cross-origin',
 }).addTo(map)
 
-const markers = L.layerGroup().addTo(map)
+// Pins are placed in the province a company is filed under, so hundreds share a
+// capital. Clusters show how many there are and split apart as you zoom in.
+const markers = L.markerClusterGroup({ chunkedLoading: true }).addTo(map)
 
 const { searchClient } = instantMeiliSearch(
     window.__MEILISEARCH_HOST__,
@@ -116,6 +121,8 @@ search.addWidgets([
     connectHits(({ hits }) => {
         markers.clearLayers()
 
+        const pins = []
+
         hits.forEach(hit => {
             if (!hit._geo) return
 
@@ -130,10 +137,12 @@ search.addWidgets([
                 </div>
             `
 
-            L.marker([hit._geo.lat, hit._geo.lng])
-                .bindPopup(popup)
-                .addTo(markers)
+            pins.push(L.marker([hit._geo.lat, hit._geo.lng]).bindPopup(popup))
         })
+
+        // One call for all of them: adding a thousand markers one by one
+        // recalculates the clusters a thousand times.
+        markers.addLayers(pins)
     })({}),
 ])
 

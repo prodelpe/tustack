@@ -97,13 +97,19 @@ class EnrichCompanyWithGeminiAction
                 ];
             }
 
+            // Gemini is asked for a main office, which for a large employer is
+            // rarely where its offers are, and it answers null when unsure. Both
+            // used to overwrite coordinates the job boards had already given, so
+            // they now only fill a company that has none.
+            $keepCoordinates = $company->latitude !== null && $company->longitude !== null;
+
             $company->update([
                 'description'     => $description,
                 'sector'          => $data['sector'] ?? null,
                 'employees'       => $data['employees'] ?? null,
                 'website'         => $data['website'] ?? null,
-                'latitude'        => $data['latitude'] ?? null,
-                'longitude'       => $data['longitude'] ?? null,
+                'latitude'        => $keepCoordinates ? $company->latitude : ($data['latitude'] ?? null),
+                'longitude'       => $keepCoordinates ? $company->longitude : ($data['longitude'] ?? null),
                 'gemini_enriched' => true,
             ]);
 
