@@ -104,6 +104,22 @@ class DetectTechnologiesTest extends TestCase
         $this->assertDetects('Swift', 'Mobile Developer', 'Experiencia en ios, swift, objective-c y mvvm.');
     }
 
+    /** What happened on the first fetch in production: 66 queries lost the rest of their offers. */
+    public function test_a_config_cache_from_before_the_settings_existed_does_not_crash_the_detector(): void
+    {
+        config(['technologies' => null]);
+
+        $this->assertDetects('Go', 'Backend Engineer', 'Experience with python, go, java.');
+        $this->assertDoesNotDetect('Go', 'Product Manager', 'You will own the go-to-market strategy.');
+    }
+
+    public function test_a_cache_missing_one_setting_still_uses_the_rest(): void
+    {
+        config(['technologies' => ['context_window' => 110]]);
+
+        $this->assertDetects('Swift', 'Mobile Developer', 'Experiencia en ios, swift, objective-c y mvvm.');
+    }
+
     private function assertDetects(string $name, string $title, string $description): void
     {
         $this->assertTrue(

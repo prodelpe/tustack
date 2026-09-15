@@ -9,15 +9,47 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
+use Throwable;
 
 class AdzunaService implements JobSourceInterface
 {
     private PendingRequest $client;
 
+    /** Waits between attempts when Adzuna is busy, in milliseconds. */
+    private const BACKOFF = [2000, 5000, 10000];
+
+    /** Never wait longer than this for one attempt: the whole job has five minutes. */
+    private const MAX_WAIT = 30000;
+
     public function __construct()
     {
+        // Adzuna answers 503 and 429 when it is busy or we ask too fast: 26 of
+        // 39 queries on the first night in production. Those are worth another
+        // try after a pause; anything else, a bad key included, fails at once.
         $this->client = Http::baseUrl(config('adzuna.base_url'))
-            ->timeout(15);
+            ->timeout(15)
+            ->retry(
+                count(self::BACKOFF) + 1,
+                function (int $attempt, Throwable $e) {
+                    return $this->waitBeforeRetry($attempt, $e);
+                },
+                function (Throwable $e) {
+                    return $e instanceof RequestException
+                        && in_array($e->response->status(), [429, 503], true);
+                },
+            );
+    }
+
+    /** Honours Retry-After when Adzuna sends it, otherwise backs off step by step. */
+    private function waitBeforeRetry(int $attempt, Throwable $e): int
+    {
+        $retryAfter = $e instanceof RequestException ? $e->response->header('Retry-After') : '';
+
+        $wait = is_numeric($retryAfter)
+            ? (int) $retryAfter * 1000
+            : self::BACKOFF[min($attempt - 1, count(self::BACKOFF) - 1)];
+
+        return min($wait, self::MAX_WAIT);
     }
 
     /**

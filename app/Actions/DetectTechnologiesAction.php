@@ -7,6 +7,8 @@ use Illuminate\Support\Collection;
 
 class DetectTechnologiesAction
 {
+    private ?array $settings = null;
+
     public function handle(?string $title, ?string $description, Collection $technologies): Collection
     {
         $title = $this->readable($title);
@@ -105,7 +107,7 @@ class DetectTechnologiesAction
     /** A title naming the trade is talking about the language, not about a game. */
     private function readsAsATrade(string $title): bool
     {
-        foreach (config('technologies.title_context_terms') as $term) {
+        foreach ($this->setting('title_context_terms') as $term) {
             if ($this->appears($title, $term)) {
                 return true;
             }
@@ -120,7 +122,7 @@ class DetectTechnologiesAction
         $ranges = [];
 
         // Whole words, or "go back" would silence "Go Backend Engineer".
-        foreach (config('technologies.blocked_phrases.' . $tech->slug, []) as $phrase) {
+        foreach ($this->setting('blocked_phrases')[$tech->slug] ?? [] as $phrase) {
             preg_match_all($this->pattern($phrase), $text, $found, PREG_OFFSET_CAPTURE);
 
             foreach ($found[0] as [$match, $position]) {
@@ -149,7 +151,7 @@ class DetectTechnologiesAction
         Technology $tech,
         Collection $technologies,
     ): bool {
-        $window = config('technologies.context_window');
+        $window = (int) $this->setting('context_window');
         $start  = max(0, $offset - $window);
         $around = substr($text, $start, $offset - $start + $length + $window);
 
@@ -165,12 +167,29 @@ class DetectTechnologiesAction
             }
         }
 
-        foreach (config('technologies.context_terms') as $term) {
+        foreach ($this->setting('context_terms') as $term) {
             if ($this->appears($around, $term)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * A config cache built before config/technologies.php existed has no such
+     * key, and every Go, Express or Swift then threw inside the loop over a
+     * board's offers, losing the rest of them: 66 queries on the first fetch
+     * in production. The file is read as the fallback, and anything the cache
+     * does hold still wins.
+     */
+    private function setting(string $key): mixed
+    {
+        $this->settings ??= array_replace(
+            require config_path('technologies.php'),
+            (array) config('technologies', [])
+        );
+
+        return $this->settings[$key];
     }
 }
