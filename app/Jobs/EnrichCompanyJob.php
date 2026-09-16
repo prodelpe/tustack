@@ -4,10 +4,12 @@ namespace App\Jobs;
 
 use App\Actions\EnrichCompanyWithGeminiAction;
 use App\Models\Company;
+use App\Support\Gemini;
 use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
 use Throwable;
 
 class EnrichCompanyJob implements ShouldQueue
@@ -24,6 +26,15 @@ class EnrichCompanyJob implements ShouldQueue
     public function handle(EnrichCompanyWithGeminiAction $action): void
     {
         if ($this->batch()?->cancelled()) {
+            return;
+        }
+
+        // A worker keeps the configuration it started with, so switching Gemini on
+        // without restarting Horizon used to skip every company while the batch
+        // reported success: 842 of them on 14 September.
+        if (! Gemini::isEnabled()) {
+            $this->fail(new RuntimeException(Gemini::whyItIsOff() . ' If it is already on in .env, restart Horizon: php artisan horizon:terminate'));
+
             return;
         }
 

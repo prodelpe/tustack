@@ -7,6 +7,8 @@ use App\Models\CommandLog;
 use App\Models\Company;
 use App\Support\Gemini;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
 
 class EnrichCompanies extends Command
@@ -65,9 +67,11 @@ class EnrichCompanies extends Command
             return self::FAILURE;
         }
 
-        $jobs = $query
+        $companyIds = $query
             ->when($limit > 0, fn ($q) => $q->limit($limit))
-            ->pluck('id')
+            ->pluck('id');
+
+        $jobs = $companyIds
             ->map(fn (int $id) => new EnrichCompanyJob($id))
             ->all();
 
@@ -96,13 +100,19 @@ class EnrichCompanies extends Command
         $bar->finish();
         $this->newLine();
 
-        $failed = $batch->failedJobs;
-        $this->info("Done. {$batch->totalJobs} companies processed, {$failed} failed.");
+        $failed   = $batch->failedJobs;
+        $enriched = $this->enrichedSince($companyIds, $log->started_at);
+
+        $this->info("Done. {$enriched} of {$batch->totalJobs} companies enriched, {$failed} jobs failed.");
+
+        if ($enriched === 0) {
+            $this->error('Nothing was enriched. If GEMINI_ENABLED was just switched on, restart Horizon: php artisan horizon:terminate');
+        }
 
         $log->update([
-            'status'      => $failed > 0 ? 'partial' : 'success',
+            'status'      => $this->status($enriched, $failed),
             'finished_at' => now(),
-            'stats'       => ['total' => $batch->totalJobs, 'failed' => $failed],
+            'stats'       => ['total' => $batch->totalJobs, 'failed' => $failed, 'enriched' => $enriched],
         ]);
 
         if (! $this->option('no-snapshot')) {
@@ -110,6 +120,31 @@ class EnrichCompanies extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Counted from the companies themselves: a finished job only means the
+     * worker got through it, which is how a batch that enriched nothing once
+     * reported success.
+     *
+     * @param  Collection<int, int>  $companyIds
+     */
+    private function enrichedSince(Collection $companyIds, Carbon $since): int
+    {
+        return Company::query()
+            ->whereIn('id', $companyIds)
+            ->where('gemini_enriched', true)
+            ->where('updated_at', '>=', $since)
+            ->count();
+    }
+
+    private function status(int $enriched, int $failed): string
+    {
+        if ($enriched === 0) {
+            return 'failed';
+        }
+
+        return $failed > 0 ? 'partial' : 'success';
     }
 
     private function hasQueueWorkers(): bool
