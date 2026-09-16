@@ -12,6 +12,12 @@ import {
     configure,
     sortBy,
 } from 'instantsearch.js/es/widgets'
+import { connectRefinementList } from 'instantsearch.js/es/connectors'
+
+const INDEX_NAME = 'devstack_companies'
+const DEFAULT_SORT = `${INDEX_NAME}:last_offer_at:desc`
+const VISIBLE_TECHNOLOGIES = 5
+const POPULAR_TECHNOLOGIES = 6
 
 const { searchClient } = instantMeiliSearch(
     window.__MEILISEARCH_HOST__,
@@ -36,13 +42,12 @@ const search = instantsearch({
                 const index = uiState['devstack_companies'] || {}
                 const techs = index.refinementList?.technology_names
                 const provs = index.refinementList?.province_name
-                const defaultSort = 'devstack_companies:active_offers_count:desc'
                 return {
                     q: index.query || undefined,
                     tech: techs?.length ? techs : undefined,
                     prov: provs?.length ? provs : undefined,
                     page: index.page > 1 ? index.page : undefined,
-                    sort: index.sortBy !== defaultSort ? index.sortBy : undefined,
+                    sort: index.sortBy !== DEFAULT_SORT ? index.sortBy : undefined,
                     excl_cons: excludeConsultancies ? '1' : undefined,
                     excl_rec:  excludeRecruitment   ? '1' : undefined,
                 }
@@ -53,7 +58,7 @@ const search = instantsearch({
                     'devstack_companies': {
                         query: routeState.q || '',
                         page: routeState.page || 1,
-                        sortBy: routeState.sort || 'devstack_companies:active_offers_count:desc',
+                        sortBy: routeState.sort || DEFAULT_SORT,
                         refinementList: {
                             technology_names: toArray(routeState.tech),
                             province_name: toArray(routeState.prov),
@@ -65,6 +70,77 @@ const search = instantsearch({
     },
 })
 
+const facetSelect = connectRefinementList(renderFacetSelect)
+const popularTechnologies = connectRefinementList(renderPopularTechnologies)
+
+function renderFacetSelect({ items, widgetParams }, isFirstRender) {
+    const { container, attribute, allLabel } = widgetParams
+    const element = document.querySelector(container)
+
+    if (!element) {
+        return
+    }
+
+    if (isFirstRender) {
+        const select = document.createElement('select')
+        select.className = 'hero__select'
+        select.setAttribute('aria-label', allLabel)
+        select.addEventListener('change', event => selectOnly(attribute, event.target.value))
+        element.appendChild(select)
+    }
+
+    const select = element.querySelector('select')
+    const selected = items.filter(item => item.isRefined)
+    const options = [`<option value="">${escapeHtml(allLabel)}</option>`]
+
+    if (selected.length > 1) {
+        options.push(`<option value="__several__" disabled>${window.__I18N__.severalSelected.replace(':count', selected.length)}</option>`)
+    }
+
+    items.forEach(item => {
+        options.push(`<option value="${escapeHtml(item.value)}">${escapeHtml(item.label)} (${item.count})</option>`)
+    })
+
+    select.innerHTML = options.join('')
+    select.value = selected.length === 1 ? selected[0].value : (selected.length > 1 ? '__several__' : '')
+}
+
+function renderPopularTechnologies({ items }) {
+    const element = document.querySelector('#hero-popular')
+
+    if (!element) {
+        return
+    }
+
+    if (items.length === 0) {
+        element.innerHTML = ''
+
+        return
+    }
+
+    const chips = items.map(item => {
+        const modifier = item.isRefined ? ' hero__chip--active' : ''
+
+        return `<button type="button" class="hero__chip${modifier}" data-value="${escapeHtml(item.value)}">${escapeHtml(item.label)}</button>`
+    })
+
+    element.innerHTML = `<span class="hero__popular-label">${window.__I18N__.popularTechnologies}</span>${chips.join('')}`
+}
+
+document.querySelector('#hero-popular')?.addEventListener('click', event => {
+    const chip = event.target.closest('[data-value]')
+
+    if (!chip) {
+        return
+    }
+
+    const { value } = chip.dataset
+    const selected = selectedValues('technology_names')
+    const isOnlySelection = selected.length === 1 && selected[0] === value
+
+    selectOnly('technology_names', isOnlySelection ? '' : value)
+})
+
 search.addWidgets([
     configure({
         hitsPerPage: 12,
@@ -73,9 +149,9 @@ search.addWidgets([
     sortBy({
         container: '#sort-by',
         items: [
-            { label: window.__I18N__.sortMostOffers,     value: 'devstack_companies:active_offers_count:desc' },
-            { label: window.__I18N__.sortRecentActivity, value: 'devstack_companies:last_offer_at:desc' },
-            { label: window.__I18N__.sortNameAZ,         value: 'devstack_companies:name:asc' },
+            { label: window.__I18N__.sortRecentActivity, value: DEFAULT_SORT },
+            { label: window.__I18N__.sortMostOffers,     value: `${INDEX_NAME}:active_offers_count:desc` },
+            { label: window.__I18N__.sortNameAZ,         value: `${INDEX_NAME}:name:asc` },
         ],
     }),
 
@@ -120,33 +196,32 @@ search.addWidgets([
         },
     }),
 
+    facetSelect({
+        container: '#hero-technology',
+        attribute: 'technology_names',
+        allLabel: window.__I18N__.anyTechnology,
+        limit: 100,
+        sortBy: ['count:desc', 'name:asc'],
+    }),
+
+    facetSelect({
+        container: '#hero-province',
+        attribute: 'province_name',
+        allLabel: window.__I18N__.anyProvince,
+        limit: 100,
+        sortBy: ['name:asc'],
+    }),
+
+    popularTechnologies({
+        attribute: 'technology_names',
+        limit: POPULAR_TECHNOLOGIES,
+        sortBy: ['count:desc', 'name:asc'],
+    }),
+
     hits({
         container: '#hits',
         templates: {
-            item: (hit) => `
-                <a href="${companyUrl(hit.slug)}" class="hit-card">
-                    <div class="hit-card__header">
-                        <div>
-                            <h2 class="hit-card__name">
-                                ${hit.name}
-                                ${hit.is_consultancy ? `<span class="hit-card__type-badge hit-card__type-badge--consultancy">${window.__I18N__.consultoria}</span>` : ''}
-                                ${hit.is_recruitment ? `<span class="hit-card__type-badge hit-card__type-badge--recruitment">${window.__I18N__.recruitment}</span>` : ''}
-                            </h2>
-                            ${hit.city || hit.province_name ? `
-                                <p class="hit-card__location">
-                                    ${[hit.city, hit.province_name].filter(Boolean).join(', ')}
-                                </p>
-                            ` : ''}
-                        </div>
-                        ${hit.job_offers_count ? `
-                            <span class="hit-card__offers-count">${offerCounts(hit)}</span>
-                        ` : ''}
-                    </div>
-                    <div class="hit-card__techs">
-                        ${(hit.technology_names || []).map(t => `<span class="hit-card__tech">${t}</span>`).join('')}
-                    </div>
-                </a>
-            `,
+            item: hit => companyCard(hit),
             empty: `<p class="hits-empty">${window.__I18N__.noCompaniesFound}</p>`,
         },
     }),
@@ -163,16 +238,93 @@ search.addWidgets([
     }),
 ])
 
-function offerCounts(hit) {
-    const active = hit.active_offers_count ?? 0
-    const total  = hit.job_offers_count
-    const label  = active === 1 ? window.__I18N__.offerActive : window.__I18N__.offersActive
+function companyCard(hit) {
+    return `
+        <a href="${companyUrl(hit.slug)}" class="hit-card">
+            <h2 class="hit-card__name">
+                ${escapeHtml(hit.name)}
+                ${hit.is_consultancy ? `<span class="hit-card__type-badge hit-card__type-badge--consultancy">${window.__I18N__.consultoria}</span>` : ''}
+                ${hit.is_recruitment ? `<span class="hit-card__type-badge hit-card__type-badge--recruitment">${window.__I18N__.recruitment}</span>` : ''}
+            </h2>
+            ${locationLabel(hit) ? `<p class="hit-card__location">${escapeHtml(locationLabel(hit))}</p>` : ''}
+            <p class="hit-card__activity">${activityLabel(hit)}</p>
+            <div class="hit-card__techs">${technologyBadges(hit.technology_names ?? [])}</div>
+        </a>
+    `
+}
 
-    if (!active) {
-        return `${total} ${window.__I18N__.offersHistoric}`
+function locationLabel({ city, province_name: province }) {
+    if (!city) {
+        return province ?? ''
     }
 
-    return `${active} ${label} · ${total} ${window.__I18N__.offersHistoric}`
+    if (!province || city === province) {
+        return city
+    }
+
+    return `${city}, ${province}`
+}
+
+function activityLabel(hit) {
+    const activeOffers = hit.active_offers_count ?? 0
+
+    if (activeOffers === 0) {
+        return window.__I18N__.noRecentOffers
+    }
+
+    if (activeOffers === 1) {
+        return window.__I18N__.offerLastYear
+    }
+
+    return window.__I18N__.offersLastYear.replace(':count', activeOffers)
+}
+
+function technologyBadges(technologyNames) {
+    const selected = selectedValues('technology_names')
+    const matches = technologyNames.filter(name => selected.includes(name))
+    const others = technologyNames.filter(name => !selected.includes(name))
+    const visible = [...matches, ...others].slice(0, Math.max(VISIBLE_TECHNOLOGIES, matches.length))
+    const hiddenCount = technologyNames.length - visible.length
+
+    const badges = visible.map(name => {
+        const modifier = selected.includes(name) ? ' hit-card__tech--match' : ''
+
+        return `<span class="hit-card__tech${modifier}">${escapeHtml(name)}</span>`
+    })
+
+    if (hiddenCount > 0) {
+        badges.push(`<span class="hit-card__tech hit-card__tech--more">${window.__I18N__.moreTechnologies.replace(':count', hiddenCount)}</span>`)
+    }
+
+    return badges.join('')
+}
+
+function selectedValues(attribute) {
+    return search.getUiState()[INDEX_NAME]?.refinementList?.[attribute] ?? []
+}
+
+function selectOnly(attribute, value) {
+    search.setUiState(uiState => {
+        const indexState = uiState[INDEX_NAME] ?? {}
+
+        return {
+            ...uiState,
+            [INDEX_NAME]: {
+                ...indexState,
+                page: 1,
+                refinementList: {
+                    ...indexState.refinementList,
+                    [attribute]: value ? [value] : [],
+                },
+            },
+        }
+    })
+}
+
+function escapeHtml(text) {
+    const entities = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }
+
+    return String(text ?? '').replace(/[&<>"']/g, character => entities[character])
 }
 
 let trackedTechs = new Set()

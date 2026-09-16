@@ -20,4 +20,15 @@ return [
 
     'popular_searches'            => 'Cerques populars',
     'browse_by_technology'        => 'Explorar per tecnologia',
+
+    'hero_title'                    => 'Quines empreses fan servir la teva tecnologia?',
+    'hero_subtitle'                 => 'L\'stack de :count empreses a Espanya, tret de les seves ofertes de feina.',
+    'any_technology'                => 'Qualsevol tecnologia',
+    'any_province'                  => 'Tot Espanya',
+    'several_selected'              => ':count seleccionades',
+    'popular_technologies'          => 'Populars:',
+    'offers_last_year'              => ':count ofertes l\'últim any',
+    'offer_last_year'               => '1 oferta l\'últim any',
+    'no_recent_offers'              => 'Sense ofertes l\'últim any',
+    'more_technologies'             => '+:count',
 ];

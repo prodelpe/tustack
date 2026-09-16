@@ -153,9 +153,47 @@
 .hit-card__tech {
     @apply rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-600 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300;
 }
+.hit-card__tech--match {
+    @apply border-indigo-500 bg-indigo-500 text-white dark:border-indigo-400 dark:bg-indigo-500 dark:text-white;
+}
+.hit-card__tech--more {
+    @apply border-gray-200 bg-white text-gray-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400;
+}
+.hit-card__activity {
+    @apply mt-0.5 text-xs text-gray-400 dark:text-slate-500;
+}
+
+/* Hero ── */
+.hero {
+    @apply mb-6 lg:mb-8;
+}
+.hero__title {
+    @apply text-2xl font-bold leading-tight tracking-tight text-gray-900 sm:text-3xl dark:text-white;
+}
+.hero__subtitle {
+    @apply mt-2 text-sm text-gray-500 dark:text-slate-400;
+}
+.hero__selects {
+    @apply mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:hidden;
+}
+.hero__select {
+    @apply w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-800 outline-none transition focus:border-indigo-400 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200;
+}
+.hero__popular {
+    @apply mt-4 flex flex-wrap items-center gap-2;
+}
+.hero__popular-label {
+    @apply text-xs text-gray-400 dark:text-slate-500;
+}
+.hero__chip {
+    @apply rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600 transition hover:border-indigo-300 hover:text-indigo-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-indigo-500/40 dark:hover:text-indigo-400;
+}
+.hero__chip--active {
+    @apply border-indigo-500 bg-indigo-500 text-white hover:text-white dark:border-indigo-400 dark:bg-indigo-500 dark:text-white;
+}
 /* Sort by ── */
 .ais-SortBy-select {
-    @apply rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-600 outline-none transition hover:border-gray-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-slate-600;
+    @apply rounded-lg border border-gray-200 bg-white py-1.5 pl-3 pr-8 text-xs text-gray-600 outline-none transition hover:border-gray-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-slate-600;
 }
 
 .hit-card__type-badge {

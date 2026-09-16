@@ -20,4 +20,15 @@ return [
 
     'popular_searches'            => 'Búsquedas populares',
     'browse_by_technology'        => 'Explorar por tecnología',
+
+    'hero_title'                    => '¿Qué empresas usan tu tecnología?',
+    'hero_subtitle'                 => 'El stack de :count empresas en España, sacado de sus ofertas de empleo.',
+    'any_technology'                => 'Cualquier tecnología',
+    'any_province'                  => 'Toda España',
+    'several_selected'              => ':count seleccionadas',
+    'popular_technologies'          => 'Populares:',
+    'offers_last_year'              => ':count ofertas en el último año',
+    'offer_last_year'               => '1 oferta en el último año',
+    'no_recent_offers'              => 'Sin ofertas en el último año',
+    'more_technologies'             => '+:count',
 ];

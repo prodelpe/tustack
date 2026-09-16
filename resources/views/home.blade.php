@@ -59,6 +59,18 @@
 </main>
 @else
 <main class="mx-auto max-w-6xl px-4 py-6 lg:py-8">
+    <section class="hero">
+        <h1 class="hero__title">{{ __('home.hero_title') }}</h1>
+        <p class="hero__subtitle">{{ __('home.hero_subtitle', ['count' => number_format($companiesCount, 0, ',', '.')]) }}</p>
+
+        <div class="hero__selects">
+            <div id="hero-technology"></div>
+            <div id="hero-province"></div>
+        </div>
+
+        <div id="hero-popular" class="hero__popular"></div>
+    </section>
+
     <div class="lg:flex lg:gap-8">
 
         <x-search-sidebar>
@@ -175,9 +187,14 @@
         offersTracked:     @json(__('home.offers_tracked')),
         offer:             @json(__('home.offer')),
         offers:            @json(__('home.offers')),
-        offerActive:       @json(__('home.offer_active')),
-        offersActive:      @json(__('home.offers_active')),
-        offersHistoric:    @json(__('home.offers_historic')),
+        offersLastYear:    @json(__('home.offers_last_year')),
+        offerLastYear:     @json(__('home.offer_last_year')),
+        noRecentOffers:    @json(__('home.no_recent_offers')),
+        moreTechnologies:  @json(__('home.more_technologies')),
+        anyTechnology:     @json(__('home.any_technology')),
+        anyProvince:       @json(__('home.any_province')),
+        severalSelected:   @json(__('home.several_selected')),
+        popularTechnologies: @json(__('home.popular_technologies')),
         sortMostOffers:    @json(__('sidebar.more_offers')),
         sortRecentActivity:@json(__('sidebar.recent_activity')),
         sortNameAZ:        @json(__('sidebar.name_az')),

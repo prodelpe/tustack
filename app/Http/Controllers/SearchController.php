@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\Province;
 use App\Models\Technology;
 use App\Support\LandingPages;
@@ -28,6 +29,7 @@ class SearchController extends Controller
             : [];
 
         return view('home', array_merge(PublicSearch::viewData(), [
+            'companiesCount'    => Company::query()->inCatalogue()->count(),
             'technologiesCount' => Technology::query()->count(),
             'provincesCount'    => Province::query()->count(),
             'savedFilters'      => $savedFilters,

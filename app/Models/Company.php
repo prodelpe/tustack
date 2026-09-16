@@ -141,9 +141,7 @@ class Company extends Model
     {
         $this->loadMissing(['province', 'jobOffers.technologies']);
 
-        $technologies = $this->jobOffers
-            ->flatMap->technologies
-            ->unique('id');
+        $technologies = $this->technologiesByWeight();
 
         return [
             'id'               => $this->id,
@@ -162,6 +160,24 @@ class Company extends Model
             'is_recruitment'   => $this->sector === 'recruitment',
             '_geo'             => MapLocation::for($this),
         ];
+    }
+
+    /**
+     * @return Collection<int, Technology>
+     */
+    private function technologiesByWeight(): Collection
+    {
+        $offersPerTechnology = $this->jobOffers
+            ->flatMap->technologies
+            ->countBy('id');
+
+        return $this->jobOffers
+            ->flatMap->technologies
+            ->unique('id')
+            ->sortByDesc(function (Technology $technology) use ($offersPerTechnology) {
+                return $offersPerTechnology[$technology->id];
+            })
+            ->values();
     }
 
     /**
