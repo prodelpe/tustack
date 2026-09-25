@@ -180,5 +180,5 @@ step that fails.
 
 ## License
 
-Source available for reference. The code is public so it can be read and reviewed. It is not meant
-to be deployed as another instance of the site.
+Source available, all rights reserved. The code is public so it can be read and reviewed, not
+reused or deployed as another instance of the site. See [LICENSE](LICENSE).
