@@ -37,15 +37,22 @@ Schedule::command('jobs:fetch --all --report')
 // cents should the switch ever be left on.
 Schedule::command('companies:find-aliases')
     ->weeklyOn(0, '02:30')
+    ->withoutOverlapping()
     ->when(function () {
         return Gemini::isEnabled();
     });
 
 Schedule::command('companies:enrich --limit=200')
     ->weeklyOn(0, '03:00')
+    ->withoutOverlapping()
     ->when(function () {
         return Gemini::isEnabled();
     });
 
-Schedule::command('companies:resolve-provinces')->dailyAt('01:30');
-Schedule::command('searches:notify')->dailyAt('08:00');
+Schedule::command('companies:resolve-provinces')
+    ->dailyAt('01:30')
+    ->withoutOverlapping();
+
+Schedule::command('searches:notify')
+    ->dailyAt('08:00')
+    ->withoutOverlapping();
