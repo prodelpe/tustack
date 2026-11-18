@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Actions\ProcessJobOfferAction;
+use App\Exceptions\JoobleQuotaExceededException;
 use App\Models\Technology;
 use App\Services\AdzunaService;
 use App\Services\JoobleService;
@@ -44,14 +45,16 @@ class FetchJobOffersJob implements ShouldQueue
         foreach ($sources as $name => $source) {
             try {
                 $raw = $source->fetchAll($this->query, null, $this->maxPages, $this->sinceDays);
+            } catch (JoobleQuotaExceededException) {
+                $this->recordSourceFailure($name);
+
+                continue;
             } catch (Throwable $e) {
                 Log::warning("FetchJobOffersJob failed [{$name}] for query [{$this->query}]", [
                     'error' => $e->getMessage(),
                 ]);
 
-                if ($this->batch()) {
-                    FetchRun::recordSourceFailure($this->batch()->id, $name);
-                }
+                $this->recordSourceFailure($name);
 
                 continue;
             }
@@ -72,6 +75,13 @@ class FetchJobOffersJob implements ShouldQueue
                     }
                 }
             }
+        }
+    }
+
+    private function recordSourceFailure(string $source): void
+    {
+        if ($this->batch()) {
+            FetchRun::recordSourceFailure($this->batch()->id, $source);
         }
     }
 }

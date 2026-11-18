@@ -68,7 +68,7 @@ class FetchJobs extends Command
         // reads it as null, and the run gave up the moment it started.
         $deadline = now()->addHours($this->timeoutHours());
 
-        while (! $batch->finished()) {
+        while (! $this->hasSettled($batch)) {
             if (now()->greaterThan($deadline)) {
                 return $this->giveUp($log, $batch);
             }
@@ -94,6 +94,11 @@ class FetchJobs extends Command
         $this->report($log);
 
         return self::SUCCESS;
+    }
+
+    private function hasSettled(Batch $batch): bool
+    {
+        return $batch->finished() || $batch->pendingJobs === $batch->failedJobs;
     }
 
     private function giveUp(CommandLog $log, Batch $batch): int
@@ -174,11 +179,22 @@ class FetchJobs extends Command
     private function resolveQueries(): array
     {
         if ($this->option('all')) {
-            return Technology::orderBy('name')->pluck('name')->all();
+            return $this->rotatedByDay(Technology::orderBy('name')->pluck('name')->all());
         }
 
         $query = $this->argument('query');
 
         return $query ? [$query] : [];
+    }
+
+    private function rotatedByDay(array $queries): array
+    {
+        if ($queries === []) {
+            return [];
+        }
+
+        $offset = now()->dayOfYear % count($queries);
+
+        return [...array_slice($queries, $offset), ...array_slice($queries, 0, $offset)];
     }
 }

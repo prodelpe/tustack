@@ -3,22 +3,34 @@
 namespace App\Services;
 
 use App\DTOs\NormalizedJobOfferDTO;
+use App\Exceptions\JoobleQuotaExceededException;
 use App\Services\Contracts\JobSourceInterface;
 use App\Support\JobUrl;
 use App\Support\Salary;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class JoobleService implements JobSourceInterface
 {
+    private const QUOTA_EXHAUSTED_KEY = 'jooble:quota-exhausted';
+
+    private const QUOTA_ERROR_CODE = 5;
+
     /**
      * @throws RequestException
      * @throws ConnectionException
+     * @throws JoobleQuotaExceededException
      */
     public function search(string $query, ?string $location = null, int $page = 1, ?int $sinceDays = null): array
     {
+        if (self::quotaIsExhausted()) {
+            throw new JoobleQuotaExceededException;
+        }
+
         $body = [
             'keywords'     => $query,
             'page'         => $page,
@@ -37,6 +49,12 @@ class JoobleService implements JobSourceInterface
             ->timeout(15)
             ->post(config('jooble.base_url') . config('jooble.api_key'), $body);
 
+        if ($response->status() === 429 && $response->json('errorCode') === self::QUOTA_ERROR_CODE) {
+            $this->markQuotaAsExhausted();
+
+            throw new JoobleQuotaExceededException;
+        }
+
         $response->throw();
 
         return $response->json();
@@ -45,6 +63,7 @@ class JoobleService implements JobSourceInterface
     /**
      * @throws RequestException
      * @throws ConnectionException
+     * @throws JoobleQuotaExceededException
      */
     public function fetchAll(string $query, ?string $location = null, ?int $maxPages = null, ?int $sinceDays = null): array
     {
@@ -52,7 +71,16 @@ class JoobleService implements JobSourceInterface
         $page   = 1;
 
         do {
-            $data    = $this->search($query, $location, $page, $sinceDays);
+            try {
+                $data = $this->search($query, $location, $page, $sinceDays);
+            } catch (JoobleQuotaExceededException $e) {
+                if ($offers === []) {
+                    throw $e;
+                }
+
+                return $offers;
+            }
+
             $results = $data['jobs'] ?? [];
             $offers  = array_merge($offers, $results);
             $total   = $data['totalCount'] ?? 0;
@@ -63,6 +91,18 @@ class JoobleService implements JobSourceInterface
         );
 
         return $offers;
+    }
+
+    public static function quotaIsExhausted(): bool
+    {
+        return Cache::has(self::QUOTA_EXHAUSTED_KEY);
+    }
+
+    private function markQuotaAsExhausted(): void
+    {
+        if (Cache::add(self::QUOTA_EXHAUSTED_KEY, true, now()->endOfDay())) {
+            Log::warning('Jooble daily request limit reached: Jooble is skipped until tomorrow');
+        }
     }
 
     /**
