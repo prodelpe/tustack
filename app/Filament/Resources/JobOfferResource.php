@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\JobSource;
 use App\Filament\Resources\JobOfferResource\Pages;
 use App\Models\Company;
 use App\Models\JobOffer;
@@ -82,13 +83,7 @@ class JobOfferResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('source')
-                    ->options(
-                        fn () => JobOffer::query()
-                            ->distinct()
-                            ->orderBy('source')
-                            ->pluck('source', 'source')
-                            ->toArray()
-                    ),
+                    ->options(array_column(JobSource::cases(), 'value', 'value')),
                 SelectFilter::make('company')
                     ->relationship('company', 'name')
                     ->searchable()
