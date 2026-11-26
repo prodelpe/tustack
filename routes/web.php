@@ -1,7 +1,12 @@
 <?php
 
 use App\Http\Controllers\CompanyController;
-use App\Models\Company;
+use App\Http\Controllers\ConnectTelegramController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DisableAlertsController;
+use App\Http\Controllers\DisconnectTelegramController;
+use App\Http\Controllers\EnableAlertsController;
+use App\Http\Controllers\LegacyCompanyRedirectController;
 use App\Support\LegalDocument;
 use App\Support\SeoRoutePatterns;
 use App\Http\Controllers\HumansController;
@@ -37,9 +42,7 @@ Route::group([
     Route::get(LaravelLocalization::transRoute('routes.map'), [SearchController::class, 'map'])->name('map');
     // Legacy numeric urls kept alive: alerts sent before the slugs existed
     // still point here. Registered first so it wins over the English path.
-    Route::get('/companies/{id}', function (string $id) {
-        return redirect()->route('companies.show', Company::findOrFail($id), 301);
-    })->whereNumber('id');
+    Route::get('/companies/{id}', LegacyCompanyRedirectController::class)->whereNumber('id');
 
     Route::get(LaravelLocalization::transRoute('routes.companies'), [CompanyController::class, 'show'])
         ->name('companies.show');
@@ -72,38 +75,17 @@ Route::group([
         ->middleware('signed');
 
     Route::middleware('auth')->group(function () {
-        Route::get('/dashboard', function () {
-            $user = auth()->user();
-            return view('dashboard', [
-                'savedSearches'     => $user->savedSearches()->latest()->get(),
-                'alertsEnabled'     => $user->alerts_enabled,
-                'telegramConnected' => (bool) $user->telegram_chat_id,
-            ]);
-        })->name('dashboard');
+        Route::get('/dashboard', DashboardController::class)->name('dashboard');
         Route::get('/dashboard/companies', [SavedCompanyController::class, 'index'])->name('dashboard.companies');
         Route::post('/companies/{company}/save', [SavedCompanyController::class, 'toggle'])->name('companies.save');
 
-        Route::post('/alerts/enable', function () {
-            auth()->user()->update(['alerts_enabled' => true]);
-            return redirect()->route('dashboard');
-        })->name('alerts.enable');
+        Route::post('/alerts/enable', EnableAlertsController::class)->name('alerts.enable');
 
-        Route::post('/alerts/disable', function () {
-            auth()->user()->update(['alerts_enabled' => false]);
-            return redirect()->route('dashboard');
-        })->name('alerts.disable');
+        Route::post('/alerts/disable', DisableAlertsController::class)->name('alerts.disable');
 
-        Route::post('/telegram/connect', function () {
-            $token = \Illuminate\Support\Str::random(32);
-            auth()->user()->update(['telegram_connect_token' => $token]);
-            $botUsername = config('telegram.bots.tustack_bot.username');
-            return redirect("https://t.me/{$botUsername}?start={$token}");
-        })->name('telegram.connect');
+        Route::post('/telegram/connect', ConnectTelegramController::class)->name('telegram.connect');
 
-        Route::post('/telegram/disconnect', function () {
-            auth()->user()->update(['telegram_chat_id' => null, 'telegram_connect_token' => null]);
-            return redirect()->route('dashboard');
-        })->name('telegram.disconnect');
+        Route::post('/telegram/disconnect', DisconnectTelegramController::class)->name('telegram.disconnect');
 
         Route::post('/saved-searches', [SavedSearchController::class, 'store'])->name('saved-searches.store');
         Route::delete('/saved-searches/{savedSearch}', [SavedSearchController::class, 'destroy'])->name('saved-searches.destroy');
