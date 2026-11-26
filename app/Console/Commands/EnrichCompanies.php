@@ -17,6 +17,12 @@ class EnrichCompanies extends Command
 {
     use ChecksQueueWorkers;
 
+    /** Measured in November 2026: the model's reasoning tokens are most of it. */
+    private const GEMINI_COST_PER_COMPANY = 0.003;
+
+    /** A description of some 300 characters, sent once per translated language, in nine companies out of ten. */
+    private const TRANSLATED_CHARACTERS_PER_COMPANY = 525;
+
     protected $signature = 'companies:enrich
                             {--limit=0 : Max companies to process (0 = all)}
                             {--min-technologies=2 : Skip companies with fewer distinct technologies}
@@ -57,10 +63,11 @@ class EnrichCompanies extends Command
         }
 
         if ($this->option('estimate')) {
-            $cost = $total * 0.00111;
-            $this->info("Estimate: {$total} companies × €0.00111 (Gemini) ≈ €" . number_format($cost, 2));
+            $cost       = $total * self::GEMINI_COST_PER_COMPANY;
+            $characters = number_format($total * self::TRANSLATED_CHARACTERS_PER_COMPANY, 0, ',', '.');
+            $this->info("Estimate: {$total} companies × €" . self::GEMINI_COST_PER_COMPANY . ' (Gemini) ≈ €' . number_format($cost, 2));
             $this->line("<fg=gray>Only companies with {$minTechnologies}+ distinct technologies are counted.</>");
-            $this->line('<fg=yellow>Google Translate cost is negligible (<€0.01 extra).</>');
+            $this->line("<fg=yellow>Google Translate: about {$characters} characters. The first 500.000 of each month are free, then 20 USD per million, billed outside the Gemini credit.</>");
             $this->line('Run without --estimate to process.');
             return self::SUCCESS;
         }

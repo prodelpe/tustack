@@ -15,6 +15,13 @@ use Throwable;
 
 class EnrichCompanyWithGeminiAction
 {
+    private const EMPLOYEE_RANGES = ['1-10', '11-50', '51-200', '201-500', '501-1000', '1001-5000', '5000+'];
+
+    /** The longest real description is under 500 characters: anything far beyond is the model looping. */
+    private const DESCRIPTION_MAX_LENGTH = 1000;
+
+    private const WEBSITE_MAX_LENGTH = 255;
+
     /**
      * @throws Throwable
      */
@@ -65,7 +72,11 @@ class EnrichCompanyWithGeminiAction
                                     'nullable' => true,
                                     'enum'     => array_keys(config('sectors')),
                                 ],
-                                'employees' => ['type' => 'string', 'nullable' => true],
+                                'employees' => [
+                                    'type'     => 'string',
+                                    'nullable' => true,
+                                    'enum'     => self::EMPLOYEE_RANGES,
+                                ],
                                 'website'   => ['type' => 'string', 'nullable' => true],
                                 'latitude'  => ['type' => 'number', 'nullable' => true],
                                 'longitude' => ['type' => 'number', 'nullable' => true],
@@ -81,7 +92,7 @@ class EnrichCompanyWithGeminiAction
             $raw  = $response->json('candidates.0.content.parts.0.text', '{}');
             $data = json_decode($raw, true) ?? [];
 
-            $descriptionEn = $data['description'] ?? null;
+            $descriptionEn = $this->description($data['description'] ?? null);
             $description   = null;
 
             if ($descriptionEn) {
@@ -100,11 +111,11 @@ class EnrichCompanyWithGeminiAction
 
             $company->update([
                 'description'     => $description,
-                'sector'          => $data['sector'] ?? null,
-                'employees'       => $data['employees'] ?? null,
-                'website'         => $data['website'] ?? null,
-                'latitude'        => $keepCoordinates ? $company->latitude : ($data['latitude'] ?? null),
-                'longitude'       => $keepCoordinates ? $company->longitude : ($data['longitude'] ?? null),
+                'sector'          => $this->sector($data['sector'] ?? null),
+                'employees'       => $this->employees($data['employees'] ?? null),
+                'website'         => $this->website($data['website'] ?? null),
+                'latitude'        => $keepCoordinates ? $company->latitude : $this->coordinate($data['latitude'] ?? null, 90),
+                'longitude'       => $keepCoordinates ? $company->longitude : $this->coordinate($data['longitude'] ?? null, 180),
                 'gemini_enriched' => true,
             ]);
 
@@ -128,6 +139,45 @@ class EnrichCompanyWithGeminiAction
 
             return false;
         }
+    }
+
+    /*
+     * The schema asks for clean values and Gemini mostly obliges, but not
+     * always: a website of 400 characters did not fit its column, the save
+     * threw, and the company stayed pending to be paid for again on every run.
+     * What does not look right is dropped and the rest is kept.
+     */
+    private function description(mixed $value): ?string
+    {
+        if (! is_string($value) || blank($value)) {
+            return null;
+        }
+
+        return mb_strlen($value) <= self::DESCRIPTION_MAX_LENGTH ? $value : null;
+    }
+
+    private function sector(mixed $value): ?string
+    {
+        return is_string($value) && array_key_exists($value, config('sectors')) ? $value : null;
+    }
+
+    private function employees(mixed $value): ?string
+    {
+        return in_array($value, self::EMPLOYEE_RANGES, true) ? $value : null;
+    }
+
+    private function website(mixed $value): ?string
+    {
+        if (! is_string($value) || mb_strlen($value) > self::WEBSITE_MAX_LENGTH) {
+            return null;
+        }
+
+        return preg_match('/^\S+\.\S+$/', $value) ? $value : null;
+    }
+
+    private function coordinate(mixed $value, int $limit): ?float
+    {
+        return is_numeric($value) && abs((float) $value) <= $limit ? (float) $value : null;
     }
 
     private function isTemporaryFailure(Throwable $e): bool
