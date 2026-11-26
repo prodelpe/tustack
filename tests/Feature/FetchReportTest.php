@@ -35,7 +35,7 @@ class FetchReportTest extends TestCase
         ]));
 
         $this->assertSame([TelegramChannel::class, 'mail'], $report->via(new User), 'Telegram goes out before a mailer that might fail');
-        $this->assertStringContainsString('Adzuna en 12 cerques', $report->toTelegram(new User));
+        $this->assertStringContainsString('Adzuna in 12 queries', $report->toTelegram(new User));
     }
 
     public function test_offers_that_could_not_be_stored_are_reported_and_need_a_look(): void
@@ -46,7 +46,7 @@ class FetchReportTest extends TestCase
         ]));
 
         $this->assertContains('mail', $report->via(new User));
-        $this->assertStringContainsString('Ofertes no guardades: Jooble 3', $report->toTelegram(new User));
+        $this->assertStringContainsString('Offers not saved: Jooble 3', $report->toTelegram(new User));
     }
 
     /** Every board broken without an exception looks exactly like this. */
@@ -55,7 +55,7 @@ class FetchReportTest extends TestCase
         $report = new FetchReport($this->log('success', ['new_offers' => 0]));
 
         $this->assertContains('mail', $report->via(new User));
-        $this->assertStringContainsString('No ha entrat cap oferta nova', $report->toTelegram(new User));
+        $this->assertStringContainsString('No new offers came in', $report->toTelegram(new User));
     }
 
     public function test_the_message_says_what_the_night_brought(): void
@@ -69,10 +69,20 @@ class FetchReportTest extends TestCase
             'new_offers_by_source' => ['jooble' => 51, 'adzuna' => 29],
         ])))->toTelegram(new User);
 
-        $this->assertStringContainsString('39 cerques, 0 fallides', $text);
-        $this->assertStringContainsString('+1.087 ofertes noves (total 7.967)', $text);
-        $this->assertStringContainsString('+12 empreses noves (total 1.767)', $text);
+        $this->assertStringContainsString('39 queries, 0 failed', $text);
+        $this->assertStringContainsString('+1.087 new offers (total 7.967)', $text);
+        $this->assertStringContainsString('+12 new companies (total 1.767)', $text);
         $this->assertStringContainsString('Tecnoempleo 0', $text, 'a silent board must still be listed');
+    }
+
+    public function test_the_mail_states_the_status_in_english(): void
+    {
+        $report = new FetchReport($this->log('partial', ['new_offers' => 40]));
+
+        $mail = $report->toMail(new User);
+
+        $this->assertStringContainsString('needs attention', $mail->subject);
+        $this->assertStringStartsWith('Status: partial · ', $mail->introLines[0]);
     }
 
     public function test_an_error_message_cannot_break_the_telegram_markup(): void
