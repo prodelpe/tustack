@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
@@ -228,18 +227,6 @@ class Company extends Model
     public function savedByUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class)->withTimestamps();
-    }
-
-    public function technologies(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            Technology::class,
-            JobOffer::class,
-            'company_id',
-            'id',
-            'id',
-            'id'
-        );
     }
 
     public function similarCompanies(int $limit = 6): EloquentCollection
