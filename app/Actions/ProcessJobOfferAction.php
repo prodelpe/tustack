@@ -36,7 +36,7 @@ readonly class ProcessJobOfferAction
 
         $company = $this->resolveCompany->handle(CompanyDTO::fromNormalizedJobOffer($dto));
         $offer = $this->upsertJobOffer->handle($dto, $company);
-        $this->attachTechnologies->handle($offer, $dto, $technologies);
+        $this->attachTechnologies->handle($offer, $matched);
 
         return true;
     }
