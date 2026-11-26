@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\JobSource;
 use App\Support\JobTitle;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,6 +23,7 @@ class JobOffer extends Model
     ];
 
     protected $casts = [
+        'source'             => JobSource::class,
         'published_at'       => 'date',
         'salary_is_predicted' => 'boolean',
     ];

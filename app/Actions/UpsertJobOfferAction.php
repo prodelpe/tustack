@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\DTOs\NormalizedJobOfferDTO;
+use App\Enums\JobSource;
 use App\Models\Company;
 use App\Models\JobOffer;
 use App\Support\JobTitle;
@@ -77,15 +78,15 @@ class UpsertJobOfferAction
         return $offer;
     }
 
-    private function prefers(string $incoming, ?string $stored): bool
+    private function prefers(JobSource $incoming, ?JobSource $stored): bool
     {
         return $this->priority($incoming) <= $this->priority($stored);
     }
 
-    private function priority(?string $source): int
+    private function priority(?JobSource $source): int
     {
         $order = config('jobs.title_source_priority');
-        $index = array_search($source, $order, true);
+        $index = array_search($source?->value, $order, true);
 
         return $index === false ? count($order) : $index;
     }

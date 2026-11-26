@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Enums\CompanyAliasStatus;
 use App\Models\Company;
 use App\Models\CompanyAlias;
 use App\Models\JobOffer;
@@ -38,7 +39,7 @@ readonly class MergeCompaniesAction
                     'name'            => $absorbed->name,
                     'name_normalized' => $absorbed->name_normalized,
                     'company_id'      => $survivor->id,
-                    'status'          => CompanyAlias::APPROVED,
+                    'status'          => CompanyAliasStatus::Approved,
                     'moved_offer_ids' => $offerIds,
                 ]
             );
@@ -68,7 +69,7 @@ readonly class MergeCompaniesAction
                 ->update(['company_id' => $company->id]);
 
             $alias->update([
-                'status'          => CompanyAlias::REJECTED,
+                'status'          => CompanyAliasStatus::Rejected,
                 'moved_offer_ids' => null,
                 'source'          => 'admin',
             ]);

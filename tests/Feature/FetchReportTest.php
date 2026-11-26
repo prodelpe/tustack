@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Enums\CommandStatus;
+use App\Enums\JobSource;
 use App\Models\CommandLog;
 use App\Models\Technology;
 use App\Models\User;
@@ -88,9 +90,9 @@ class FetchReportTest extends TestCase
     {
         Cache::flush();
 
-        FetchRun::recordSourceFailure('batch-1', 'adzuna');
-        FetchRun::recordSourceFailure('batch-1', 'adzuna');
-        FetchRun::recordSourceFailure('batch-2', 'jooble');
+        FetchRun::recordSourceFailure('batch-1', JobSource::Adzuna);
+        FetchRun::recordSourceFailure('batch-1', JobSource::Adzuna);
+        FetchRun::recordSourceFailure('batch-2', JobSource::Jooble);
 
         $this->assertSame(['adzuna' => 2], FetchRun::sourceFailures('batch-1'));
         $this->assertSame(['jooble' => 1], FetchRun::sourceFailures('batch-2'));
@@ -125,7 +127,7 @@ class FetchReportTest extends TestCase
             ->expectsOutputToContain('Report not delivered')
             ->assertExitCode(0);
 
-        $this->assertNotSame('running', CommandLog::latest('id')->first()->status, 'the run must be recorded before the report');
+        $this->assertNotSame(CommandStatus::Running, CommandLog::latest('id')->first()->status, 'the run must be recorded before the report');
     }
 
     public function test_a_manual_run_stays_quiet(): void

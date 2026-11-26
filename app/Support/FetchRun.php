@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Enums\JobSource;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -13,14 +14,12 @@ use Illuminate\Support\Facades\Cache;
  */
 class FetchRun
 {
-    public const SOURCES = ['adzuna', 'jooble', 'tecnoempleo'];
-
-    public static function recordSourceFailure(string $batchId, string $source): void
+    public static function recordSourceFailure(string $batchId, JobSource $source): void
     {
         self::increment(self::key($batchId, 'failures', $source));
     }
 
-    public static function recordOfferFailure(string $batchId, string $source): void
+    public static function recordOfferFailure(string $batchId, JobSource $source): void
     {
         self::increment(self::key($batchId, 'offer-failures', $source));
     }
@@ -48,19 +47,19 @@ class FetchRun
     {
         $counts = [];
 
-        foreach (self::SOURCES as $source) {
+        foreach (JobSource::cases() as $source) {
             $count = (int) Cache::get(self::key($batchId, $kind, $source), 0);
 
             if ($count > 0) {
-                $counts[$source] = $count;
+                $counts[$source->value] = $count;
             }
         }
 
         return $counts;
     }
 
-    private static function key(string $batchId, string $kind, string $source): string
+    private static function key(string $batchId, string $kind, JobSource $source): string
     {
-        return "fetch:{$batchId}:{$kind}:{$source}";
+        return "fetch:{$batchId}:{$kind}:{$source->value}";
     }
 }

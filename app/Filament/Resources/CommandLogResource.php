@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CommandLogResource\Pages;
+use App\Enums\CommandStatus;
 use App\Models\CommandLog;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\BadgeColumn;
@@ -36,12 +37,11 @@ class CommandLogResource extends Resource
                     }),
                 TextColumn::make('status')
                     ->badge()
-                    ->color(fn (string $state) => match ($state) {
-                        'success' => 'success',
-                        'partial' => 'warning',
-                        'failed'  => 'danger',
-                        'running' => 'info',
-                        default   => 'gray',
+                    ->color(fn (CommandStatus $state) => match ($state) {
+                        CommandStatus::Success => 'success',
+                        CommandStatus::Partial => 'warning',
+                        CommandStatus::Failed  => 'danger',
+                        CommandStatus::Running => 'info',
                     }),
                 TextColumn::make('duration')
                     ->label('Duration')
@@ -78,10 +78,10 @@ class CommandLogResource extends Resource
                     ]),
                 SelectFilter::make('status')
                     ->options([
-                        'success' => 'Success',
-                        'partial' => 'Partial',
-                        'failed'  => 'Failed',
-                        'running' => 'Running',
+                        CommandStatus::Success->value => 'Success',
+                        CommandStatus::Partial->value => 'Partial',
+                        CommandStatus::Failed->value  => 'Failed',
+                        CommandStatus::Running->value => 'Running',
                     ]),
             ])
             ->paginated([25, 50, 100]);

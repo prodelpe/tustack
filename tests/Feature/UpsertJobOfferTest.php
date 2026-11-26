@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Actions\UpsertJobOfferAction;
 use App\DTOs\NormalizedJobOfferDTO;
+use App\Enums\JobSource;
 use App\Models\Company;
 use App\Models\JobOffer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -79,8 +80,8 @@ class UpsertJobOfferTest extends TestCase
 
     public function test_the_same_vacancy_seen_on_two_boards_is_one_offer(): void
     {
-        $this->upsert->handle($this->offer(url: 'https://example.test/1', source: 'adzuna'), $this->company);
-        $this->upsert->handle($this->offer(url: 'https://example.test/2', source: 'jooble'), $this->company);
+        $this->upsert->handle($this->offer(url: 'https://example.test/1', source: JobSource::Adzuna), $this->company);
+        $this->upsert->handle($this->offer(url: 'https://example.test/2', source: JobSource::Jooble), $this->company);
 
         $this->assertSame(1, JobOffer::count());
     }
@@ -91,13 +92,13 @@ class UpsertJobOfferTest extends TestCase
 
         $this->upsert->handle($this->offer(
             url: 'https://example.test/1',
-            source: 'adzuna',
+            source: JobSource::Adzuna,
             publishedAt: now()->subDays($days + 5)->toDateString(),
         ), $this->company);
 
         $this->upsert->handle($this->offer(
             url: 'https://example.test/2',
-            source: 'jooble',
+            source: JobSource::Jooble,
             publishedAt: now()->toDateString(),
         ), $this->company);
 
@@ -109,19 +110,19 @@ class UpsertJobOfferTest extends TestCase
         $this->upsert->handle($this->offer(
             url: 'https://example.test/1',
             title: 'Programador Senior',
-            source: 'adzuna',
+            source: JobSource::Adzuna,
         ), $this->company);
 
         $this->upsert->handle($this->offer(
             url: 'https://example.test/2',
             title: 'Programador Sénior',
-            source: 'jooble',
+            source: JobSource::Jooble,
         ), $this->company);
 
         $offer = JobOffer::sole();
 
         $this->assertSame('Programador Sénior', $offer->title);
-        $this->assertSame('jooble', $offer->source);
+        $this->assertSame(JobSource::Jooble, $offer->source);
         $this->assertSame('https://example.test/2', $offer->url);
     }
 
@@ -130,32 +131,32 @@ class UpsertJobOfferTest extends TestCase
         $this->upsert->handle($this->offer(
             url: 'https://example.test/1',
             title: 'Programador Sénior',
-            source: 'jooble',
+            source: JobSource::Jooble,
         ), $this->company);
 
         $this->upsert->handle($this->offer(
             url: 'https://example.test/2',
             title: 'Programador Senior',
-            source: 'adzuna',
+            source: JobSource::Adzuna,
         ), $this->company);
 
         $offer = JobOffer::sole();
 
         $this->assertSame('Programador Sénior', $offer->title);
-        $this->assertSame('jooble', $offer->source);
+        $this->assertSame(JobSource::Jooble, $offer->source);
     }
 
     public function test_the_longest_description_wins(): void
     {
         $this->upsert->handle($this->offer(
             url: 'https://example.test/1',
-            source: 'adzuna',
+            source: JobSource::Adzuna,
             description: 'A long and detailed account of the role and the team',
         ), $this->company);
 
         $this->upsert->handle($this->offer(
             url: 'https://example.test/2',
-            source: 'jooble',
+            source: JobSource::Jooble,
             description: 'Short snippet',
         ), $this->company);
 
@@ -169,12 +170,12 @@ class UpsertJobOfferTest extends TestCase
     {
         $this->upsert->handle($this->offer(
             url: 'https://example.test/1',
-            source: 'adzuna',
+            source: JobSource::Adzuna,
         ), $this->company);
 
         $this->upsert->handle($this->offer(
             url: 'https://example.test/2',
-            source: 'jooble',
+            source: JobSource::Jooble,
             salaryMin: 35000,
             salaryMax: 45000,
         ), $this->company);
@@ -242,7 +243,7 @@ class UpsertJobOfferTest extends TestCase
     private function offer(
         string $url,
         string $title = 'Backend Developer',
-        string $source = 'adzuna',
+        JobSource $source = JobSource::Adzuna,
         ?string $publishedAt = null,
         ?int $salaryMin = null,
         ?int $salaryMax = null,

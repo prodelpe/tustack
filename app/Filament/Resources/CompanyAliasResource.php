@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Actions\MergeCompaniesAction;
+use App\Enums\CompanyAliasStatus;
 use App\Filament\Resources\CompanyAliasResource\Pages;
 use App\Models\CompanyAlias;
 use Exception;
@@ -47,10 +48,10 @@ class CompanyAliasResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
-                    ->color(fn (string $state) => match ($state) {
-                        CompanyAlias::APPROVED => 'success',
-                        CompanyAlias::REJECTED => 'gray',
-                        default                => 'warning',
+                    ->color(fn (CompanyAliasStatus $state) => match ($state) {
+                        CompanyAliasStatus::Approved => 'success',
+                        CompanyAliasStatus::Rejected => 'gray',
+                        default                      => 'warning',
                     }),
                 Tables\Columns\TextColumn::make('source')
                     ->toggleable(),
@@ -61,11 +62,11 @@ class CompanyAliasResource extends Resource
             ->filters([
                 SelectFilter::make('status')
                     ->options([
-                        CompanyAlias::PENDING  => 'Pending',
-                        CompanyAlias::APPROVED => 'Approved',
-                        CompanyAlias::REJECTED => 'Rejected',
+                        CompanyAliasStatus::Pending->value  => 'Pending',
+                        CompanyAliasStatus::Approved->value => 'Approved',
+                        CompanyAliasStatus::Rejected->value => 'Rejected',
                     ])
-                    ->default(CompanyAlias::PENDING),
+                    ->default(CompanyAliasStatus::Pending->value),
             ])
             ->actions([
                 Tables\Actions\Action::make('merge')
@@ -74,7 +75,7 @@ class CompanyAliasResource extends Resource
                     ->color('success')
                     ->requiresConfirmation()
                     ->modalDescription('The offers move to the name that is kept and the other company disappears. This can be undone.')
-                    ->visible(fn (CompanyAlias $record) => $record->status === CompanyAlias::PENDING)
+                    ->visible(fn (CompanyAlias $record) => $record->status === CompanyAliasStatus::Pending)
                     ->action(function (CompanyAlias $record) {
                         $absorbed = $record->absorbedCompany();
 
@@ -93,9 +94,9 @@ class CompanyAliasResource extends Resource
                     ->label('Different')
                     ->icon('heroicon-o-x-mark')
                     ->color('gray')
-                    ->visible(fn (CompanyAlias $record) => $record->status === CompanyAlias::PENDING)
+                    ->visible(fn (CompanyAlias $record) => $record->status === CompanyAliasStatus::Pending)
                     ->action(function (CompanyAlias $record) {
-                        $record->update(['status' => CompanyAlias::REJECTED, 'source' => 'admin']);
+                        $record->update(['status' => CompanyAliasStatus::Rejected, 'source' => 'admin']);
 
                         Notification::make()->success()->title('Noted. This pair will not be asked about again.')->send();
                     }),
@@ -105,7 +106,7 @@ class CompanyAliasResource extends Resource
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->visible(fn (CompanyAlias $record) => $record->status === CompanyAlias::APPROVED)
+                    ->visible(fn (CompanyAlias $record) => $record->status === CompanyAliasStatus::Approved)
                     ->action(function (CompanyAlias $record) {
                         $company = app(MergeCompaniesAction::class)->undo($record);
 

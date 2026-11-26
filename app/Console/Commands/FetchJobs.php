@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\CommandStatus;
 use App\Jobs\FetchJobOffersJob;
 use App\Models\CommandLog;
 use App\Models\Company;
@@ -48,7 +49,7 @@ class FetchJobs extends Command
 
         $log = CommandLog::create([
             'command'    => 'jobs:fetch',
-            'status'     => 'running',
+            'status'     => CommandStatus::Running,
             'started_at' => now(),
         ]);
 
@@ -82,7 +83,7 @@ class FetchJobs extends Command
         $stats = $this->stats($log, $batch);
 
         $log->update([
-            'status'      => $stats['failed'] > 0 || ! empty($stats['source_failures']) || ! empty($stats['offer_failures']) ? 'partial' : 'success',
+            'status'      => $stats['failed'] > 0 || ! empty($stats['source_failures']) || ! empty($stats['offer_failures']) ? CommandStatus::Partial : CommandStatus::Success,
             'finished_at' => now(),
             'stats'       => $stats,
         ]);
@@ -106,7 +107,7 @@ class FetchJobs extends Command
         $hours = $this->timeoutHours();
 
         $log->update([
-            'status'        => 'failed',
+            'status'        => CommandStatus::Failed,
             'finished_at'   => now(),
             'error_message' => "Gave up after {$hours}h with {$batch->processedJobs()} of {$batch->totalJobs} queries done. Are the queue workers (Horizon) running?",
             'stats'         => $this->stats($log, $batch),

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\CompanyAliasStatus;
 use App\Models\Company;
 use App\Models\CompanyAlias;
 use App\Models\JobOffer;
@@ -90,7 +91,7 @@ class FindCompanyAliasesCommandTest extends TestCase
         $this->artisan('companies:find-aliases');
 
         $this->assertSame(2, Company::count());
-        $this->assertSame(1, CompanyAlias::where('status', CompanyAlias::REJECTED)->count());
+        $this->assertSame(1, CompanyAlias::where('status', CompanyAliasStatus::Rejected)->count());
 
         // Second run: the pair is already decided, so nothing is asked again.
         Http::fake();

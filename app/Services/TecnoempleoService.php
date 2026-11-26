@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\DTOs\NormalizedJobOfferDTO;
+use App\Enums\JobSource;
 use App\Services\Contracts\JobSourceInterface;
 use App\Support\JobUrl;
 use Illuminate\Support\Carbon;
@@ -90,7 +91,7 @@ class TecnoempleoService implements JobSourceInterface
 
         return new NormalizedJobOfferDTO(
             url:               JobUrl::canonical($raw['url'] ?? null),
-            source:            'tecnoempleo',
+            source:            JobSource::Tecnoempleo,
             title:             $raw['title'] ?? null,
             company:           $raw['company'] ?? null,
             location:          $raw['location'] ?? null,

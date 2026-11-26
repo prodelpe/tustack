@@ -2,6 +2,8 @@
 
 namespace App\Notifications;
 
+use App\Enums\CommandStatus;
+use App\Enums\JobSource;
 use App\Models\CommandLog;
 use App\Notifications\Channels\TelegramChannel;
 use App\Support\FetchRun;
@@ -32,7 +34,7 @@ class FetchReport extends Notification
      */
     public function needsAttention(): bool
     {
-        return $this->log->status !== 'success' || $this->stat('new_offers') === 0;
+        return $this->log->status !== CommandStatus::Success || $this->stat('new_offers') === 0;
     }
 
     public function toTelegram(object $notifiable): string
@@ -92,7 +94,7 @@ class FetchReport extends Notification
     private function statusIcon(): string
     {
         return match (true) {
-            $this->log->status === 'failed' => '❌',
+            $this->log->status === CommandStatus::Failed => '❌',
             $this->needsAttention()         => '⚠️',
             default                         => '✅',
         };
@@ -106,8 +108,8 @@ class FetchReport extends Notification
         // the thing worth seeing.
         $parts = [];
 
-        foreach (FetchRun::SOURCES as $source) {
-            $parts[] = ucfirst($source) . ' ' . number_format((int) ($counts[$source] ?? 0), 0, ',', '.');
+        foreach (JobSource::cases() as $source) {
+            $parts[] = ucfirst($source->value) . ' ' . number_format((int) ($counts[$source->value] ?? 0), 0, ',', '.');
         }
 
         return implode(' · ', $parts);

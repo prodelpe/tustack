@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Console\Commands\Concerns\ChecksQueueWorkers;
+use App\Enums\CommandStatus;
 use App\Jobs\EnrichCompanyJob;
 use App\Models\CommandLog;
 use App\Models\Company;
@@ -82,7 +83,7 @@ class EnrichCompanies extends Command
 
         $log = CommandLog::create([
             'command'    => 'companies:enrich',
-            'status'     => 'running',
+            'status'     => CommandStatus::Running,
             'started_at' => now(),
         ]);
 
@@ -141,12 +142,12 @@ class EnrichCompanies extends Command
             ->count();
     }
 
-    private function status(int $enriched, int $failed): string
+    private function status(int $enriched, int $failed): CommandStatus
     {
         if ($enriched === 0) {
-            return 'failed';
+            return CommandStatus::Failed;
         }
 
-        return $failed > 0 ? 'partial' : 'success';
+        return $failed > 0 ? CommandStatus::Partial : CommandStatus::Success;
     }
 }

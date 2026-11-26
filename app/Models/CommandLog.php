@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CommandStatus;
 use Illuminate\Database\Eloquent\Model;
 
 class CommandLog extends Model
@@ -11,6 +12,7 @@ class CommandLog extends Model
     protected $fillable = ['command', 'status', 'stats', 'error_message', 'started_at', 'finished_at'];
 
     protected $casts = [
+        'status'      => CommandStatus::class,
         'stats'       => 'array',
         'started_at'  => 'datetime',
         'finished_at' => 'datetime',

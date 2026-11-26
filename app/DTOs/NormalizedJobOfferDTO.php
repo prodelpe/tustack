@@ -2,11 +2,13 @@
 
 namespace App\DTOs;
 
+use App\Enums\JobSource;
+
 readonly class NormalizedJobOfferDTO
 {
     public function __construct(
         public string $url,
-        public string $source,
+        public JobSource $source,
         public ?string $title,
         public ?string $company,
         public ?string $location,

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CompanyAliasStatus;
 use App\Support\CompanyName;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -14,10 +15,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class CompanyAlias extends Model
 {
-    public const PENDING  = 'pending';
-    public const APPROVED = 'approved';
-    public const REJECTED = 'rejected';
-
     protected $fillable = [
         'name',
         'name_normalized',
@@ -29,6 +26,7 @@ class CompanyAlias extends Model
     ];
 
     protected $casts = [
+        'status'          => CompanyAliasStatus::class,
         'moved_offer_ids' => 'array',
     ];
 
@@ -61,7 +59,7 @@ class CompanyAlias extends Model
 
         return static::query()
             ->where('name_normalized', $normalized)
-            ->where('status', self::APPROVED)
+            ->where('status', CompanyAliasStatus::Approved)
             ->first()?->company;
     }
 
@@ -80,6 +78,6 @@ class CompanyAlias extends Model
 
     public function scopePending(Builder $query): void
     {
-        $query->where('status', self::PENDING);
+        $query->where('status', CompanyAliasStatus::Pending);
     }
 }

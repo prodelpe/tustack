@@ -6,6 +6,7 @@ use App\Actions\FindCompanyAliasCandidatesAction;
 use App\Actions\MergeCompaniesAction;
 use App\Actions\ResolveCompanyAction;
 use App\DTOs\CompanyDTO;
+use App\Enums\CompanyAliasStatus;
 use App\Models\Company;
 use App\Models\CompanyAlias;
 use App\Models\JobOffer;
@@ -59,7 +60,7 @@ class CompanyAliasTest extends TestCase
             'name'       => 'Airbus Defence and Space',
             'company_id' => $airbus->id,
             'pair_key'   => CompanyAlias::pairKey('Airbus', 'Airbus Defence and Space'),
-            'status'     => CompanyAlias::REJECTED,
+            'status'     => CompanyAliasStatus::Rejected,
         ]);
 
         $this->assertCount(0, app(FindCompanyAliasCandidatesAction::class)->handle());
@@ -134,7 +135,7 @@ class CompanyAliasTest extends TestCase
             'name'       => 'Airbus Defence and Space',
             'company_id' => $airbus->id,
             'pair_key'   => CompanyAlias::pairKey('Airbus', 'Airbus Defence and Space'),
-            'status'     => CompanyAlias::REJECTED,
+            'status'     => CompanyAliasStatus::Rejected,
         ]);
 
         app(ResolveCompanyAction::class)->handle($this->dto('Airbus Defence and Space'));
@@ -160,7 +161,7 @@ class CompanyAliasTest extends TestCase
 
         $this->assertSame('Otis Elevator Company', $restored->name);
         $this->assertSame($restored->id, $offer->fresh()->company_id);
-        $this->assertSame(CompanyAlias::REJECTED, $alias->fresh()->status);
+        $this->assertSame(CompanyAliasStatus::Rejected, $alias->fresh()->status);
         $this->assertSame(2, Company::count());
     }
 

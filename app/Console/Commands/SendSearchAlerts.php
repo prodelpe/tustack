@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\CommandStatus;
 use App\Jobs\SendSearchAlertJob;
 use App\Models\CommandLog;
 use App\Models\SavedSearch;
@@ -18,7 +19,7 @@ class SendSearchAlerts extends Command
     {
         $log = CommandLog::create([
             'command'    => 'searches:notify',
-            'status'     => 'running',
+            'status'     => CommandStatus::Running,
             'started_at' => now(),
         ]);
 
@@ -31,7 +32,7 @@ class SendSearchAlerts extends Command
                 $this->info('No active saved searches.');
 
                 $log->update([
-                    'status'      => 'success',
+                    'status'      => CommandStatus::Success,
                     'finished_at' => now(),
                     'stats'       => ['dispatched' => 0],
                 ]);
@@ -46,7 +47,7 @@ class SendSearchAlerts extends Command
             $this->info("Dispatched {$searches->count()} alert job(s).");
 
             $log->update([
-                'status'      => 'success',
+                'status'      => CommandStatus::Success,
                 'finished_at' => now(),
                 'stats'       => ['dispatched' => $searches->count()],
             ]);
@@ -54,7 +55,7 @@ class SendSearchAlerts extends Command
             return self::SUCCESS;
         } catch (Throwable $e) {
             $log->update([
-                'status'        => 'failed',
+                'status'        => CommandStatus::Failed,
                 'finished_at'   => now(),
                 'error_message' => $e->getMessage(),
             ]);

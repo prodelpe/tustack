@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\DTOs\NormalizedJobOfferDTO;
+use App\Enums\JobSource;
 use App\Services\Contracts\JobSourceInterface;
 use App\Support\JobUrl;
 use Illuminate\Http\Client\ConnectionException;
@@ -114,7 +115,7 @@ class AdzunaService implements JobSourceInterface
 
         return new NormalizedJobOfferDTO(
             url: JobUrl::canonical($raw['redirect_url'] ?? null),
-            source: 'adzuna',
+            source: JobSource::Adzuna,
             title: $raw['title'] ?? null,
             company: $raw['company']['display_name'] ?? null,
             location: $raw['location']['display_name'] ?? null,

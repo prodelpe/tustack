@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Actions\AskGeminiAboutCompanyNamesAction;
 use App\Actions\FindCompanyAliasCandidatesAction;
 use App\Actions\MergeCompaniesAction;
+use App\Enums\CompanyAliasStatus;
 use App\Models\Company;
 use App\Models\CompanyAlias;
 use App\Support\Gemini;
@@ -193,7 +194,7 @@ class FindCompanyAliases extends Command
                     'name_normalized' => $absorbed->name_normalized,
                     'company_id'      => $survivor->id,
                     'pair_key'        => $key,
-                    'status'          => CompanyAlias::PENDING,
+                    'status'          => CompanyAliasStatus::Pending,
                     'source'          => 'gemini',
                 ]);
             }
@@ -221,7 +222,7 @@ class FindCompanyAliases extends Command
                 'name'            => $absorbed->name,
                 'name_normalized' => $absorbed->name_normalized,
                 'company_id'      => $survivor->id,
-                'status'          => CompanyAlias::REJECTED,
+                'status'          => CompanyAliasStatus::Rejected,
                 'source'          => 'gemini',
             ]
         );

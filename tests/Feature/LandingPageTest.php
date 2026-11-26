@@ -102,7 +102,7 @@ class LandingPageTest extends TestCase
                 'company_id'   => $company->id,
                 'title'        => 'Backend developer',
                 'url'          => 'https://example.com/offer/' . $company->id,
-                'source'       => 'test',
+                'source'       => 'jooble',
                 'published_at' => now(),
             ]);
 

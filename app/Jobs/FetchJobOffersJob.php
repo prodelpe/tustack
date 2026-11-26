@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Actions\ProcessJobOfferAction;
+use App\Enums\JobSource;
 use App\Exceptions\JoobleQuotaExceededException;
 use App\Models\Technology;
 use App\Services\AdzunaService;
@@ -37,12 +38,12 @@ class FetchJobOffersJob implements ShouldQueue
         $technologies = Technology::all()->keyBy(fn ($t) => strtolower($t->name));
 
         $sources = [
-            'adzuna'      => app(AdzunaService::class),
-            'jooble'      => app(JoobleService::class),
-            'tecnoempleo' => app(TecnoempleoService::class),
+            [JobSource::Adzuna, app(AdzunaService::class)],
+            [JobSource::Jooble, app(JoobleService::class)],
+            [JobSource::Tecnoempleo, app(TecnoempleoService::class)],
         ];
 
-        foreach ($sources as $name => $source) {
+        foreach ($sources as [$name, $source]) {
             try {
                 $raw = $source->fetchAll($this->query, null, $this->maxPages, $this->sinceDays);
             } catch (JoobleQuotaExceededException) {
@@ -50,7 +51,7 @@ class FetchJobOffersJob implements ShouldQueue
 
                 continue;
             } catch (Throwable $e) {
-                Log::warning("FetchJobOffersJob failed [{$name}] for query [{$this->query}]", [
+                Log::warning("FetchJobOffersJob failed [{$name->value}] for query [{$this->query}]", [
                     'error' => $e->getMessage(),
                 ]);
 
@@ -66,7 +67,7 @@ class FetchJobOffersJob implements ShouldQueue
                 try {
                     $processJobOffer->handle($item, $source, $technologies);
                 } catch (Throwable $e) {
-                    Log::warning("FetchJobOffersJob could not store an offer [{$name}] for query [{$this->query}]", [
+                    Log::warning("FetchJobOffersJob could not store an offer [{$name->value}] for query [{$this->query}]", [
                         'error' => $e->getMessage(),
                     ]);
 
@@ -78,7 +79,7 @@ class FetchJobOffersJob implements ShouldQueue
         }
     }
 
-    private function recordSourceFailure(string $source): void
+    private function recordSourceFailure(JobSource $source): void
     {
         if ($this->batch()) {
             FetchRun::recordSourceFailure($this->batch()->id, $source);

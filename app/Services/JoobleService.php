@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\DTOs\NormalizedJobOfferDTO;
+use App\Enums\JobSource;
 use App\Exceptions\JoobleQuotaExceededException;
 use App\Services\Contracts\JobSourceInterface;
 use App\Support\JobUrl;
@@ -115,7 +116,7 @@ class JoobleService implements JobSourceInterface
 
         return new NormalizedJobOfferDTO(
             url:               JobUrl::canonical($raw['link'] ?? null),
-            source:            'jooble',
+            source:            JobSource::Jooble,
             title:             $raw['title'] ?? null,
             company:           $raw['company'] ?? null,
             location:          $raw['location'] ?? null,
