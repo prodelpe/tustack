@@ -74,6 +74,18 @@ class CompanyEnrichmentTest extends TestCase
         Notification::assertNothingSent();
     }
 
+    public function test_the_api_key_travels_in_a_header_and_never_in_the_url(): void
+    {
+        $company = Company::create(['name' => 'Acme']);
+
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response(['error' => 'bad request'], 400)]);
+
+        app(EnrichCompanyWithGeminiAction::class)->handle($company);
+
+        Http::assertSent(fn ($request) => $request->hasHeader('x-goog-api-key', 'test-key')
+            && ! str_contains($request->url(), 'test-key'));
+    }
+
     protected function tearDown(): void
     {
         Cache::forget('gemini-unavailable-alert');

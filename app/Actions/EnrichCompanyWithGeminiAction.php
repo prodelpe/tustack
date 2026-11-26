@@ -9,15 +9,12 @@ use App\Support\Gemini;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Throwable;
 
 class EnrichCompanyWithGeminiAction
 {
-    private const MODEL = 'gemini-2.5-flash';
-
     /**
      * @throws Throwable
      */
@@ -28,8 +25,6 @@ class EnrichCompanyWithGeminiAction
 
             return false;
         }
-
-        $apiKey = config('services.gemini.api_key');
 
         $techStack = $company->jobOffers
             ->flatMap
@@ -54,8 +49,7 @@ class EnrichCompanyWithGeminiAction
         $prompt = view('prompts.enrich-company', compact('companyName', 'locationStr', 'techStackStr', 'sectorKeys'))->render();
 
         try {
-            $response = Http::timeout(20)->post(
-                'https://generativelanguage.googleapis.com/v1beta/models/' . self::MODEL . ":generateContent?key={$apiKey}",
+            $response = Gemini::generateContent(
                 [
                     'contents' => [
                         ['role' => 'user', 'parts' => [['text' => $prompt]]],
@@ -78,7 +72,8 @@ class EnrichCompanyWithGeminiAction
                             ],
                         ],
                     ],
-                ]
+                ],
+                20
             );
 
             $response->throw();

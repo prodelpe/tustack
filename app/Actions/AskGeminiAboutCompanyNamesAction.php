@@ -3,7 +3,6 @@
 namespace App\Actions;
 
 use App\Support\Gemini;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -14,8 +13,6 @@ use Throwable;
  */
 class AskGeminiAboutCompanyNamesAction
 {
-    private const MODEL = 'gemini-2.5-flash';
-
     /**
      * @param  array<int, array{0: string, 1: string}>  $pairs
      * @return array<int, bool>|null  Verdict per pair, or null when Gemini could not answer.
@@ -104,18 +101,16 @@ class AskGeminiAboutCompanyNamesAction
             return null;
         }
 
-        $apiKey = config('services.gemini.api_key');
-
         try {
-            $response = Http::timeout(60)->post(
-                'https://generativelanguage.googleapis.com/v1beta/models/' . self::MODEL . ":generateContent?key={$apiKey}",
+            $response = Gemini::generateContent(
                 [
                     'contents'         => [['role' => 'user', 'parts' => [['text' => $prompt]]]],
                     'generationConfig' => [
                         'responseMimeType' => 'application/json',
                         'responseSchema'   => $schema,
                     ],
-                ]
+                ],
+                60
             );
 
             $response->throw();

@@ -2,6 +2,9 @@
 
 namespace App\Support;
 
+use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Http;
+
 /**
  * One switch in front of every paid call. Commented schedules protect against
  * the cron and nothing else; this also protects against a command typed by
@@ -10,6 +13,8 @@ namespace App\Support;
  */
 class Gemini
 {
+    private const MODEL = 'gemini-2.5-flash';
+
     public static function isEnabled(): bool
     {
         return (bool) config('services.gemini.enabled')
@@ -24,5 +29,12 @@ class Gemini
         }
 
         return 'Gemini has no api key: set GEMINI_API_KEY in .env.';
+    }
+
+    public static function generateContent(array $payload, int $timeout): Response
+    {
+        return Http::timeout($timeout)
+            ->withHeaders(['x-goog-api-key' => config('services.gemini.api_key')])
+            ->post('https://generativelanguage.googleapis.com/v1beta/models/' . self::MODEL . ':generateContent', $payload);
     }
 }
