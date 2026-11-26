@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Actions\ProcessJobOfferAction;
 use App\Enums\JobSource;
 use App\Exceptions\JoobleQuotaExceededException;
+use App\Models\Company;
 use App\Models\Technology;
 use App\Services\AdzunaService;
 use App\Services\JoobleService;
@@ -12,7 +13,9 @@ use App\Services\TecnoempleoService;
 use App\Support\FetchRun;
 use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -35,6 +38,7 @@ class FetchJobOffersJob implements ShouldQueue
             return;
         }
 
+        $startedAt    = now()->startOfSecond();
         $technologies = Technology::all()->keyBy(fn ($t) => strtolower($t->name));
 
         $sources = [
@@ -76,6 +80,30 @@ class FetchJobOffersJob implements ShouldQueue
                     }
                 }
             }
+        }
+
+        $this->reindexCompaniesWithChangedOffers($startedAt);
+    }
+
+    /**
+     * A company is indexed when it is created, which is before its first offer
+     * exists, and a company with no stack is left out of the index. Nothing
+     * saved it again afterwards, so new companies never reached the search and
+     * the counts of the old ones went stale.
+     */
+    private function reindexCompaniesWithChangedOffers(Carbon $since): void
+    {
+        try {
+            Company::query()
+                ->whereHas('jobOffers', function (Builder $query) use ($since) {
+                    $query->where('updated_at', '>=', $since);
+                })
+                ->with(['province', 'jobOffers.technologies'])
+                ->searchable();
+        } catch (Throwable $e) {
+            Log::warning("FetchJobOffersJob could not reindex companies for query [{$this->query}]", [
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 
