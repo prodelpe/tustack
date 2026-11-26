@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Commands\Concerns\ChecksQueueWorkers;
 use App\Jobs\EnrichCompanyJob;
 use App\Models\CommandLog;
 use App\Models\Company;
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\Bus;
 
 class EnrichCompanies extends Command
 {
+    use ChecksQueueWorkers;
+
     protected $signature = 'companies:enrich
                             {--limit=0 : Max companies to process (0 = all)}
                             {--min-technologies=2 : Skip companies with fewer distinct technologies}
@@ -145,11 +148,5 @@ class EnrichCompanies extends Command
         }
 
         return $failed > 0 ? 'partial' : 'success';
-    }
-
-    private function hasQueueWorkers(): bool
-    {
-        $output = shell_exec('ps aux | grep "[q]ueue:work\|[h]orizon"');
-        return ! empty(trim($output ?? ''));
     }
 }

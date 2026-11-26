@@ -2,10 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Commands\Concerns\ChecksQueueWorkers;
 use Illuminate\Console\Command;
 
 class AppFresh extends Command
 {
+    use ChecksQueueWorkers;
+
     protected $signature = 'app:fresh
                             {--restore : Restore the enrichment snapshot after fetching}
                             {--enrich : Run companies:enrich after setup}';
@@ -61,11 +64,5 @@ class AppFresh extends Command
         }
 
         return self::SUCCESS;
-    }
-
-    private function hasQueueWorkers(): bool
-    {
-        $output = shell_exec('ps aux | grep -E "[q]ueue:work|[h]orizon"');
-        return ! empty(trim($output ?? ''));
     }
 }
