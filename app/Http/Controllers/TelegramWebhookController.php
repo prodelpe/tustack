@@ -14,6 +14,8 @@ class TelegramWebhookController extends Controller
      */
     public function __invoke(Request $request): void
     {
+        $this->abortUnlessSecretMatches($request);
+
         $text   = $request->input('message.text', '');
         $chatId = $request->input('message.chat.id');
 
@@ -42,5 +44,18 @@ class TelegramWebhookController extends Controller
             'chat_id' => $chatId,
             'text'    => "Connected! You'll now receive job alerts via Telegram.",
         ]);
+    }
+
+    private function abortUnlessSecretMatches(Request $request): void
+    {
+        $secret = config('telegram.bots.tustack_bot.webhook_secret');
+
+        if (blank($secret)) {
+            return;
+        }
+
+        $received = (string) $request->header('X-Telegram-Bot-Api-Secret-Token');
+
+        abort_unless(hash_equals($secret, $received), 403);
     }
 }
