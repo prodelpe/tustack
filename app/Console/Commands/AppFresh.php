@@ -14,6 +14,12 @@ class AppFresh extends Command
 
     public function handle(): int
     {
+        if (app()->isProduction()) {
+            $this->error('app:fresh is disabled in production: it would drop all the data.');
+
+            return self::FAILURE;
+        }
+
         $this->line('');
         $this->line('<bg=red;fg=white;options=bold> DANGER </> This will drop ALL data and reset the database.');
         $this->line('');
