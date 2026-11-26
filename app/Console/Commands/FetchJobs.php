@@ -64,8 +64,6 @@ class FetchJobs extends Command
 
         // Without workers the batch never moves and this loop would wait
         // forever, silently, with no report ever sent.
-        // The default matters: a config cache from before this setting existed
-        // reads it as null, and the run gave up the moment it started.
         $deadline = now()->addHours($this->timeoutHours());
 
         while (! $this->hasSettled($batch)) {
@@ -150,7 +148,7 @@ class FetchJobs extends Command
 
     private function timeoutHours(): int
     {
-        return (int) config('jobs.fetch_timeout_hours', 8) ?: 8;
+        return (int) config('jobs.fetch_timeout_hours', 8);
     }
 
     /**

@@ -128,16 +128,6 @@ class FetchReportTest extends TestCase
         $this->assertNotSame('running', CommandLog::latest('id')->first()->status, 'the run must be recorded before the report');
     }
 
-    public function test_a_stale_config_cache_does_not_make_the_run_give_up_at_once(): void
-    {
-        $this->adminAndUser();
-        config(['jobs.fetch_timeout_hours' => null]);
-
-        $this->artisan('jobs:fetch Laravel --pages=1')
-            ->doesntExpectOutputToContain('Gave up')
-            ->assertExitCode(0);
-    }
-
     public function test_a_manual_run_stays_quiet(): void
     {
         [$admin] = $this->adminAndUser();

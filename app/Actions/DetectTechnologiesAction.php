@@ -7,8 +7,6 @@ use Illuminate\Support\Collection;
 
 class DetectTechnologiesAction
 {
-    private ?array $settings = null;
-
     public function handle(?string $title, ?string $description, Collection $technologies): Collection
     {
         $title = $this->readable($title);
@@ -176,20 +174,8 @@ class DetectTechnologiesAction
         return false;
     }
 
-    /**
-     * A config cache built before config/technologies.php existed has no such
-     * key, and every Go, Express or Swift then threw inside the loop over a
-     * board's offers, losing the rest of them: 66 queries on the first fetch
-     * in production. The file is read as the fallback, and anything the cache
-     * does hold still wins.
-     */
     private function setting(string $key): mixed
     {
-        $this->settings ??= array_replace(
-            require config_path('technologies.php'),
-            (array) config('technologies', [])
-        );
-
-        return $this->settings[$key];
+        return config("technologies.{$key}");
     }
 }
